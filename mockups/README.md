@@ -1,36 +1,50 @@
 # Mockups
 
-Photos of blank products used to visualize designs. Drop a design SVG on top
-of one of these in any image editor (or with a future build script) to
-produce a preview render.
+Photos of blank products used to visualize designs. Each is composited
+under a design SVG by `scripts/build-mockups.py` to produce a preview
+render in `mockups/renders/` (gitignored).
 
-## Adding a blank
+## Current blanks
 
-When adding a new blank photo, also add a sibling `.json` file describing
-where the design should be placed:
+The t-shirt blanks below are JHK Tshirt's **Regular T-Shirt (TSRA 170)**
+model — the standard 170 g/m² cotton blank, the same product the
+chapter intends to print on. All photos are JHK's official catalog
+renders (1242 × 1560 px each):
 
-```json
-{
-  "product": "tshirt",
-  "blank_color": "black",
-  "view": "front",
-  "image_size_px": [1600, 2000],
-  "placement_px": { "x": 540, "y": 600, "width": 520, "height": 700 },
-  "source": "where the photo came from / license"
-}
-```
+| File                          | Color  | View  |
+|-------------------------------|--------|-------|
+| `tshirt-orange-front.jpg`     | Orange | Front |
+| `tshirt-orange-back.jpg`      | Orange | Back  |
+| `tshirt-white-front.jpg`      | White  | Front |
+| `tshirt-white-back.jpg`       | White  | Back  |
+| `tshirt-black-front.jpg`      | Black  | Front |
+| `tshirt-black-back.jpg`       | Black  | Back  |
 
-This metadata is what a future build script will read to composite a
-rendered SVG onto the blank automatically.
+**Source:** JHK Tshirt — Regular T-Shirt (SKU: TSRA 170)
+Catalog: <https://www.jhktshirt.com/en/catalog/>
+
+These are vendor product photos used for design-layout mockups. They're
+the manufacturer's own promotional renders of the blank we plan to
+print on; do not redistribute them outside the context of evaluating
+PauseAI ES merchandise designs.
+
+## Adding a new blank
+
+If we adopt a different product (tote, hoodie, sticker), drop the photo
+in here and update `scripts/build-mockups.py` (or fork the constants in
+that script) to point at the new file and the new print-area
+coordinates. We may eventually want a sibling `.json` metadata file per
+blank, but the current setup keeps placement constants centralized in
+the build script — simpler while we have one product.
 
 ## What belongs here
 
-- Photos of plain t-shirts, totes, stickers, etc., on neutral backgrounds.
-- Royalty-free imagery or own-photography only — no scraped product photos
-  with restricted licenses.
+- Photos of plain blanks (t-shirts, totes, etc.).
+- Vendor product photos for blanks we'll actually print on, **or**
+  royalty-free / own-photography.
 
 ## What doesn't
 
-- Rendered previews (those go in `/build/`, which is gitignored).
-- Very large source PSDs (use a separate Git LFS strategy if ever needed;
-  prefer JPG/PNG ≤ 2 MB).
+- Rendered previews — those go in `mockups/renders/` which is gitignored.
+- Very large source PSDs (prefer JPG/PNG ≤ 2 MB; the JHK renders are
+  ~1.5 MB each).

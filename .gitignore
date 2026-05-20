@@ -1,5 +1,6 @@
 # Generated outputs — built from SVG sources, never edited by hand.
 /build/
+/mockups/renders/*
 
 # Node tooling (added if/when scripts/ grows a build pipeline).
 node_modules/
