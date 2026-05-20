@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Template starter design.
+
+  Conventions:
+  - viewBox uses millimeters (1 unit = 1 mm).
+  - Colors must reference brand/tokens.json. Add an inline comment naming
+    the token so reviewers can verify at a glance.
+  - Fonts: Roboto Slab (body), Saira Condensed (display) — see
+    brand/fonts.md.
+  - Replace `id` values with meaningful names when iterating (e.g.
+    #wordmark, #tagline, #mark).
+  - Delete the safe-area outline before committing the final version.
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 300 400"
+  width="300mm"
+  height="400mm"
+  role="img"
+  aria-label="Template PauseAI design"
+>
+  <title>Template PauseAI design</title>
+
+  <!-- Safe-area guide (5 mm inset). Delete before final commit. -->
+  <rect
+    x="5" y="5" width="290" height="390"
+    fill="none"
+    stroke="#FF9416"
+    stroke-width="0.4"
+    stroke-dasharray="2 2"
+  />
+
+  <g id="design">
+    <text
+      x="150" y="210"
+      font-family="Saira Condensed, Impact, sans-serif"
+      font-weight="700"
+      font-size="60"
+      fill="#111111"
+      text-anchor="middle"
+    >PAUSA</text>
+    <!-- ^ brand/tokens.json#colors.ink -->
+
+    <text
+      x="150" y="250"
+      font-family="Roboto Slab, serif"
+      font-size="14"
+      fill="#FF9416"
+      text-anchor="middle"
+    >reemplaza este texto con tu diseño</text>
+    <!-- ^ brand/tokens.json#colors.orange -->
+  </g>
+</svg>

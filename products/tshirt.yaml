@@ -1,0 +1,51 @@
+# T-shirt product spec.
+#
+# Describes the canvas and constraints for designs targeted at t-shirts.
+# Multiple vendors are referenced; a design should fit comfortably across
+# all of them so we're not vendor-locked.
+
+name: T-shirt
+slug: tshirt
+
+# Recommended design canvas in millimeters.
+# Most POD vendors accept up to ~30x40 cm for a chest print.
+print_area:
+  width_mm: 300
+  height_mm: 400
+
+# Safe area: keep critical content this far from any edge of the print area.
+safe_area_mm: 5
+
+# Export targets derived from the canvas above.
+exports:
+  pod_png:
+    description: >
+      Print-on-demand vendors typically want a transparent PNG at 300 dpi.
+      Width/height derived from print_area * 300/25.4.
+    format: PNG
+    dpi: 300
+    color_space: sRGB
+    background: transparent
+    width_px: 3543
+    height_px: 4724
+  printer_pdf:
+    description: >
+      Local printer (screen-print or DTG). PDF with embedded outlined text.
+    format: PDF
+    bleed_mm: 3
+    color_space: CMYK
+    text: outlined
+
+# Blank colors a design should work against. A design that only works on
+# one background should say so explicitly in its README.
+blank_colors:
+  - black
+  - white
+  - heather_gray
+  - navy
+
+# Vendor notes. Fill in as we evaluate options.
+vendors:
+  todo:
+    - Research and document POD vendor specs (Bonfire, Printful, Spreadshirt)
+    - Identify a Spanish/EU local printer for events

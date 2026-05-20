@@ -1,0 +1,36 @@
+# Tote bag product spec.
+#
+# Standard cotton tote print area. Totes are flexible — the print deforms
+# slightly when the bag is loaded, so use a generous safe area.
+
+name: Tote bag
+slug: tote
+
+print_area:
+  width_mm: 280
+  height_mm: 280
+
+safe_area_mm: 8
+
+exports:
+  pod_png:
+    format: PNG
+    dpi: 300
+    color_space: sRGB
+    background: transparent
+    width_px: 3307
+    height_px: 3307
+  printer_pdf:
+    format: PDF
+    bleed_mm: 3
+    color_space: CMYK
+    text: outlined
+
+blank_colors:
+  - natural
+  - black
+
+vendors:
+  todo:
+    - Research POD tote options
+    - Identify a Spanish/EU local printer for event totes

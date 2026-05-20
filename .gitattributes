@@ -1,0 +1,22 @@
+# Treat text-y formats as text so Git diff/merge works sensibly.
+*.svg   text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+
+# Mark known binary types so Git doesn't attempt textual diffs.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.pdf   binary
+*.psd   binary
+*.ai    binary
+*.eps   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary

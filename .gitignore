@@ -1,0 +1,23 @@
+# Generated outputs — built from SVG sources, never edited by hand.
+/build/
+
+# Node tooling (added if/when scripts/ grows a build pipeline).
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editor noise
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local env / secrets (none expected yet, but better to have the rule).
+.env
+.env.local

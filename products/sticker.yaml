@@ -1,0 +1,38 @@
+# Sticker product spec.
+#
+# Default is a square sticker. Add variants (round, rectangular, die-cut)
+# as additional YAML files or as entries under `shapes` here.
+
+name: Sticker
+slug: sticker
+
+print_area:
+  width_mm: 75
+  height_mm: 75
+
+safe_area_mm: 3
+
+exports:
+  pod_png:
+    format: PNG
+    dpi: 300
+    color_space: sRGB
+    background: transparent
+    width_px: 886
+    height_px: 886
+  printer_pdf:
+    format: PDF
+    bleed_mm: 3
+    color_space: CMYK
+    text: outlined
+
+shapes:
+  - square
+  - rounded_square
+  - circle_75mm
+  - die_cut_to_outline
+
+vendors:
+  todo:
+    - Research StickerMule, Sticker Ninja, and Spanish/EU equivalents
+    - Document min/max sizes and material options
