@@ -1,6 +1,6 @@
 # PauseAI Merchandise
 
-Open-source designs for [PauseAI en Español](https://es.pauseai.info) —
+Open-source designs for [PauseAI en Español](https://pauseai.es) —
 physical merchandise (T-shirts, stickers, totes, posters) that helps spread
 the message: **pause the development of frontier AI until its safety can be
 ensured**.
@@ -48,6 +48,6 @@ scripts/    (added when needed) build/export pipeline
 
 ## Links
 
-- [PauseAI en Español](https://es.pauseai.info)
+- [PauseAI en Español](https://pauseai.es)
 - [PauseAI Global](https://pauseai.info)
 - [How to contribute](./CONTRIBUTING.md)

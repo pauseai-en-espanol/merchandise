@@ -1,39 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Design: altman-cartel (chest, Spanish)
-  Voice lane: B (accountability)
+  Design: preguntame (chest, Spanish)
+  Voice lane: B (accountability, warm end - conversation opener)
 
   Layout (200 × 200 mm canvas):
-    y=10..44   PauseAI ES on-orange banner logo (125 mm wide, +25%)
-    y=48..108  Halftone portrait (60 × 60 mm), embedded PNG
-    y=121..134 Quote in Saira Condensed bold, 2 lines, white
-    y=158      Attribution in Roboto Slab bold, ink (8 pt)
+    y=20..61    PauseAI ES on-orange banner logo (150 mm wide)
+    y=85..101   Setup (2 lines, Roboto Slab, sentence case, white)
+                "Si te preocupa la IA / y quieres hablar,"
+    y=130       Payoff (Saira Condensed bold, all caps, white)
+                "AQUÍ ME TIENES."
 
-  The portrait is a 1-bit dot-halftone (assets/altman-halftone.png)
-  generated from a copyrighted Variety photograph; see README.md for
-  source URL and the licensing review required before any printed run.
+  Two-typeface hierarchy: the setup is conversational body type, the
+  payoff is display type - the visual jump from one to the other does
+  the rhetorical work.
 -->
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 200 200"
      width="200mm" height="200mm"
      role="img"
-     aria-label="Cartel: Sam Altman. La IA muy probablemente conducirá al fin del mundo. - Sam Altman, c. 2014. Hoy es CEO de OpenAI.">
-  <title>Cartel - Sam Altman: La IA muy probablemente conducirá al fin del mundo</title>
-  <desc>
-    Portrait: Sam Altman, photo by Steve Jennings / Getty Images for
-    TechCrunch (TechCrunch Disrupt SF 2019), CC BY 2.0
-    https://creativecommons.org/licenses/by/2.0/  -  crop and edit by
-    James Tamim (Wikimedia Commons:
-    https://commons.wikimedia.org/wiki/File:Sam_Altman_CropEdit_James_Tamim.jpg).
-    The image is reproduced here as a 1-bit dot-halftone derivative
-    (assets/altman-halftone.png) for screen-print use.
+     aria-label="PauseAI en Español. Si te preocupa la IA y quieres hablar, aquí me tienes.">
+  <title>Si te preocupa la IA y quieres hablar, aquí me tienes.</title>
 
-    Quote: Sam Altman, c. 2014, "AI will probably most likely lead to
-    the end of the world..." - see designs/altman-cartel/README.md
-    and designs/altman-fin-del-mundo/README.md for source notes.
-  </desc>
-
-  <svg x="37.5" y="10" width="125" height="34" viewBox="0 0 3400 929">
+  <svg x="25" y="20" width="150" height="41" viewBox="0 0 3400 929">
 <title>PauseAI en Español</title>
   <path fill="#FF9416" d="M 468.76 0.00 Q 573.42 2.95 658.42 41.95 Q 711.53 66.31 759.62 105.84 C 824.03 158.80 873.42 228.90 901.79 307.75 L 814.32 307.98 A 0.33 0.32 90.0 0 0 814.00 308.31 L 814.00 694.26 A 0.46 0.46 0.0 0 0 814.46 694.72 L 867.94 694.70 Q 856.42 714.76 842.98 733.79 L 814.66 733.90 A 0.51 0.51 0.0 0 0 814.15 734.41 L 814.03 770.38 Q 740.13 854.22 635.49 896.49 Q 560.81 926.66 470.41 929.00 L 453.46 929.00 Q 354.45 926.13 267.45 885.24 C 179.68 843.99 106.39 775.96 58.85 691.12 Q 3.27 591.91 0.00 475.67 L 0.00 453.45 Q 0.48 444.46 1.06 435.48 Q 6.57 349.09 41.35 272.55 C 81.84 183.42 150.47 108.49 235.48 60.21 Q 335.69 3.31 453.15 0.00 L 468.76 0.00 Z M 542.42 186.22 C 540.93 198.61 533.23 209.46 520.70 212.66 C 512.37 214.79 501.34 212.18 493.30 208.95 C 484.38 205.36 473.23 197.81 465.77 193.00 Q 459.09 188.68 445.15 181.62 C 430.23 174.07 411.33 172.65 395.55 178.78 C 368.24 189.40 350.25 216.96 346.53 245.30 A 0.53 0.52 -76.6 0 0 346.88 245.87 L 389.49 260.20 A 0.32 0.32 0.0 0 0 389.91 259.94 C 391.50 247.18 398.63 236.50 411.51 233.12 C 420.34 230.80 433.35 233.79 440.80 237.97 C 454.11 245.45 461.28 250.32 473.10 257.93 Q 487.03 266.90 501.97 269.39 C 512.87 271.20 523.52 271.47 533.94 267.94 C 563.22 258.02 581.81 230.98 585.84 201.03 A 0.70 0.69 -77.1 0 0 585.37 200.27 L 542.83 185.96 A 0.32 0.31 -76.6 0 0 542.42 186.22 Z M 421.59 308.97 A 0.41 0.41 0.0 0 0 421.18 308.56 L 318.04 308.56 A 0.41 0.41 0.0 0 0 317.63 308.97 L 317.63 671.73 A 0.41 0.41 0.0 0 0 318.04 672.14 L 421.18 672.14 A 0.41 0.41 0.0 0 0 421.59 671.73 L 421.59 308.97 Z M 611.13 309.10 A 0.56 0.56 0.0 0 0 610.57 308.54 L 507.73 308.54 A 0.56 0.56 0.0 0 0 507.17 309.10 L 507.17 671.58 A 0.56 0.56 0.0 0 0 507.73 672.14 L 610.57 672.14 A 0.56 0.56 0.0 0 0 611.13 671.58 L 611.13 309.10 Z"/>
   <path fill="black" d="M 542.42 186.22 A 0.32 0.31 -76.6 0 1 542.83 185.96 L 585.37 200.27 A 0.70 0.69 -77.1 0 1 585.84 201.03 C 581.81 230.98 563.22 258.02 533.94 267.94 C 523.52 271.47 512.87 271.20 501.97 269.39 Q 487.03 266.90 473.10 257.93 C 461.28 250.32 454.11 245.45 440.80 237.97 C 433.35 233.79 420.34 230.80 411.51 233.12 C 398.63 236.50 391.50 247.18 389.91 259.94 A 0.32 0.32 0.0 0 1 389.49 260.20 L 346.88 245.87 A 0.53 0.52 -76.6 0 1 346.53 245.30 C 350.25 216.96 368.24 189.40 395.55 178.78 C 411.33 172.65 430.23 174.07 445.15 181.62 Q 459.09 188.68 465.77 193.00 C 473.23 197.81 484.38 205.36 493.30 208.95 C 501.34 212.18 512.37 214.79 520.70 212.66 C 533.23 209.46 540.93 198.61 542.42 186.22 Z"/>
@@ -58,23 +46,19 @@
   <path fill="#FFFFFF" d="M 2381.83 894.92 L 2255.57 894.92 A 0.39 0.39 0.0 0 1 2255.18 894.53 L 2255.18 734.21 A 0.39 0.39 0.0 0 1 2255.57 733.82 L 2309.14 733.82 A 0.39 0.39 0.0 0 1 2309.53 734.21 L 2309.53 852.43 A 0.39 0.39 0.0 0 0 2309.92 852.82 L 2381.83 852.82 A 0.39 0.39 0.0 0 1 2382.22 853.21 L 2382.22 894.53 A 0.39 0.39 0.0 0 1 2381.83 894.92 Z"/>
 </svg>
 
-  <image id="portrait"
-         href="data:image/png;base64,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"
-         x="70" y="48" width="60" height="60"
-         preserveAspectRatio="xMidYMid meet"/>
-
-  <g id="quote">
-    <text x="100" y="121"
-          font-family="Saira Condensed, Impact, sans-serif"
-          font-weight="700" font-size="11"
-          fill="#FF9416" text-anchor="middle">LA IA MUY PROBABLEMENTE</text>
-    <text x="100" y="135"
-          font-family="Saira Condensed, Impact, sans-serif"
-          font-weight="700" font-size="11"
-          fill="#FF9416" text-anchor="middle">CONDUCIRÁ AL FIN DEL MUNDO.</text>
+  <g id="setup">
+    <text x="100" y="88"
+          font-family="Saira Condensed, Impact, sans-serif" font-weight="700"
+          font-size="11"
+          fill="#FF9416" text-anchor="middle">Si te preocupa la IA</text>
+    <text x="100" y="102"
+          font-family="Saira Condensed, Impact, sans-serif" font-weight="700"
+          font-size="11"
+          fill="#FF9416" text-anchor="middle">y quieres hablar,</text>
   </g>
 
-  <text x="100" y="158"
-        font-family="Saira Condensed, Impact, sans-serif" font-size="8" font-weight="700"
-        fill="#FFFFFF" text-anchor="middle">Sam Altman, 2014.  Hoy es CEO de OpenAI.</text>
+  <text x="100" y="135" id="payoff"
+        font-family="Saira Condensed, Impact, sans-serif"
+        font-weight="700" font-size="18"
+        fill="#FF9416" text-anchor="middle">AQUÍ ME TIENES.</text>
 </svg>
