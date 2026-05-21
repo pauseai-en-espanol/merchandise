@@ -61,19 +61,21 @@ def build_variant(orange_svg, tee_color):
     )
 
     # 3. Evidence-table group: fill = body colour for the row names.
-    #    Value column gets explicit fill=ORANGE below.
+    #    Value column gets explicit fill=ORANGE below (overriding the
+    #    explicit fill="#FFFFFF" the orange canonical sets per row).
     s = re.sub(
         r'(<g id="evidence-table"[^>]*?fill=)"[^"]*"',
         lambda m: m.group(1) + f'"{body}"',
         s,
     )
-    s = re.sub(
-        r'(<text x="178"(?:(?!fill=)[^>])*?)(>)',
-        lambda m: m.group(1) + f' fill="{ORANGE}"' + m.group(2),
-        s,
-    )
 
-    # 4. Footer: fill = ORANGE (was ink).
+    def swap_value_fill(m):
+        tag = m.group(0)
+        tag = re.sub(r'\s*fill="[^"]*"', '', tag)
+        return tag[:-1] + f' fill="{ORANGE}">'
+    s = re.sub(r'<text x="178"[^>]*>', swap_value_fill, s)
+
+    # 4. Footer: fill = ORANGE (was white in the orange canonical).
     s = re.sub(
         r'(<text\b(?:(?!fill=)[^>])*?\bid="footer"(?:(?!fill=)[^>])*?\bfill=)"[^"]*"',
         lambda m: m.group(1) + f'"{ORANGE}"',

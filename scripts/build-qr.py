@@ -126,26 +126,50 @@ def build_qr_svg() -> tuple[str, str, str]:
     return standalone, m.group(1), m.group(2).strip()
 
 
-def build_back_svg(qr_vb: str, qr_inner: str) -> str:
-    """Full back.svg template — same for every design folder."""
+# Per-tee colour for the QR panel border + the "PAUSEAI.ES" wordmark.
+# These two elements share the same colour so the back reads as a unit.
+# The scan panel fill stays WHITE and the QR modules stay ORANGE in
+# every variant (that contrast is what lets the QR scan).
+ACCENT_COLOR = {
+    "orange": WHITE,      # white border + white wordmark on orange tee
+    "white":  ORANGE,     # orange border + orange wordmark on white tee
+    "black":  ORANGE,     # orange border + orange wordmark on black tee
+}
+
+
+def build_back_svg(qr_vb: str, qr_inner: str, tee: str) -> str:
+    """Back template for a given tee colour.
+
+    Layout (200 × 200 mm canvas):
+      - White scan panel (90 × 90 mm) with a 1.5 mm stroke in the
+        accent colour around it.
+      - Orange QR (80 × 80 mm) inside the panel.
+      - PAUSEAI.ES wordmark in the accent colour below the panel.
+
+    Panel fill + QR module colour are constant across all tees — that
+    contrast is what lets the QR scan. Only the border stroke and the
+    wordmark fill change per tee.
+    """
+    accent = ACCENT_COLOR[tee]
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Back design — stylized QR linking to {URL} plus the URL text.
-  Shared across all chapter activist tees. Regenerate with:
-      python3 scripts/build-qr.py
+  Back design ({tee} tee) — stylized QR linking to {URL} plus the URL text.
+  Regenerate with: python3 scripts/build-qr.py
   Layout (200 x 200 mm canvas):
-    x=55..145, y=30..120   White scan panel (90 x 90 mm)
-    x=60..140, y=35..115   QR (80 x 80 mm)
-    y=145                  PAUSEAI.ES wordmark
+    x=55..145, y=30..120   White scan panel — fill always WHITE,
+                           stroke = {tee}-tee accent colour
+    x=60..140, y=35..115   QR (80 x 80 mm) — orange modules, always
+    y=145                  PAUSEAI.ES wordmark — accent colour
 -->
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 200 200"
      width="200mm" height="200mm"
      role="img"
      aria-label="QR a pauseai.es">
-  <title>pauseai.es</title>
+  <title>pauseai.es ({tee} tee)</title>
 
-  <rect x="55" y="30" width="90" height="90" fill="{WHITE}"/>
+  <rect x="55" y="30" width="90" height="90"
+        fill="{WHITE}" stroke="{accent}" stroke-width="4"/>
 
   <svg id="qr" x="60" y="35" width="80" height="80" viewBox="{qr_vb}">
     {qr_inner}
@@ -154,7 +178,7 @@ def build_back_svg(qr_vb: str, qr_inner: str) -> str:
   <text x="100" y="145"
         font-family="Saira Condensed, Impact, sans-serif"
         font-weight="700" font-size="15"
-        fill="{WHITE}" text-anchor="middle">PAUSEAI.ES</text>
+        fill="{accent}" text-anchor="middle">PAUSEAI.ES</text>
 </svg>
 """
 
@@ -166,10 +190,21 @@ def main():
     print(f"QR version {qr.version}, {size}x{size} modules, logo {logo_size}x{logo_size}")
     print("Saved: brand/qr-pauseai-es.svg")
 
-    back_template = build_back_svg(qr_vb, qr_inner)
-    for back in sorted((ROOT / "designs").glob("*/back.svg")):
-        back.write_text(back_template)
-        print(f"Rewrote: designs/{back.parent.name}/back.svg")
+    # Generate back.{orange,white,black}.svg for every design folder.
+    # back.svg = orange canonical; back.white.svg / back.black.svg are
+    # per-tee variants. Replaces the old build-color-variants behaviour
+    # (which had a string-replace bug that turned the scan panel orange).
+    design_dirs = sorted(
+        d for d in (ROOT / "designs").iterdir()
+        if d.is_dir() and not d.name.startswith("_")
+    )
+    for design_dir in design_dirs:
+        for tee in ("orange", "white", "black"):
+            suffix = "" if tee == "orange" else f".{tee}"
+            (design_dir / f"back{suffix}.svg").write_text(
+                build_back_svg(qr_vb, qr_inner, tee)
+            )
+        print(f"Wrote backs (orange + white + black): {design_dir.name}/")
 
 
 if __name__ == "__main__":

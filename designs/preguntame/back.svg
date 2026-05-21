@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Back design - stylized QR linking to https://pauseai.es plus the URL text.
-  Shared across all chapter activist tees. Regenerate with:
-      python3 scripts/build-qr.py
+  Back design (orange tee) — stylized QR linking to https://pauseai.es plus the URL text.
+  Regenerate with: python3 scripts/build-qr.py
   Layout (200 x 200 mm canvas):
-    x=55..145, y=30..120   White scan panel (90 x 90 mm)
-    x=60..140, y=35..115   QR (80 x 80 mm)
-    y=145                  PAUSEAI.ES wordmark
+    x=55..145, y=30..120   White scan panel — fill always WHITE,
+                           stroke = orange-tee accent colour
+    x=60..140, y=35..115   QR (80 x 80 mm) — orange modules, always
+    y=145                  PAUSEAI.ES wordmark — accent colour
 -->
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 200 200"
      width="200mm" height="200mm"
      role="img"
      aria-label="QR a pauseai.es">
-  <title>pauseai.es</title>
+  <title>pauseai.es (orange tee)</title>
 
-  <rect x="55" y="30" width="90" height="90" fill="#FFFFFF"/>
+  <rect x="55" y="30" width="90" height="90"
+        fill="#FFFFFF" stroke="#FFFFFF" stroke-width="4"/>
 
   <svg id="qr" x="60" y="35" width="80" height="80" viewBox="-1 -1 31 31">
     <rect x="-1" y="-1" width="31" height="31" fill="#FFFFFF"/>

@@ -46,47 +46,52 @@
   <g id="headline"
      font-family="Saira Condensed, Impact, sans-serif"
      font-weight="700" font-size="14"
-     fill="#FFFFFF" text-anchor="middle">
+     fill="#111111" text-anchor="middle">
     <text x="100" y="75">LOS QUE LA CONSTRUYEN SABEN</text>
     <text x="100" y="91">DEL RIESGO CATASTRÓFICO</text>
   </g>
 
   <g id="evidence-table"
      font-family="Saira Condensed, Impact, sans-serif"
-     fill="#FFFFFF">
+     fill="#111111">
     <text x="22" y="108" font-weight="700" font-size="8">Geoffrey Hinton (ex-Google)</text>
     <text x="178" y="108"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="9"
+          fill="#FFFFFF"
           text-anchor="end">10-20 %</text>
 
     <text x="22" y="122" font-weight="700" font-size="8">Yoshua Bengio (Mila)</text>
     <text x="178" y="122"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="9"
+          fill="#FFFFFF"
           text-anchor="end">20 %</text>
 
     <text x="22" y="136" font-weight="700" font-size="8">Dario Amodei (Anthropic)</text>
     <text x="178" y="136"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="9"
+          fill="#FFFFFF"
           text-anchor="end">10-25 %</text>
 
     <text x="22" y="150" font-weight="700" font-size="8">Elon Musk (xAI)</text>
     <text x="178" y="150"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="9"
+          fill="#FFFFFF"
           text-anchor="end">10-30 %</text>
 
     <text x="22" y="164" font-weight="700" font-size="8">Sam Altman (OpenAI)</text>
     <text x="178" y="164"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="8"
+          fill="#FFFFFF"
           text-anchor="end">«…fin del mundo»</text>
   </g>
 
   <text x="100" y="183" id="footer"
         font-family="Saira Condensed, Impact, sans-serif" font-style="italic"
         font-weight="700" font-size="12"
-        fill="#111111" text-anchor="middle">...y la siguen construyendo.</text>
+        fill="#FFFFFF" text-anchor="middle">...y la siguen construyendo.</text>
 </svg>

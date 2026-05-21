@@ -93,12 +93,22 @@ Rules followed by the build script:
   specific background to read), its README declares so and the build
   script's output for unsupported colors is ignored / not used.
 
-To regenerate variants after editing `design.es.svg` or `back.svg`:
+To regenerate variants after editing `design.es.svg` or any asset:
 
 ```sh
-python3 scripts/build-color-variants.py
-python3 scripts/build-mockups.py        # rebuild mockups too
+python3 scripts/build-qr.py                          # all back.*.svg files
+python3 scripts/build-altman-fin-del-mundo.py        # altman variants
+python3 scripts/build-p-doom-evidencia.py            # p-doom variants
+python3 scripts/build-preguntame.py                  # preguntame variants
+python3 scripts/build-mockups.py                     # mockups + renders
 ```
+
+Each design with a per-tee colour rule has its own builder under
+`scripts/build-<slug>.py`. Those builders own the swap logic for that
+design and write the design.es.{white,black}.svg variants. The earlier
+catch-all `scripts/build-color-variants.py` was removed in favour of
+this per-design split because its naive string-replace was turning the
+QR's white scan panel orange and breaking scannability.
 
 ## Brand rules
 
