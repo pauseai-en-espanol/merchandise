@@ -54,6 +54,13 @@ and confirmed by the chapter.
 - **Dario Amodei** (CEO, Anthropic)
   - Design value: `10–25 %`.
 
+- **Elon Musk** (founder, xAI; ex-OpenAI co-founder)
+  - Design value: `10–30 %` — per Wikipedia's P(doom) table
+    (citation [25] in that article), Musk has publicly stated his
+    estimate in the `~10–30 %` range across several interviews.
+    The conservative bound (10 %) and the high bound (30 %) are
+    both directly attributable to him.
+
 - **Sam Altman** (CEO, OpenAI)
   - Design uses the verbatim phrase `«…fin del mundo»` rather than a
     percentage. Wikipedia lists Altman's number as `>0 %`, which is too
