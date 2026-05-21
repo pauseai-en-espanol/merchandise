@@ -27,9 +27,9 @@ MOCKUPS = ROOT / "mockups"
 DESIGNS_DIR = ROOT / "designs"
 
 # Tee photos (JHK TSRA 170 catalog renders, 1242 x 1560 px each).
+# Mockup canvas matches the tee photo dimensions exactly — no padding.
 TEE_W, TEE_H = 1242, 1560
-CANVAS = max(TEE_W, TEE_H)
-TEE_OFFSET_X = (CANVAS - TEE_W) // 2
+TEE_OFFSET_X = 0
 
 # Chest / upper-back print positions in tee-photo pixel coords.
 # Edit these constants if the blank changes or placement needs nudging.
@@ -43,26 +43,17 @@ def tee_path(color: str, side: str) -> pathlib.Path:
     return MOCKUPS / f"tshirt-{color}-{side}.jpg"
 
 
-def design_path(design_dir: pathlib.Path, color: str, side: str) -> pathlib.Path:
-    """Resolve the SVG to embed for a given color/side. Falls back to the
-    canonical orange variant when a color-specific file is missing."""
+def design_path(design_dir: pathlib.Path, color: str, side: str,
+                lang: str = "es") -> pathlib.Path:
+    """Resolve the SVG to embed for a given color/side/language."""
     if side == "front":
-        candidates = [
-            design_dir / f"design.es.{color}.svg",
-            design_dir / "design.es.svg",
-        ]
+        candidate = design_dir / f"{lang}.{color}.front.svg"
     else:  # back
-        candidates = [
-            design_dir / f"back.{color}.svg",
-            design_dir / "back.svg",
-        ]
-    if color == "orange":
-        # The orange variant IS the canonical file; skip the per-color name.
-        candidates = candidates[-1:]
-    for c in candidates:
-        if c.exists():
-            return c
-    raise FileNotFoundError(f"no source SVG for {design_dir.name} / {color} / {side}")
+        candidate = design_dir / f"{lang}.{color}.back.svg"
+    if candidate.exists():
+        return candidate
+    raise FileNotFoundError(
+        f"no source SVG for {design_dir.name} / {lang} / {color} / {side}")
 
 
 def data_uri(path: pathlib.Path, mime: str) -> str:
@@ -82,11 +73,11 @@ def build_mockup(tee_uri: str, design_vb: str, design_inner: str, pos: dict) -> 
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         f'<svg xmlns="http://www.w3.org/2000/svg" '
-        f'viewBox="0 0 {CANVAS} {CANVAS}" '
-        f'width="{CANVAS}" height="{CANVAS}">\n'
+        f'viewBox="0 0 {TEE_W} {TEE_H}" '
+        f'width="{TEE_W}" height="{TEE_H}">\n'
         f'  <image href="{tee_uri}" '
-        f'x="{TEE_OFFSET_X}" y="0" width="{TEE_W}" height="{TEE_H}"/>\n'
-        f'  <svg x="{TEE_OFFSET_X + pos["x"]}" y="{pos["y"]}" '
+        f'x="0" y="0" width="{TEE_W}" height="{TEE_H}"/>\n'
+        f'  <svg x="{pos["x"]}" y="{pos["y"]}" '
         f'width="{pos["w"]}" height="{pos["h"]}" '
         f'viewBox="{design_vb}">\n{design_inner}\n  </svg>\n'
         "</svg>\n"
@@ -97,19 +88,26 @@ def main():
     for design_dir in sorted(DESIGNS_DIR.iterdir()):
         if not design_dir.is_dir() or design_dir.name.startswith("_"):
             continue
-        for color in COLORS:
-            for side in ("front", "back"):
-                tee = tee_path(color, side)
-                if not tee.exists():
-                    print(f"  skip {design_dir.name}/{color}/{side}: {tee} missing", file=sys.stderr)
-                    continue
-                tee_uri = data_uri(tee, "image/jpeg")
-                src = design_path(design_dir, color, side)
-                vb, inner = extract_inner(src.read_text())
-                pos = CHEST if side == "front" else BACK
-                out = design_dir / f"mockup-{color}-{side}.svg"
-                out.write_text(build_mockup(tee_uri, vb, inner, pos))
-            print(f"  {design_dir.name}: built mockups for {color}")
+        for lang in ("es", "en"):
+            if not (design_dir / f"{lang}.orange.front.svg").exists():
+                continue
+            for color in COLORS:
+                for side in ("front", "back"):
+                    tee = tee_path(color, side)
+                    if not tee.exists():
+                        print(f"  skip {design_dir.name}/{lang}/{color}/{side}:"
+                              f" {tee} missing", file=sys.stderr)
+                        continue
+                    tee_uri = data_uri(tee, "image/jpeg")
+                    try:
+                        src = design_path(design_dir, color, side, lang)
+                    except FileNotFoundError:
+                        continue
+                    vb, inner = extract_inner(src.read_text())
+                    pos = CHEST if side == "front" else BACK
+                    out = design_dir / f"mockup.{lang}.{color}.{side}.svg"
+                    out.write_text(build_mockup(tee_uri, vb, inner, pos))
+                print(f"  {design_dir.name} [{lang}]: built mockups for {color}")
 
 
 if __name__ == "__main__":

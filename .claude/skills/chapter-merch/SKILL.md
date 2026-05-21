@@ -1,0 +1,329 @@
+---
+name: chapter-merch
+description: PauseAI en Español merchandise design workflows — pipeline builds, new design onboarding, color iteration, print export. Use when the user is creating, editing, or shipping designs in this repo.
+---
+
+# chapter-merch
+
+The dispatcher skill for working on PauseAI en Español merch designs.
+The user invokes this with a subcommand:
+
+```
+/chapter-merch build      # run the full pipeline
+/chapter-merch new <slug> # onboard a new design from scratch
+/chapter-merch print      # regenerate print-ready files
+/chapter-merch iterate    # iterate colors/layout on an existing design
+/chapter-merch verify     # sanity-check the repo before shipping
+```
+
+If the user invokes `/chapter-merch` with no subcommand, ask which one
+they want (or infer from recent conversation context).
+
+---
+
+## Repo conventions (read this before any subcommand)
+
+Full canonical reference lives in `CLAUDE.md` at the repo root and
+`docs/SETUP.md`. The condensed version that matters for the
+subcommands below:
+
+### Voice lanes
+- **Lane A** — thoughtful, calm, science-museum register
+- **Lane B** — accountability / protest; verbatim quotes of public
+  figures, never paraphrased
+- Every design's README declares its lane
+
+### Brand tokens (`brand/tokens.json`)
+- `#FF9416` PauseAI orange
+- `#111111` ink (softer than pure black for screen-print contrast)
+- `#FFFFFF` paper
+
+### Per-tee colour conventions (recent — set during the cais-extincion
+and preguntame iterations):
+
+| Tee | Body | Accent |
+|---|---|---|
+| Orange (canonical) | INK `#111111` | WHITE `#FFFFFF` |
+| White | INK `#111111` | ORANGE `#FF9416` |
+| Black | WHITE `#FFFFFF` | ORANGE `#FF9416` |
+
+Accents are wrapped in `<tspan class="accent" fill="#FFFFFF">…</tspan>`
+in the canonical SVG. The per-design builder swaps the accent fill
+per tee.
+
+The `altman-fin-del-mundo` design predates this convention (uses
+raster-embedded quote PNGs and a different swap rule). Treat it as
+the exception, not the template.
+
+### Logo variants (do NOT modify)
+- `brand/logos/pauseai-es-on-orange.svg` — for orange-tee canonical
+- `brand/logos/pauseai-es-on-light.svg`  — for white-tee variant
+- `brand/logos/pauseai-es-on-dark.svg`   — for black-tee variant
+
+The per-design builder swaps the inlined `<svg viewBox="0 0 3400 929">`
+inner paths to the right variant.
+
+### Pipeline order (matters!)
+```
+1. build-qr.py            backs (3 colors per design)
+2. build-<slug>.py        per-design color variants
+3. build-mockups.py       composes mockup-{color}-{side}.svg
+4. qlmanage renders       rasterizes to PNG
+5. print-export.py        outlined-text SVGs for the printer
+```
+
+`build-all.sh` runs all five in order. **Never run individual scripts
+out of order** — the per-design builders overwrite outputs from
+earlier stages.
+
+### Common pitfalls (from the session that produced this skill)
+1. Forgetting to run the per-design builder after another script
+   touched the variants → use `build-all.sh`.
+2. Naively replacing `fill="#FFFFFF"` everywhere → catches the QR
+   scan panel and breaks scannability. The QR panel must stay white
+   on every tee.
+3. Bumping font size of the quote when the user said "the
+   attribution is too small" → clarify *which* text element before
+   editing.
+4. Using on-light logo on the orange canonical → AI and Ñ vanish
+   (they're orange-on-orange).
+
+---
+
+## Subcommand: `build`
+
+Run the full build pipeline.
+
+```sh
+./scripts/build-all.sh
+```
+
+Show the last ~25 lines of output. If a stage fails, report which
+stage and the error. Don't retry blindly.
+
+Use `SKIP_RENDERS=1 ./scripts/build-all.sh` for fast iteration when
+you don't need rasterized mockups.
+
+## Subcommand: `new <slug>`
+
+Onboard a new design from a brief.
+
+1. Ask the user (only if not already in conversation):
+   - **Slug** (kebab-case, used as folder name) — e.g. `cais-extincion`
+   - **Voice lane** A or B
+   - **One-paragraph idea**
+   - **Quote source(s)** — verbatim text + date + URL + signatories
+     if applicable (Lane B requires this; Lane A may not have quotes)
+   - **Canvas size** — default `200×200 mm` chest; altman uses 240×240
+
+2. Copy the template:
+   ```sh
+   cp -r designs/_template designs/<slug>
+   ```
+
+3. Fill in `designs/<slug>/README.md` with: idea, lane, status `draft`,
+   sources (with dates + URLs), per-color rules, constraints checklist.
+
+4. Author `designs/<slug>/design.es.svg`:
+   - Inline the on-orange logo paths from
+     `brand/logos/pauseai-es-on-orange.svg` (inner content only,
+     wrapped in `<svg x="25" y="15" width="150" height="41"
+     viewBox="0 0 3400 929">…</svg>`).
+   - Use `font-family="Saira Condensed, Impact, sans-serif"
+     font-weight="700"` for every text element.
+   - Set body fill to `#111111` (ink). Wrap accent words in
+     `<tspan class="accent" fill="#FFFFFF">…</tspan>`.
+   - Add `id="..."` to groups so the builder regex can target them.
+
+5. Create `scripts/build-<slug>.py` by copying the smallest existing
+   builder (`build-preguntame.py` or `build-cais-extincion.py`) and
+   adapting the swap rules for this design.
+
+6. Run `./scripts/build-all.sh`. Verify the 3 variants × 2 sides render
+   correctly via `mockups/renders/<slug>-{orange,white,black}-{front,back}.png`.
+
+7. Commit: SVG sources + README + the new builder. Generated
+   variants (`*.white.svg`, `*.black.svg`, mockups, prints) are also
+   committed for reviewers — they're cheap and the repo's history
+   keeps the snapshots aligned.
+
+## Subcommand: `print`
+
+Regenerate the print-ready files.
+
+```sh
+python3 scripts/print-export.py
+```
+
+Or, equivalently, run `./scripts/build-all.sh` (print is its last
+stage).
+
+Outputs go to `prints/`:
+- `<slug>-front.svg` at 240 × 240 mm
+- `<slug>-back.svg` at 200 × 220 mm
+
+All text is converted to outline paths — zero font dependency at
+print time. See `prints/README.md` for sending to the printer
+(SVG works directly; PDF instructions there if needed).
+
+## Subcommand: `iterate`
+
+Iterate on colours, layout, or text in an existing design.
+
+Workflow:
+1. Ask the user **which** design (slug) and **what** they want to
+   change. Don't assume.
+2. Edit only the canonical `designs/<slug>/design.es.svg`. Do not
+   hand-edit `design.es.white.svg` or `design.es.black.svg` — those
+   are generated.
+3. If the change affects the *colour rules* (new accent zones, per-tee
+   behaviour), update `scripts/build-<slug>.py` accordingly.
+4. Run `./scripts/build-all.sh`.
+5. Show the user the rendered mockups (`mockups/renders/<slug>-*.png`)
+   for verification.
+
+For quick local checks during iteration, render the canonical SVG
+on its tee colour:
+```sh
+python3 -c "
+import re, pathlib
+s = pathlib.Path('designs/<slug>/design.es.svg').read_text()
+s = re.sub(r'(<svg [^>]*>)', r'\\1\n  <rect width=\"200\" height=\"200\" fill=\"#FF9416\"/>', s, count=1)
+pathlib.Path('/tmp/preview.svg').write_text(s)
+" && qlmanage -t -s 1500 -o /tmp /tmp/preview.svg
+```
+
+## Subcommand: `verify`
+
+Sanity-check the repo before shipping or merging a PR.
+
+Run these and report anything off:
+
+```sh
+# All SVGs well-formed
+xmllint --noout designs/*/*.svg prints/*.svg brand/logos/*.svg
+
+# No leftover text in print files (everything outlined)
+grep -c '<text' prints/*.svg     # should all be 0
+
+# Canvas sizes correct
+grep -oE 'viewBox="[^"]+"' prints/*-front.svg  # should be 0 0 240 240
+grep -oE 'viewBox="[^"]+"' prints/*-back.svg   # should be 0 0 200 220
+
+# QR panels still white (the build-color-variants bug regression test)
+for f in designs/*/back*.svg; do
+    grep -oE '<rect x="55" y="30"[^>]*fill="[^"]+"' "$f" | grep -v '#FFFFFF' \
+        && echo "WARN: $f has non-white QR panel"
+done
+```
+
+If any check fails, do not proceed. Report the issue.
+
+---
+
+## Grid composition (Psalm-style packed typography)
+
+When a design needs the **Psalm 16:8 style** — different word sizes
+packed tightly with anchor words and connector text orbiting them —
+use `scripts/grid_compose.py`. It solves the constraint math so:
+
+- Rows are aligned to the same horizontal span (all rows same width).
+- Cells within a row have the same vertical span (stack of N small
+  lines = anchor word's cap-height).
+- Stacked pairs have identical widths (either same font + textLength,
+  or different fonts per line with naturally matching widths).
+
+### When to reach for this
+
+- **Yes**: Lane B activist tee with a verbatim multi-word quote +
+  named signatories (cais-extincion pattern).
+- **No**: a single centred phrase, or a design that's mostly imagery.
+  Use straight `<text>` elements.
+
+### The cell types
+
+```python
+import grid_compose as gc
+
+font = gc.load('brand/fonts/files/SairaCondensed-Bold.ttf')
+
+# Stack: N stacked lines treated as one block.
+#   mode='same_font'  → all lines at one font-size, textLength forces equal width
+#                       (use when char counts are within ~30 % of each other)
+#   mode='diff_fonts' → each line gets its own font-size to naturally hit the
+#                       target width; cap-heights differ (rhythm)
+#                       (use when char counts differ a lot, e.g. POR/LA)
+gc.Stack(['MITIGAR EL', 'RIESGO DE'])
+gc.Stack(['POR', 'LA'], mode='diff_fonts')
+
+# Anchor: single line that sets the row's vertical span.
+gc.Anchor('EXTINCIÓN')
+```
+
+### The row composers
+
+Each returns a `RowOut` with `cells`, `height`, `row_width` — the
+caller is responsible for placing it at a `y_top` and emitting SVG.
+
+```python
+# 2-col: stack | gap | anchor (cais row 1)
+row1 = gc.row_2col(font,
+    left=gc.Stack(['MITIGAR EL', 'RIESGO DE']),
+    right=gc.Anchor('EXTINCIÓN'),
+    row_w=190, gap=4)
+
+# 3-col: stack | gap | anchor | gap | stack (cais row 2)
+row2 = gc.row_3col(font,
+    left=gc.Stack(['POR', 'LA'], mode='diff_fonts'),
+    middle=gc.Anchor('IA'),
+    right=gc.Stack(['DEBERÍA', 'SER UNA']),
+    row_w=190, gap=4)
+
+# Single full-width line (cais row 3)
+row3 = gc.row_full(font, 'PRIORIDAD GLOBAL', row_w=190)
+```
+
+The row solver is a bisection on the row's anchor cap-height so the
+sum of all cell widths + gaps equals `row_w` exactly. Numbers come out
+to 2-decimal precision — paste them straight into the SVG.
+
+### Emitting SVG
+
+```python
+svg_snippet = gc.emit_row(row1, y_top=68, anchor_indices=[1])
+# y_top is the row's top edge. The anchor cell at index 1 gets
+# fill="#FFFFFF" class="accent" so the per-tee builder swap kicks in.
+```
+
+### Vertical layout conventions
+
+For a 200 × 200 mm canvas with logo at y=15–56:
+
+| Element | y range |
+|---|---|
+| Logo | 15–56 |
+| Logo→row gap | 56–68 (~12 mm gap) |
+| Row 1 | 68–(68+H1) |
+| Row 1→Row 2 gap | ~8 mm |
+| Row 2 | yN–(yN+H2) |
+| Row 2→Row 3 gap | ~8 mm |
+| Row 3 | yN–(yN+H3) |
+| Attribution | ~10 mm below row 3, 9–11 pt italic |
+
+Margins: 5 mm left/right (row_w = 190 mm), so designs span x=5..x=195.
+
+### Reference implementation
+
+`designs/cais-extincion/design.es.svg` is the canonical example. Its
+build script `scripts/build-cais-extincion.py` handles the per-tee
+colour swap (`<text class="accent" fill="#FFFFFF">` and
+`<tspan class="accent" fill="#FFFFFF">` → `#FF9416` on white/black
+tees). Re-use the same builder pattern for new grid designs.
+
+## When NOT to use this skill
+
+- Single-line file reads or grep searches — use `Read` / `Bash` directly.
+- Pure text edits to existing files unrelated to design content
+  (e.g. typo fix in a doc) — just `Edit`.
+- Anything outside the `designs/`, `brand/`, `scripts/`, `prints/`
+  folders — this skill knows about those, not about the wider repo.

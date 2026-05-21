@@ -1,20 +1,26 @@
 #!/usr/bin/env python3
 """
-Build a stylized SVG QR code for the chapter URL.
+Build a stylized SVG QR code for the chapter URLs.
 
-Renders the QR matrix for `https://pauseai.es` using brand orange
-modules, three concentric rounded-rectangle position markers, and the
-PauseAI ES mark overlaid in the center. Error correction H (30%) allows
-the center logo without breaking scannability.
+Two languages, two URLs:
+  - ES (chapter)  → https://pauseai.es      with the chapter mark in the
+                                             QR centre
+  - EN (global)   → https://pauseai.info    with the global mark in the
+                                             QR centre
+
+Renders each QR matrix using brand orange modules, three concentric
+rounded-rectangle position markers, and the appropriate mark overlaid
+in the centre. Error correction H (30 %) allows the centre logo
+without breaking scannability.
+
+Outputs per language:
+  - brand/qr-pauseai-{es,info}.svg        canonical standalone QR
+  - designs/<slug>/back{,.en}.svg         orange-tee canonical back
+  - designs/<slug>/back{,.en}.white.svg   white-tee variant
+  - designs/<slug>/back{,.en}.black.svg   black-tee variant
 
 Run from the repo root:
     python3 scripts/build-qr.py
-
-Writes:
-  - brand/qr-pauseai-es.svg                  (canonical standalone QR)
-  - designs/<slug>/back.svg                  (full back design template,
-                                              regenerated identically
-                                              across all design folders)
 """
 import re
 import sys
@@ -27,63 +33,78 @@ except ImportError:
     sys.exit("pip install qrcode (or apt install python3-qrcode)")
 
 ROOT = Path(__file__).resolve().parent.parent
-URL = "https://pauseai.es"
 ORANGE = "#FF9416"
 WHITE = "#FFFFFF"
 INK = "#111111"
 
-qr = qrcode.QRCode(
-    error_correction=qrcode.constants.ERROR_CORRECT_H,
-    box_size=1,
-    border=0,
-)
-qr.add_data(URL)
-qr.make(fit=True)
-matrix = qr.get_matrix()
-size = len(matrix)
+# Per-tee colour for the panel border + wordmark.
+ACCENT_COLOR = {
+    "orange": WHITE,
+    "white":  ORANGE,
+    "black":  ORANGE,
+}
 
-# Pull the chapter mark to drop into the QR center
-mark_svg = (ROOT / "brand/logos/pauseai-es-mark.svg").read_text()
-m = re.search(r'viewBox="([^"]+)"', mark_svg)
-mark_vb = m.group(1) if m else "0 0 905 929"
-mi = re.sub(r"<\?xml[^?]*\?>", "", mark_svg)
-mi = re.sub(r"<!--.*?-->", "", mi, flags=re.DOTALL)
-m = re.search(r"<svg[^>]*>(.*)</svg>", mi, flags=re.DOTALL)
-mark_inner = m.group(1).strip() if m else ""
+# Per-language config: URL, wordmark label, centre-mark logo, output basenames
+LANGUAGES = {
+    "es": {
+        "url": "https://pauseai.es",
+        "wordmark": "PAUSEAI.ES",
+        "mark_path": "brand/logos/pauseai-es-mark.svg",
+        "qr_filename": "brand/qr-pauseai-es.svg",
+        "lang": "es",
+    },
+    "en": {
+        "url": "https://pauseai.info",
+        "wordmark": "PAUSEAI.INFO",
+        "mark_path": "brand/logos/pauseai-global-mark.svg",
+        "qr_filename": "brand/qr-pauseai-info.svg",
+        "lang": "en",
+    },
+}
 
 
-def is_position_marker(r, c):
-    return (
-        (r < 7 and c < 7)
-        or (r < 7 and c >= size - 7)
-        or (r >= size - 7 and c < 7)
+def _load_mark(path):
+    """Return (viewBox, inner-content) of a mark SVG."""
+    svg = (ROOT / path).read_text()
+    vb = re.search(r'viewBox="([^"]+)"', svg)
+    vb = vb.group(1) if vb else "0 0 1 1"
+    s = re.sub(r"<\?xml[^?]*\?>", "", svg)
+    s = re.sub(r"<!--.*?-->", "", s, flags=re.DOTALL)
+    m = re.search(r"<svg[^>]*>(.*)</svg>", s, flags=re.DOTALL)
+    return vb, (m.group(1).strip() if m else "")
+
+
+def _build_qr_for(url, mark_vb, mark_inner):
+    """Build the QR SVG: (full_svg_str, inner_viewbox, inner_content)."""
+    qr = qrcode.QRCode(
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=1, border=0,
     )
+    qr.add_data(url)
+    qr.make(fit=True)
+    matrix = qr.get_matrix()
+    size = len(matrix)
 
+    def is_position_marker(r, c):
+        return (
+            (r < 7 and c < 7)
+            or (r < 7 and c >= size - 7)
+            or (r >= size - 7 and c < 7)
+        )
 
-# Center logo zone — about 20% of QR width, odd-sized for clean centering.
-logo_size = max(5, size // 5)
-if logo_size % 2 == 0:
-    logo_size += 1
-center = size // 2
-logo_min = center - logo_size // 2
-logo_max = logo_min + logo_size - 1
+    logo_size = max(5, size // 5)
+    if logo_size % 2 == 0:
+        logo_size += 1
+    center = size // 2
+    logo_min = center - logo_size // 2
+    logo_max = logo_min + logo_size - 1
 
+    def is_logo_zone(r, c):
+        return logo_min <= r <= logo_max and logo_min <= c <= logo_max
 
-def is_logo_zone(r, c):
-    return logo_min <= r <= logo_max and logo_min <= c <= logo_max
-
-
-def build_qr_svg() -> tuple[str, str, str]:
-    """Returns (full_svg, inner_viewbox, inner_content)."""
-    # `width`/`height` give the standalone file a useful render size in
-    # browsers (without them, browsers default to ~300 px and the QR looks
-    # tiny when opened directly). Nested copies in back.svg override these.
-    display_px = 800
-    # 1 module of white quiet zone — tighter than the QR-spec 4-module
-    # recommendation; relies on the back.svg's external white panel
-    # adding additional quiet zone when embedded.
     QUIET = 1
-    extent = size + 2 * QUIET   # total module-units the SVG covers
+    extent = size + 2 * QUIET
+    display_px = 800
     p = [
         f'<svg xmlns="http://www.w3.org/2000/svg" '
         f'viewBox="{-QUIET} {-QUIET} {extent} {extent}" '
@@ -117,56 +138,32 @@ def build_qr_svg() -> tuple[str, str, str]:
 
     standalone = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
-        f"<!-- Stylized QR for {URL} — generated by scripts/build-qr.py. Do not edit by hand. -->\n"
-        + body
-        + "\n"
+        f"<!-- Stylized QR for {url} — generated by scripts/build-qr.py. Do not edit by hand. -->\n"
+        + body + "\n"
     )
-    # Extract inner content for embedding
     m = re.search(r'<svg[^>]*viewBox="([^"]+)"[^>]*>(.*)</svg>', body, flags=re.DOTALL)
-    return standalone, m.group(1), m.group(2).strip()
+    return standalone, m.group(1), m.group(2).strip(), qr.version, size, logo_size
 
 
-# Per-tee colour for the QR panel border + the "PAUSEAI.ES" wordmark.
-# These two elements share the same colour so the back reads as a unit.
-# The scan panel fill stays WHITE and the QR modules stay ORANGE in
-# every variant (that contrast is what lets the QR scan).
-ACCENT_COLOR = {
-    "orange": WHITE,      # white border + white wordmark on orange tee
-    "white":  ORANGE,     # orange border + orange wordmark on white tee
-    "black":  ORANGE,     # orange border + orange wordmark on black tee
-}
-
-
-def build_back_svg(qr_vb: str, qr_inner: str, tee: str) -> str:
-    """Back template for a given tee colour.
-
-    Layout (200 × 200 mm canvas):
-      - White scan panel (90 × 90 mm) with a 1.5 mm stroke in the
-        accent colour around it.
-      - Orange QR (80 × 80 mm) inside the panel.
-      - PAUSEAI.ES wordmark in the accent colour below the panel.
-
-    Panel fill + QR module colour are constant across all tees — that
-    contrast is what lets the QR scan. Only the border stroke and the
-    wordmark fill change per tee.
-    """
+def build_back_svg(url, wordmark, qr_vb, qr_inner, tee):
+    """Back template for a given URL/wordmark/tee colour."""
     accent = ACCENT_COLOR[tee]
     return f"""<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Back design ({tee} tee) — stylized QR linking to {URL} plus the URL text.
+  Back design ({tee} tee, {wordmark}) — stylized QR linking to {url}.
   Regenerate with: python3 scripts/build-qr.py
   Layout (200 x 200 mm canvas):
     x=55..145, y=30..120   White scan panel — fill always WHITE,
                            stroke = {tee}-tee accent colour
     x=60..140, y=35..115   QR (80 x 80 mm) — orange modules, always
-    y=145                  PAUSEAI.ES wordmark — accent colour
+    y=145                  Wordmark — accent colour
 -->
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 200 200"
      width="200mm" height="200mm"
      role="img"
-     aria-label="QR a pauseai.es">
-  <title>pauseai.es ({tee} tee)</title>
+     aria-label="QR to {url}">
+  <title>{url} ({tee} tee)</title>
 
   <rect x="55" y="30" width="90" height="90"
         fill="{WHITE}" stroke="{accent}" stroke-width="4"/>
@@ -178,33 +175,33 @@ def build_back_svg(qr_vb: str, qr_inner: str, tee: str) -> str:
   <text x="100" y="145"
         font-family="Saira Condensed, Impact, sans-serif"
         font-weight="700" font-size="15"
-        fill="{accent}" text-anchor="middle">PAUSEAI.ES</text>
+        fill="{accent}" text-anchor="middle">{wordmark}</text>
 </svg>
 """
 
 
 def main():
-    standalone, qr_vb, qr_inner = build_qr_svg()
-
-    (ROOT / "brand/qr-pauseai-es.svg").write_text(standalone)
-    print(f"QR version {qr.version}, {size}x{size} modules, logo {logo_size}x{logo_size}")
-    print("Saved: brand/qr-pauseai-es.svg")
-
-    # Generate back.{orange,white,black}.svg for every design folder.
-    # back.svg = orange canonical; back.white.svg / back.black.svg are
-    # per-tee variants. Replaces the old build-color-variants behaviour
-    # (which had a string-replace bug that turned the scan panel orange).
     design_dirs = sorted(
         d for d in (ROOT / "designs").iterdir()
         if d.is_dir() and not d.name.startswith("_")
     )
-    for design_dir in design_dirs:
-        for tee in ("orange", "white", "black"):
-            suffix = "" if tee == "orange" else f".{tee}"
-            (design_dir / f"back{suffix}.svg").write_text(
-                build_back_svg(qr_vb, qr_inner, tee)
-            )
-        print(f"Wrote backs (orange + white + black): {design_dir.name}/")
+
+    for lang_code, cfg in LANGUAGES.items():
+        mark_vb, mark_inner = _load_mark(cfg["mark_path"])
+        standalone, qr_vb, qr_inner, qr_version, size, logo_size = _build_qr_for(
+            cfg["url"], mark_vb, mark_inner)
+
+        (ROOT / cfg["qr_filename"]).write_text(standalone)
+        print(f"[{lang_code}] QR v{qr_version} {size}x{size}, "
+              f"logo {logo_size}x{logo_size} → {cfg['qr_filename']}")
+
+        for design_dir in design_dirs:
+            for tee in ("orange", "white", "black"):
+                fname = f"{cfg['lang']}.{tee}.back.svg"
+                (design_dir / fname).write_text(
+                    build_back_svg(cfg["url"], cfg["wordmark"],
+                                   qr_vb, qr_inner, tee))
+            print(f"  [{lang_code}] {design_dir.name}/{cfg['lang']}.back.*.svg")
 
 
 if __name__ == "__main__":

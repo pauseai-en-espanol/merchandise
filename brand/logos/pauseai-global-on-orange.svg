@@ -12,7 +12,7 @@
   DO NOT edit colors or paths in this file. To add new variants, copy
   to a new file and document it in `brand/logos/README.md`.
 -->
-<svg width="1280" height="449" viewBox="0 0 1280 449" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="1214" height="449" viewBox="33 0 1214 449" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M354.52 224.5C354.52 313.285 282.546 385.26 193.76 385.26C104.975 385.26 33 313.285 33 224.5C33 135.715 104.975 63.7397 193.76 63.7397C282.546 63.7397 354.52 135.715 354.52 224.5ZM134.28 155.374H174.47V298.45H134.28V155.374ZM250.028 155.374H209.838V298.45H250.028V155.374Z" fill="white"/>
 <path d="M1023.21 295.433L1084.48 155.018H1130.94L1192.21 295.433H1143.35L1098.1 177.485H1116.52L1071.27 295.433H1023.21ZM1059.66 270.961L1071.67 236.86H1136.14L1148.16 270.961H1059.66Z" fill="white"/>
 <path d="M1199.75 295.433V155.018H1247V295.433H1199.75Z" fill="white"/>

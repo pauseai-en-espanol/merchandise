@@ -3,9 +3,11 @@
 Export print-ready SVGs with all text converted to outline paths
 (zero font dependency at print time).
 
-Output:
-  prints/<slug>-front.svg   240 × 240 mm  (chest print 24 × 24 cm)
-  prints/<slug>-back.svg    200 × 220 mm  (back print  20 × 22 cm)
+Output (per language ES + EN):
+  prints/<slug>-front.es.svg   240 × 240 mm  (chest print 24 × 24 cm)
+  prints/<slug>-es.orange.back.svg    200 × 220 mm  (back print  20 × 22 cm)
+  prints/<slug>-front.en.svg   ditto for English
+  prints/<slug>-en.orange.back.svg    ditto for English
 
 Each <text> element is replaced by a <g> of <path> elements drawn
 from the Saira Condensed Bold TTF in brand/fonts/files/. Italic is
@@ -41,24 +43,38 @@ PRINT_DIR.mkdir(exist_ok=True)
 
 # --- Font handling ---------------------------------------------------
 
-FONT_PATH = ROOT / 'brand/fonts/files/SairaCondensed-Bold.ttf'
-FONT = TTFont(str(FONT_PATH))
-UNITS_PER_EM = FONT['head'].unitsPerEm
-CMAP = FONT.getBestCmap()
-GLYPH_SET = FONT.getGlyphSet()
-HMTX = FONT['hmtx']
+FONT_PATHS = {
+    'Saira Condensed': ROOT / 'brand/fonts/files/SairaCondensed-Bold.ttf',
+    'Bebas Neue':      ROOT / 'brand/fonts/files/BebasNeue-Regular.ttf',
+}
+FONTS = {name: TTFont(str(p)) for name, p in FONT_PATHS.items()}
+DEFAULT_FONT_NAME = 'Saira Condensed'
 
 ITALIC_SKEW_DEG = 10  # synthetic italic angle
 
 
-def char_to_path(ch: str) -> tuple[str, int]:
-    """Return (SVG path d-string, advance width in font units) for a char."""
-    gname = CMAP.get(ord(ch))
+def pick_font(font_family_attr: str):
+    """Resolve a font-family attribute (which can be a comma-separated
+    list of fallbacks) to one of our loaded TTFs. Returns the TTFont."""
+    families = [f.strip().strip('"\'').strip()
+                for f in (font_family_attr or '').split(',')]
+    for fam in families:
+        if fam in FONTS:
+            return FONTS[fam]
+    return FONTS[DEFAULT_FONT_NAME]
+
+
+def char_to_path(font, ch: str) -> tuple[str, int]:
+    """Return (SVG path d-string, advance width in font units) for a
+    char rendered with the given TTFont."""
+    cmap = font.getBestCmap()
+    gname = cmap.get(ord(ch))
     if not gname:
         return '', 0
-    pen = SVGPathPen(GLYPH_SET)
-    GLYPH_SET[gname].draw(pen)
-    advance, _lsb = HMTX[gname]
+    glyph_set = font.getGlyphSet()
+    pen = SVGPathPen(glyph_set)
+    glyph_set[gname].draw(pen)
+    advance, _lsb = font['hmtx'][gname]
     return pen.getCommands(), advance
 
 
@@ -103,6 +119,7 @@ def text_to_outlines(elem, inherited):
     font_size_str = _resolve(elem, 'font-size', '12', inherited)
     font_size = float(re.match(r'[\d.]+', str(font_size_str)).group(0))
     font_style = _resolve(elem, 'font-style', 'normal', inherited)
+    font_family = _resolve(elem, 'font-family', DEFAULT_FONT_NAME, inherited)
     text_anchor = _resolve(elem, 'text-anchor', 'start', inherited)
     fill = _resolve(elem, 'fill', '#000000', inherited)
 
@@ -110,12 +127,14 @@ def text_to_outlines(elem, inherited):
     if not runs:
         return None
 
-    scale = font_size / UNITS_PER_EM
+    font = pick_font(font_family)
+    units_per_em = font['head'].unitsPerEm
+    scale = font_size / units_per_em
 
     total_advance = 0
     for run_text, _ in runs:
         for ch in run_text:
-            _, adv = char_to_path(ch)
+            _, adv = char_to_path(font, ch)
             total_advance += adv
     total_width = total_advance * scale
 
@@ -143,7 +162,7 @@ def text_to_outlines(elem, inherited):
         run_g = ET.SubElement(outer, G_TAG)
         run_g.set('fill', run_fill)
         for ch in run_text:
-            path_d, adv = char_to_path(ch)
+            path_d, adv = char_to_path(font, ch)
             if path_d:
                 p = ET.SubElement(run_g, PATH_TAG)
                 p.set('d', path_d)
@@ -180,7 +199,7 @@ def outline_svg(svg_str: str) -> ET.Element:
 # --- Per-design assembly --------------------------------------------
 
 def export_front(slug: str, src_svg: Path, dst: Path) -> None:
-    """Scale design.es.svg into a 240 × 240 mm canvas (1.2× scale for
+    """Scale es.orange.front.svg into a 240 × 240 mm canvas (1.2× scale for
     200 × 200 sources; identity for 240 × 240 sources)."""
     src_text = src_svg.read_text()
     root = outline_svg(src_text)
@@ -224,16 +243,28 @@ def export_back(slug: str, src_svg: Path, dst: Path) -> None:
 
 
 def main():
+    """Outline every {lang}.{tee}.{side}.svg under designs/<slug>/ to
+    prints/<slug>/{lang}.{tee}.{side}.svg. Up to 12 files per design
+    (2 langs × 3 tees × 2 sides) — only those that exist are emitted."""
     designs = sorted(d.name for d in (ROOT / 'designs').iterdir()
                      if d.is_dir() and not d.name.startswith('_'))
-    print(f'Exporting {len(designs)} designs...')
+    total = 0
     for slug in designs:
-        front_src = ROOT / f'designs/{slug}/design.es.svg'
-        back_src = ROOT / f'designs/{slug}/back.svg'
-        if front_src.exists():
-            export_front(slug, front_src, PRINT_DIR / f'{slug}-front.svg')
-        if back_src.exists():
-            export_back(slug, back_src, PRINT_DIR / f'{slug}-back.svg')
+        out_dir = PRINT_DIR / slug
+        out_dir.mkdir(parents=True, exist_ok=True)
+        for lang in ('es', 'en'):
+            for tee in ('orange', 'white', 'black'):
+                for side in ('front', 'back'):
+                    src = ROOT / f'designs/{slug}/{lang}.{tee}.{side}.svg'
+                    if not src.exists():
+                        continue
+                    dst = out_dir / f'{lang}.{tee}.{side}.svg'
+                    if side == 'front':
+                        export_front(slug, src, dst)
+                    else:
+                        export_back(slug, src, dst)
+                    total += 1
+    print(f'\nExported {total} print-ready SVGs across {len(designs)} designs.')
 
 
 if __name__ == '__main__':
