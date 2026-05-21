@@ -131,6 +131,12 @@ def process_design_folder(design_dir: Path) -> None:
 def main() -> None:
     for d in sorted(DESIGNS.iterdir()):
         if d.is_dir() and not d.name.startswith("_"):
+            # altman-fin-del-mundo has raster-embedded layers that need a
+            # pixel-level color swap, not just a text-fill substitution.
+            # Its variants are produced by the design's own raster-aware
+            # builder, so skip it here to avoid clobbering those outputs.
+            if d.name == "altman-fin-del-mundo":
+                continue
             process_design_folder(d)
 
 

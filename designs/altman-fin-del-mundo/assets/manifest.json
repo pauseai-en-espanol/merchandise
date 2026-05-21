@@ -1,0 +1,58 @@
+{
+  "layers": {
+    "quote-3.png": {
+      "bbox_psd": [
+        483,
+        497,
+        799,
+        548
+      ],
+      "native_size": [
+        316,
+        51
+      ]
+    },
+    "quote-2.png": {
+      "bbox_psd": [
+        481,
+        431,
+        798,
+        478
+      ],
+      "native_size": [
+        317,
+        47
+      ]
+    },
+    "quote-1.png": {
+      "bbox_psd": [
+        481,
+        388,
+        798,
+        423
+      ],
+      "native_size": [
+        317,
+        35
+      ]
+    },
+    "attribution-source.png": {
+      "bbox_psd": [
+        605,
+        590,
+        782,
+        634
+      ],
+      "native_size": [
+        177,
+        44
+      ]
+    }
+  },
+  "stencil_bbox_psd": [
+    496,
+    575,
+    598,
+    680
+  ]
+}

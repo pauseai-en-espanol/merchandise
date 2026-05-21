@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Back design - stylized QR linking to https://pauseai.es plus the URL text.
+  Back design — stylized QR linking to https://pauseai.es plus the URL text.
   Shared across all chapter activist tees. Regenerate with:
       python3 scripts/build-qr.py
   Layout (200 x 200 mm canvas):
