@@ -140,10 +140,12 @@ Stages:
    for every design folder
 2. `build-<slug>.py` (one per design) — the per-tee colour variants
    `design.es.{white,black}.svg`
-3. `build-mockups.py` — `mockup-{orange,white,black}-{front,back}.svg`
-   composing each design over the JHK TSRA 170 tee photos
-4. `qlmanage` — rasterizes all 24 mockup SVGs to PNG into
-   `mockups/renders/`
+3. `build-mockups.py` — `mockups/<slug>/{lang}.{tee}.{side}.svg`
+   composing each design over the JHK TSRA 170 tee photos, with all
+   text outlined to `<path>` so the SVGs render identically anywhere
+   (including GitHub) without depending on Saira Condensed
+4. `qlmanage` — rasterizes every mockup SVG to PNG into
+   `mockups/renders/<slug>/`
 5. `print-export.py` — outlined-text print SVGs at chapter print
    sizes (24 × 24 cm fronts, 20 × 22 cm backs) into `prints/`
 

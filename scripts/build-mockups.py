@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """
-Build self-contained mockup SVGs for every (design, tee color, side).
+Build self-contained mockup SVGs for every (design, lang, tee color, side).
 
-For each `designs/<slug>/` and each tee color in {orange, white, black}
-and each side in {front, back}, writes:
+For each `designs/<slug>/` and each (lang, tee color, side) where the
+canonical SVG exists, writes:
 
-    designs/<slug>/mockup-<color>-<side>.svg
+    mockups/<slug>/<lang>.<tee>.<side>.svg
 
 …with the matching tee photo base64-embedded and the matching design
-variant inlined at the chest / back print position.
+variant inlined at the chest / back print position. All `<text>` in the
+design is converted to outlined `<path>` (via print-export's
+`outline_svg`) so the mockup renders identically in any SVG renderer —
+including GitHub — without depending on Saira Condensed being
+installed.
 
 Mockup SVGs are self-contained (no external file references), so they
 render correctly from file:// in any browser. Run them through qlmanage
@@ -18,13 +22,24 @@ Run from the repo root:
     python3 scripts/build-mockups.py
 """
 import base64
+import importlib.util
 import pathlib
 import re
 import sys
+from xml.etree import ElementTree as ET
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MOCKUPS = ROOT / "mockups"
 DESIGNS_DIR = ROOT / "designs"
+
+# Reuse outline_svg() from scripts/print-export.py. The filename has a
+# hyphen so importlib is the cleanest path (a plain `import` would need
+# a rename that ripples through build-all.sh and other references).
+_PE_PATH = pathlib.Path(__file__).resolve().parent / "print-export.py"
+_PE_SPEC = importlib.util.spec_from_file_location("print_export", _PE_PATH)
+_print_export = importlib.util.module_from_spec(_PE_SPEC)
+_PE_SPEC.loader.exec_module(_print_export)
+outline_svg = _print_export.outline_svg
 
 # Tee photos (JHK TSRA 170 catalog renders, 1242 x 1560 px each).
 # Mockup canvas matches the tee photo dimensions exactly — no padding.
@@ -46,10 +61,7 @@ def tee_path(color: str, side: str) -> pathlib.Path:
 def design_path(design_dir: pathlib.Path, color: str, side: str,
                 lang: str = "es") -> pathlib.Path:
     """Resolve the SVG to embed for a given color/side/language."""
-    if side == "front":
-        candidate = design_dir / f"{lang}.{color}.front.svg"
-    else:  # back
-        candidate = design_dir / f"{lang}.{color}.back.svg"
+    candidate = design_dir / f"{lang}.{color}.{side}.svg"
     if candidate.exists():
         return candidate
     raise FileNotFoundError(
@@ -60,13 +72,19 @@ def data_uri(path: pathlib.Path, mime: str) -> str:
     return f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode('ascii')}"
 
 
-def extract_inner(svg_text: str):
-    s = re.sub(r"<\?xml[^?]*\?>", "", svg_text)
-    s = re.sub(r"<!--.*?-->", "", s, flags=re.DOTALL)
-    m = re.search(r'<svg[^>]*viewBox="([^"]+)"[^>]*>(.*)</svg>', s, flags=re.DOTALL)
+def outlined_inner(svg_text: str):
+    """Outline every <text> in svg_text and return (viewBox, inner-XML).
+    inner-XML is the serialized children of the outer <svg>, ready to
+    embed inside another <svg> element."""
+    root = outline_svg(svg_text)
+    vb = root.get("viewBox")
+    if not vb:
+        raise ValueError("source SVG has no viewBox")
+    serialized = ET.tostring(root, encoding="unicode")
+    m = re.search(r"<svg[^>]*>(.*)</svg>\s*$", serialized, flags=re.DOTALL)
     if not m:
-        raise ValueError("no <svg viewBox=...> found")
-    return m.group(1), m.group(2).strip()
+        raise ValueError("serialized SVG has no outer wrapper")
+    return vb, m.group(1).strip()
 
 
 def build_mockup(tee_uri: str, design_vb: str, design_inner: str, pos: dict) -> str:
@@ -88,9 +106,11 @@ def main():
     for design_dir in sorted(DESIGNS_DIR.iterdir()):
         if not design_dir.is_dir() or design_dir.name.startswith("_"):
             continue
+        out_dir = MOCKUPS / design_dir.name
         for lang in ("es", "en"):
             if not (design_dir / f"{lang}.orange.front.svg").exists():
                 continue
+            out_dir.mkdir(parents=True, exist_ok=True)
             for color in COLORS:
                 for side in ("front", "back"):
                     tee = tee_path(color, side)
@@ -103,9 +123,9 @@ def main():
                         src = design_path(design_dir, color, side, lang)
                     except FileNotFoundError:
                         continue
-                    vb, inner = extract_inner(src.read_text())
+                    vb, inner = outlined_inner(src.read_text())
                     pos = CHEST if side == "front" else BACK
-                    out = design_dir / f"mockup.{lang}.{color}.{side}.svg"
+                    out = out_dir / f"{lang}.{color}.{side}.svg"
                     out.write_text(build_mockup(tee_uri, vb, inner, pos))
                 print(f"  {design_dir.name} [{lang}]: built mockups for {color}")
 

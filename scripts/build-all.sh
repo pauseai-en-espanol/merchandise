@@ -8,8 +8,9 @@
 #   2. build-<slug>.py        per-design builders generate
 #                             design.es.{white,black}.svg with the
 #                             color rules that design needs
-#   3. build-mockups.py       composes mockup-<color>-<side>.svg
-#                             (design + tee photo) per design
+#   3. build-mockups.py       composes mockups/<slug>/<lang>.<tee>
+#                             .<side>.svg (design + tee photo, text
+#                             outlined so no font dependency)
 #   4. qlmanage renders       rasterizes every mockup to PNG in
 #                             mockups/renders/
 #   5. print-export.py        outlined-text SVGs at print
@@ -59,7 +60,7 @@ done
 
 # --- Stage 3: mockup SVGs --------------------------------------------
 echo
-echo "[3/5] build-mockups.py — mockup.{es,en}.{orange,white,black}-{front,back}.svg"
+echo "[3/5] build-mockups.py — mockups/<slug>/{es,en}.{orange,white,black}.{front,back}.svg"
 python3 scripts/build-mockups.py
 
 # --- Stage 4: rasterize mockups --------------------------------------
@@ -72,16 +73,18 @@ else
     for design_dir in designs/*/; do
         slug=$(basename "$design_dir")
         [[ "$slug" == _* ]] && continue
+        mockup_dir="mockups/${slug}"
+        [[ -d "$mockup_dir" ]] || continue
         out_dir="mockups/renders/${slug}"
         mkdir -p "$out_dir"
         for lang in es en; do
             for color in orange white black; do
                 for side in front back; do
-                    svg="${design_dir}mockup.${lang}.${color}.${side}.svg"
+                    svg="${mockup_dir}/${lang}.${color}.${side}.svg"
                     if [[ -f "$svg" ]]; then
                         qlmanage -t -s 1500 -o "$out_dir" "$svg" \
                             >/dev/null 2>&1
-                        src="${out_dir}/mockup.${lang}.${color}.${side}.svg.png"
+                        src="${out_dir}/${lang}.${color}.${side}.svg.png"
                         dst="${out_dir}/${lang}.${color}.${side}.png"
                         if [[ -f "$src" ]]; then
                             mv "$src" "$dst"

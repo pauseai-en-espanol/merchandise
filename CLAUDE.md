@@ -105,10 +105,11 @@ python3 scripts/build-mockups.py                     # mockups + renders
 
 Each design with a per-tee colour rule has its own builder under
 `scripts/build-<slug>.py`. Those builders own the swap logic for that
-design and write the design.es.{white,black}.svg variants. The earlier
-catch-all `scripts/build-color-variants.py` was removed in favour of
-this per-design split because its naive string-replace was turning the
-QR's white scan panel orange and breaking scannability.
+design and write the `{lang}.{white,black}.front.svg` variants. The
+earlier catch-all `scripts/build-color-variants.py` was removed in
+favour of this per-design split because its naive string-replace
+collided with the back QR colours (which now live exclusively in
+`build-qr.py` — see below).
 
 ## Brand rules
 

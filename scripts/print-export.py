@@ -3,11 +3,12 @@
 Export print-ready SVGs with all text converted to outline paths
 (zero font dependency at print time).
 
-Output (per language ES + EN):
-  prints/<slug>-front.es.svg   240 × 240 mm  (chest print 24 × 24 cm)
-  prints/<slug>-es.orange.back.svg    200 × 220 mm  (back print  20 × 22 cm)
-  prints/<slug>-front.en.svg   ditto for English
-  prints/<slug>-en.orange.back.svg    ditto for English
+Output per design → prints/<slug>/ , for each lang ∈ {es,en} and
+tee ∈ {orange,white,black} that exists:
+  {lang}.{tee}.front.svg          240 × 240 mm  (chest print 24 × 24 cm)
+  {lang}.{tee}.back.svg           200 × 220 mm  (back print  20 × 22 cm)
+  {lang}.{tee}.back.sourced.svg   200 × 220 mm  (utm_source flavour)
+All <text> is converted to outline paths (zero font dependency at print).
 
 Each <text> element is replaced by a <g> of <path> elements drawn
 from the Saira Condensed Bold TTF in brand/fonts/files/. Italic is
@@ -222,7 +223,7 @@ def export_front(slug: str, src_svg: Path, dst: Path) -> None:
     root.set('height', '240mm')
 
     dst.write_text(ET.tostring(root, encoding='unicode', xml_declaration=False))
-    print(f'  wrote prints/{dst.name}  '
+    print(f'  wrote prints/{dst.parent.name}/{dst.name}  '
           f'(source {int(src_w)}×{int(src_h)} → 240×240, scale {scale}, '
           f'{dst.stat().st_size:,} bytes)')
 
@@ -238,14 +239,15 @@ def export_back(slug: str, src_svg: Path, dst: Path) -> None:
     root.set('height', '220mm')
 
     dst.write_text(ET.tostring(root, encoding='unicode', xml_declaration=False))
-    print(f'  wrote prints/{dst.name}  '
+    print(f'  wrote prints/{dst.parent.name}/{dst.name}  '
           f'(canvas 200×220, {dst.stat().st_size:,} bytes)')
 
 
 def main():
-    """Outline every {lang}.{tee}.{side}.svg under designs/<slug>/ to
-    prints/<slug>/{lang}.{tee}.{side}.svg. Up to 12 files per design
-    (2 langs × 3 tees × 2 sides) — only those that exist are emitted."""
+    """Outline every design SVG under designs/<slug>/ into prints/<slug>/.
+    Per lang × tee: front, back (campaign-only) and back.sourced (the
+    utm_source flavour) — up to 18 files per design; only those that
+    exist are emitted."""
     designs = sorted(d.name for d in (ROOT / 'designs').iterdir()
                      if d.is_dir() and not d.name.startswith('_'))
     total = 0
@@ -254,16 +256,19 @@ def main():
         out_dir.mkdir(parents=True, exist_ok=True)
         for lang in ('es', 'en'):
             for tee in ('orange', 'white', 'black'):
-                for side in ('front', 'back'):
-                    src = ROOT / f'designs/{slug}/{lang}.{tee}.{side}.svg'
-                    if not src.exists():
-                        continue
-                    dst = out_dir / f'{lang}.{tee}.{side}.svg'
-                    if side == 'front':
-                        export_front(slug, src, dst)
-                    else:
-                        export_back(slug, src, dst)
+                # Front — varies per tee colour.
+                f_src = ROOT / f'designs/{slug}/{lang}.{tee}.front.svg'
+                if f_src.exists():
+                    export_front(slug, f_src, out_dir / f'{lang}.{tee}.front.svg')
                     total += 1
+                # Backs — campaign-only default, plus the per-design
+                # sourced (utm_source) flavour when present.
+                for variant in ('back', 'back.sourced'):
+                    b_src = ROOT / f'designs/{slug}/{lang}.{tee}.{variant}.svg'
+                    if b_src.exists():
+                        export_back(slug, b_src,
+                                    out_dir / f'{lang}.{tee}.{variant}.svg')
+                        total += 1
     print(f'\nExported {total} print-ready SVGs across {len(designs)} designs.')
 
 
