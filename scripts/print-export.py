@@ -79,6 +79,26 @@ def char_to_path(font, ch: str) -> tuple[str, int]:
     return pen.getCommands(), advance
 
 
+def cap_height_units(font) -> float:
+    """Cap height in font units. Prefer OS/2.sCapHeight; fall back to the
+    'H' glyph's yMax, then to 0.7·em. Used to vertically centre text whose
+    dominant-baseline is central/middle (all-caps content)."""
+    try:
+        ch = font['OS/2'].sCapHeight
+        if ch and ch > 0:
+            return float(ch)
+    except (KeyError, AttributeError):
+        pass
+    try:
+        gname = font.getBestCmap().get(ord('H'))
+        glyf = font['glyf'][gname]
+        if glyf.yMax is not None:
+            return float(glyf.yMax)
+    except (KeyError, AttributeError, TypeError):
+        pass
+    return font['head'].unitsPerEm * 0.7
+
+
 # --- SVG manipulation ------------------------------------------------
 
 TEXT_TAG = f'{{{NS}}}text'
@@ -123,6 +143,10 @@ def text_to_outlines(elem, inherited):
     font_family = _resolve(elem, 'font-family', DEFAULT_FONT_NAME, inherited)
     text_anchor = _resolve(elem, 'text-anchor', 'start', inherited)
     fill = _resolve(elem, 'fill', '#000000', inherited)
+    dominant_baseline = _resolve(elem, 'dominant-baseline', None, inherited)
+    # transform is per-element in SVG (not inherited): read it off the
+    # <text> itself so a rotated/skewed label survives outlining.
+    elem_transform = elem.attrib.get('transform')
 
     runs = _runs_from_text(elem, fill)
     if not runs:
@@ -146,13 +170,23 @@ def text_to_outlines(elem, inherited):
     else:
         start_x = text_x
 
+    # dominant-baseline central/middle: shift the baseline down by half a
+    # cap-height so the cap-box centres on text_y (matching the live SVG),
+    # which matters when an element transform rotates about (x, y).
+    baseline_y = text_y
+    if dominant_baseline in ('central', 'middle'):
+        baseline_y = text_y + (cap_height_units(font) * scale) / 2
+
     skew = (f'skewX({-ITALIC_SKEW_DEG}) '
             if font_style == 'italic' else '')
 
+    # Element transform (e.g. rotate) is applied OUTERMOST so its pivot is
+    # in the parent user space, exactly as a renderer applies it to <text>.
+    pre = f'{elem_transform} ' if elem_transform else ''
     outer = ET.Element(G_TAG)
     outer.set(
         'transform',
-        f'translate({start_x:.4f} {text_y:.4f}) '
+        f'{pre}translate({start_x:.4f} {baseline_y:.4f}) '
         f'{skew}scale({scale:.6f} {-scale:.6f})'
     )
 
