@@ -8,13 +8,13 @@
 #   2. build-<slug>.py        per-design builders generate
 #                             design.es.{white,black}.svg with the
 #                             color rules that design needs
-#   3. build-mockups.py       composes mockups/<slug>/<lang>.<tee>
-#                             .<side>.svg (design + tee photo, text
-#                             outlined so no font dependency)
-#   4. qlmanage renders       rasterizes every mockup to PNG in
+#   3. print-export.py        outlined-text SVGs at print dimensions
+#                             in prints/ (the single outlining pass)
+#   4. build-mockups.py       composes mockups/<slug>/<lang>.<tee>
+#                             .<side>.svg from the prints + tee photo
+#                             (already outlined → no font dependency)
+#   5. qlmanage renders       rasterizes every mockup to PNG in
 #                             mockups/renders/
-#   5. print-export.py        outlined-text SVGs at print
-#                             dimensions in prints/
 #
 # Stops on the first failure (set -e). Stage outputs are clearly
 # labeled so a partial failure is easy to locate.
@@ -58,18 +58,28 @@ for design_dir in designs/*/; do
     fi
 done
 
-# --- Stage 3: mockup SVGs --------------------------------------------
-echo
-echo "[3/5] build-mockups.py — mockups/<slug>/{es,en}.{orange,white,black}.{front,back}.svg"
-python3 scripts/build-mockups.py
-
-# --- Stage 4: rasterize mockups --------------------------------------
-if [[ "${SKIP_RENDERS:-0}" == "1" ]]; then
+# --- Stage 3: print export (single outlining pass) -------------------
+if [[ "${SKIP_PRINT:-0}" == "1" ]]; then
     echo
-    echo "[4/5] qlmanage renders — SKIPPED (SKIP_RENDERS=1)"
+    echo "[3/5] print-export.py — SKIPPED (SKIP_PRINT=1; mockups reuse existing prints)"
 else
     echo
-    echo "[4/5] qlmanage renders — mockups/renders/<slug>/{lang}.{tee}.{side}.png"
+    echo "[3/5] print-export.py — prints/<slug>/{lang}.{tee}.{front,back}.svg"
+    python3 scripts/print-export.py
+fi
+
+# --- Stage 4: mockup SVGs (composited from the prints) ---------------
+echo
+echo "[4/5] build-mockups.py — mockups/<slug>/{es,en}.{orange,white,black}.{front,back}.svg"
+python3 scripts/build-mockups.py
+
+# --- Stage 5: rasterize mockups --------------------------------------
+if [[ "${SKIP_RENDERS:-0}" == "1" ]]; then
+    echo
+    echo "[5/5] qlmanage renders — SKIPPED (SKIP_RENDERS=1)"
+else
+    echo
+    echo "[5/5] qlmanage renders — mockups/renders/<slug>/{lang}.{tee}.{side}.png"
     for design_dir in designs/*/; do
         slug=$(basename "$design_dir")
         [[ "$slug" == _* ]] && continue
@@ -95,16 +105,6 @@ else
         done
         echo "  · $slug — PNGs rendered for es + en"
     done
-fi
-
-# --- Stage 5: print export -------------------------------------------
-if [[ "${SKIP_PRINT:-0}" == "1" ]]; then
-    echo
-    echo "[5/5] print-export.py — SKIPPED (SKIP_PRINT=1)"
-else
-    echo
-    echo "[5/5] print-export.py — prints/<slug>-{front,back}.svg"
-    python3 scripts/print-export.py
 fi
 
 echo

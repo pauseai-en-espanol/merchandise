@@ -60,11 +60,13 @@
          - Quotes («/»/…) removed.
     -->
 
-    <!-- ROW 1: H=22.98mm (y 68→90.98). gap to logo (ends y=56) = 12mm -->
-    <text x="5"   y="78.69"  font-size="15.27" textLength="62.11"
-          lengthAdjust="spacing" text-anchor="start">MITIGAR EL</text>
-    <text x="5"   y="90.98"  font-size="15.27" textLength="62.11"
-          lengthAdjust="spacing" text-anchor="start">RIESGO DE</text>
+    <!-- ROW 1: left stack fills a common ~62.1mm measure by SIZE, not by
+         letter-spacing — each line keeps natural spacing and is sized so
+         its advance fills the measure. MITIGAR EL fills it at 15.27;
+         RIESGO DE is the shorter string so it takes the larger 16.83.
+         Baselines 78.0 / 90.98 keep a ~1.4mm gap between the lines. -->
+    <text x="5"   y="78.00"  font-size="15.27" text-anchor="start">MITIGAR EL</text>
+    <text x="5"   y="90.98"  font-size="16.83" text-anchor="start">RIESGO DE</text>
     <text x="195" y="90.98"  class="accent" fill="#FF9416"
           font-size="32.83" text-anchor="end">EXTINCIÓN</text>
 

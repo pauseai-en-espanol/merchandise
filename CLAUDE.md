@@ -98,10 +98,17 @@ To regenerate variants after editing `design.es.svg` or any asset:
 ```sh
 python3 scripts/build-qr.py                          # all back.*.svg files
 python3 scripts/build-altman-fin-del-mundo.py        # altman variants
+python3 scripts/build-cais-extincion.py              # cais variants
 python3 scripts/build-p-doom-evidencia.py            # p-doom variants
 python3 scripts/build-preguntame.py                  # preguntame variants
-python3 scripts/build-mockups.py                     # mockups + renders
+python3 scripts/build-si-alguien-la-crea.py          # si-alguien variants
+python3 scripts/print-export.py                      # outlined prints — run BEFORE mockups
+python3 scripts/build-mockups.py                     # mockups composited from the prints
 ```
+
+Mockups are composited from the **prints** (already outlined), so
+`print-export.py` must run first — `scripts/build-all.sh` orders the
+whole pipeline correctly.
 
 Each design with a per-tee colour rule has its own builder under
 `scripts/build-<slug>.py`. Those builders own the swap logic for that
