@@ -108,6 +108,14 @@ PATH_TAG = f'{{{NS}}}path'
 SVG_TAG = f'{{{NS}}}svg'
 
 
+def _fmt_units(v: float) -> str:
+    """Format a font-unit coordinate: plain integer when whole (keeps the
+    outlined output byte-stable for runs that don't use textLength), else
+    4 decimal places (textLength justification yields fractional gaps)."""
+    iv = round(v)
+    return str(int(iv)) if abs(v - iv) < 1e-6 else f'{v:.4f}'
+
+
 def _resolve(elem, name, default=None, inherited=None):
     """Look up an attribute on elem, then on inherited dict, then default."""
     if name in elem.attrib:
@@ -147,6 +155,14 @@ def text_to_outlines(elem, inherited):
     # transform is per-element in SVG (not inherited): read it off the
     # <text> itself so a rotated/skewed label survives outlining.
     elem_transform = elem.attrib.get('transform')
+    # textLength + lengthAdjust justify a run to a fixed width (per-element,
+    # not inherited). lengthAdjust="spacing" — the SVG default when
+    # textLength is set — keeps glyph shapes and distributes the slack
+    # uniformly across the inter-glyph gaps, which the chapter uses to
+    # stretch stacked lines (e.g. MITIGAR EL / RIESGO DE) to a common
+    # width. We honour "spacing"; glyph scaling ("spacingAndGlyphs") is
+    # not needed by any current design.
+    text_length_str = elem.attrib.get('textLength')
 
     runs = _runs_from_text(elem, fill)
     if not runs:
@@ -157,16 +173,28 @@ def text_to_outlines(elem, inherited):
     scale = font_size / units_per_em
 
     total_advance = 0
+    n_glyphs = 0
     for run_text, _ in runs:
         for ch in run_text:
             _, adv = char_to_path(font, ch)
             total_advance += adv
+            n_glyphs += 1
     total_width = total_advance * scale
 
+    # Honour textLength: spread the slack between glyphs (in font units) so
+    # the run fills exactly textLength, and use that width for anchoring —
+    # matching how a live SVG renderer lays out the same <text>.
+    gap_units = 0.0
+    effective_width = total_width
+    if text_length_str and n_glyphs > 1:
+        target_width = float(re.match(r'[\d.]+', text_length_str).group(0))
+        gap_units = (target_width / scale - total_advance) / (n_glyphs - 1)
+        effective_width = target_width
+
     if text_anchor == 'middle':
-        start_x = text_x - total_width / 2
+        start_x = text_x - effective_width / 2
     elif text_anchor == 'end':
-        start_x = text_x - total_width
+        start_x = text_x - effective_width
     else:
         start_x = text_x
 
@@ -190,7 +218,8 @@ def text_to_outlines(elem, inherited):
         f'{skew}scale({scale:.6f} {-scale:.6f})'
     )
 
-    cursor_units = 0  # in font units, relative to outer transform origin
+    cursor_units = 0.0  # in font units, relative to outer transform origin
+    placed = 0
     for run_text, run_fill in runs:
         if not run_text:
             continue
@@ -202,8 +231,11 @@ def text_to_outlines(elem, inherited):
                 p = ET.SubElement(run_g, PATH_TAG)
                 p.set('d', path_d)
                 if cursor_units:
-                    p.set('transform', f'translate({cursor_units} 0)')
+                    p.set('transform', f'translate({_fmt_units(cursor_units)} 0)')
             cursor_units += adv
+            placed += 1
+            if placed < n_glyphs:  # justification gap between glyphs only
+                cursor_units += gap_units
 
     return outer
 

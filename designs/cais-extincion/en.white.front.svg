@@ -36,9 +36,10 @@
     <text x="195" y="92.67"  class="accent" fill="#FF9416"
           font-size="30.070" text-anchor="end">EXTINCTION</text>
 
-    <text x="15.82" y="129.06" font-size="30.924"
-          text-anchor="middle" dominant-baseline="central"
-          transform="rotate(-90 15.82 129.06)">FROM</text>
+    <g transform="rotate(-90 15.82 129.06)">
+      <text x="15.82" y="129.06" font-size="30.924"
+            text-anchor="middle" dominant-baseline="central">FROM</text>
+    </g>
     <text x="65.08" y="161.45"   class="accent" fill="#FF9416"
           font-size="92.552" text-anchor="middle">AI</text>
     <text x="195" y="119.15" font-size="32.115" text-anchor="end">SHOULD</text>
