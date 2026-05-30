@@ -2,6 +2,11 @@
 /build/
 /mockups/renders/*
 
+# Python tooling (scripts/ + one-off asset generators)
+__pycache__/
+*.pyc
+.venv/
+
 # Node tooling (added if/when scripts/ grows a build pipeline).
 node_modules/
 npm-debug.log*

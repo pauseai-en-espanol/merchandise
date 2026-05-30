@@ -50,6 +50,24 @@ def load_font(path: Path):
     return dict(font=font, cmap=cmap, glyph_set=glyph_set, hmtx=hmtx, upm=upm)
 
 
+def cap_height_units(font) -> float:
+    """Cap height in font units (OS/2.sCapHeight, then 'H' yMax, then
+    0.7·em). Used to vertically centre dominant-baseline central/middle."""
+    try:
+        ch = font["OS/2"].sCapHeight
+        if ch and ch > 0:
+            return float(ch)
+    except (KeyError, AttributeError):
+        pass
+    try:
+        g = font["glyf"][font.getBestCmap().get(ord("H"))]
+        if g.yMax is not None:
+            return float(g.yMax)
+    except (KeyError, AttributeError, TypeError):
+        pass
+    return font["head"].unitsPerEm * 0.7
+
+
 def glyph_for_char(font_data, char):
     """Return (path_d, advance) in font units, or (None, fallback_advance)."""
     code = ord(char)
@@ -73,7 +91,8 @@ def measure(font_data, text):
     return total
 
 
-def text_to_path_group(font_data, text, x, y, size, anchor, fill, style):
+def text_to_path_group(font_data, text, x, y, size, anchor, fill, style,
+                       transform=None, dominant_baseline=None):
     """
     Build a single <g> containing the outlined text.
 
@@ -86,9 +105,15 @@ def text_to_path_group(font_data, text, x, y, size, anchor, fill, style):
     For text-anchor="middle" we shift left by half the total advance.
     For "end" we shift left by the full advance.
     Synthetic italic = skewX on the resulting group (around baseline).
+    A `dominant-baseline` of central/middle drops the baseline half a
+    cap-height so the cap-box centres on y. An element `transform`
+    (e.g. rotate) wraps the whole group so its pivot stays in user space.
     """
     upm = font_data["upm"]
     scale = size / upm
+
+    if dominant_baseline in ("central", "middle"):
+        y = y + (cap_height_units(font_data["font"]) * scale) / 2
 
     total_advance = measure(font_data, text) * scale
 
@@ -120,7 +145,12 @@ def text_to_path_group(font_data, text, x, y, size, anchor, fill, style):
         g_attrs.append(
             f'transform="matrix(1 0 -0.2126 1 {x_origin * 0.2126:.4f} 0)"'
         )
-    return f"  <g {' '.join(g_attrs)}>\n" + "\n".join(paths) + "\n  </g>"
+    inner = f"  <g {' '.join(g_attrs)}>\n" + "\n".join(paths) + "\n  </g>"
+    if transform:
+        # Outermost so a rotate pivots in the parent user space, exactly
+        # as a renderer applies transform to the original <text>.
+        return f'  <g transform="{transform}">\n{inner}\n  </g>'
+    return inner
 
 
 def convert_svg(svg_path: Path, font_data_by_family):
@@ -195,8 +225,13 @@ def convert_svg(svg_path: Path, font_data_by_family):
         if fill_op:
             fill = f'{fill}" fill-opacity="{fill_op}'  # quick splice
 
+        # transform is per-element in SVG (not inherited); read off the tag.
+        transform = attr_in(tag_attrs, "transform")
+        dominant_baseline = attr(tag_attrs, "dominant-baseline", pos)
+
         return text_to_path_group(
-            font_data, content, x, y, size, anchor, fill, style
+            font_data, content, x, y, size, anchor, fill, style,
+            transform=transform, dominant_baseline=dominant_baseline,
         )
 
     new_svg = text_re.sub(replace, s)
