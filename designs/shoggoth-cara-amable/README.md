@@ -1,24 +1,27 @@
 # shoggoth-cara-amable
 
 > **«¿Qué hay tras la cara amable de la IA?»** The famous *"shoggoth
-> with a smiley face"* drawing, traced to vector **line art** — its body
-> washed a deep **green** with the **eyes left white** — and wrapped by that
-> question. A vast, eye-studded, tentacled creature — the
-> alien intelligence that emerges from training a model on the whole internet —
-> wears a pink human-ish **mask** and finally a little yellow **smiley**.
-> Three small labels trace the pipeline that produces today's chatbots:
+> with a smiley face"* meme, **re-drawn from scratch** as a bold
+> linocut / flash-tattoo style illustration built for a tee. A vast
+> creature made of bulging blobs, covered in eyes and tentacles, with a
+> vertical fanged maw and an eye staring out of its throat. It is the
+> alien intelligence that emerges from training a model on the whole
+> internet. At the end of one tentacle it holds up a worried pink
+> human **mask**, and out of the mask's mouth pokes a little yellow
+> **smiley**. Three small labels trace the pipeline that produces
+> today's chatbots:
 > **«Aprendizaje no supervisado»** → the beast, **«Ajuste fino supervisado»**
 > → the mask, **«RLHF (la guinda)»** → the smiley. The point isn't that AI
-> is a monster; it's that the *friendliness* is a thin, learned veneer over
-> something we don't understand — "it seems nice" is not "it is safe".
+> is a monster. The *friendliness* is a thin, learned veneer over something
+> we don't understand, and "it seems nice" is not "it is safe".
 
 ## Voice lane
 
-**A — Thoughtful policy conversation.** It's the field's own teaching
-diagram, rendered as a line-art explainer rather than a scare — it invites
-the museum / conference / classroom question *"wait, how does a chatbot get
-made?"* and the honest answer is unsettling on its own, no catastrophe
-imagery required. The headline question makes the prompt explicit.
+**A — Thoughtful policy conversation.** This is the field's own teaching
+diagram, drawn as a striking graphic rather than a scare. It invites the
+museum / conference / classroom question *"wait, how does a chatbot get
+made?"*, and the honest answer is unsettling on its own, with no
+catastrophe imagery needed. The headline question makes the prompt explicit.
 
 ## Status
 
@@ -26,105 +29,93 @@ imagery required. The headline question makes the prompt explicit.
 
 ## Languages
 
-- [x] Spanish (`es.orange.front.svg` — canonical; white/black generated)
-- [x] English (`en.orange.front.svg` — canonical; white/black generated).
+- [x] Spanish (`es.orange.front.svg`, canonical; white/black generated)
+- [x] English (`en.orange.front.svg`, canonical; white/black generated).
       Phrase → "WHAT'S BEHIND / THE FRIENDLY FACE / OF AI?" (accents
-      **BEHIND / FRIENDLY / AI**); labels → "UNSUPERVISED LEARNING" /
-      "SUPERVISED FINE-TUNING" / "RLHF (cherry on top)"; uses the
-      `pauseai-global` logo. (The original is English, natural for PauseAI Global.)
+      **BEHIND / FRIENDLY / AI**). Labels → "UNSUPERVISED LEARNING" /
+      "SUPERVISED FINE-TUNING" / "RLHF (cherry on top)". Uses the
+      `pauseai-global` logo.
 
 ## Target products
 
 - [x] T-shirt, front print (200 × 200 mm), orange / white / black
-- [ ] Back: QR + URL via `scripts/build-qr.py` (language-agnostic)
-- Stickers: possible at ≥ 8 cm so the linework stays legible.
+- [x] Back: QR + URL via `scripts/build-qr.py` (language-agnostic)
+- Stickers: the creature alone (`#art`) works as a die-cut at ≥ 7 cm.
 
 ## Colors supported
 
-- [x] Orange (`es.orange.front.svg` — canonical)
-- [x] White (`es.white.front.svg` — generated)
-- [x] Black (`es.black.front.svg` — generated)
+- [x] Orange (`es.orange.front.svg`, canonical)
+- [x] White (`es.white.front.svg`, generated)
+- [x] Black (`es.black.front.svg`, generated)
 
-White/black tee variants produced by `scripts/build-shoggoth-cara-amable.py`;
-the green body fill + white eyes are generated once by
-`scripts/trace-shoggoth-body.py` and baked into the orange canonicals (see
-*Colour* and *How the art was made* below).
+## The art: one silhouette, carved
 
-## Colour: green body + white eyes + two spot fills
+The creature is a **single solid deep-green silhouette** with all its detail **carved
+out**, meaning nothing is printed there and the tee shows through. The
+carving covers the gaps between overlapping bulbs and tentacles, the
+engraved hatching along their shadow sides, the cracks, the tentacle
+grooves, and the rings around every eye. Plus a few flat spot fills:
 
-The creature is vector **line art** over a deep-green body fill. Three constant
-spot-colour fills — the **green** body (`#1F5C38`), the **pink** mask, and the
-**yellow** smiley — sit *behind* the linework, and the **eyes are punched out
-to paper white** on top of the green. The fill lives in its own group
-(`#shoggoth-fill`, holding `#shoggoth-body` then `#shoggoth-eyes`) placed before
-`#art`, so the creature's linework, the mask's grimace and the smiley's
-features all draw on top. Only the linework/text swap ink↔paper per tee; the
-three fills and the white eyes are constant on every tee.
-
-| Element | Orange tee | White tee | Black tee |
+| Layer (`<g id>`) | Orange tee | White tee | Black tee |
 |---|---|---|---|
-| Body fill | green `#1F5C38` | green | green |
-| Eyes (sclera) | PAPER `#FFFFFF` | PAPER | PAPER |
-| Mask face fill | pink `#EC85C9` | pink | pink |
-| Smiley disc fill | yellow `#FBD24A` | yellow | yellow |
-| Creature linework, phrase, labels, arrows, credit (**body**) | INK `#111111` | INK | PAPER `#FFFFFF` |
-| Headline accents **TRAS / AMABLE / IA** (EN: BEHIND / FRIENDLY / AI) | WHITE `#FFFFFF` | ORANGE `#FF9416` | ORANGE `#FF9416` |
+| `shoggoth-body`: silhouette, stalk, smiley rays | green `#1F5C38` | green | green |
+| `shoggoth-white`: sclerae, fangs, glints | PAPER | PAPER | PAPER |
+| `shoggoth-iris`: every iris | ORANGE `#FF9416` | ORANGE | ORANGE |
+| `shoggoth-mask`: the mask | pink `#EC85C9` | pink | pink |
+| `shoggoth-smiley`: the smiley | yellow `#FBD24A` | yellow | yellow |
+| `shoggoth-ink` (`class="keep"`): pupils, gullet, mask + smiley features | INK | INK | INK |
+| Phrase, labels, arrows (**body**) | INK | INK | PAPER `#FFFFFF` |
+| Accents **TRAS / AMABLE / IA** (EN: BEHIND / FRIENDLY / AI) | WHITE | ORANGE | ORANGE |
 | Logo | on-orange | on-light | on-dark |
 
-The three spot colours are documented in
-[`brand/tokens.json`](../../brand/tokens.json) under **`illustrationColors`**
-as *non-brand, design-specific* (do not reuse them as brand colours elsewhere).
-
-**Reads per tee.** The green is strongest on the **black tee**, where the
-linework flips to white and pops on the dark fill (there the eye outlines and
-pupils flip to paper too, so the eyes read as solid white discs). On the
-**white / orange** tees the black linework sits on the green at lower contrast
-— the reason an earlier whole-body violet wash was dropped (`shoggothViolet`,
-since removed from `brand/tokens.json`) — but here the **white eyes carry the
-contrast** (white sclera + dark pupil), and the creature reads as a green,
-eye-studded form. The fill is shipped on **all three tees** by design choice.
+The whole creature is **constant on every tee**; only the text and logo change.
+Because detail is *knocked out* rather than printed in a tee colour, the
+carving takes the tee's colour: orange lines on the orange tee, white on
+white, black on black. Green, pink and yellow are `illustrationColors` in
+[`brand/tokens.json`](../../brand/tokens.json) (non-brand, design-specific).
+Iris orange is the brand orange.
 
 ## Layout
 
-A centred line drawing with the question wrapped top-and-bottom; positions are
-hand-tuned and baked into the canonical SVGs.
+- **Top-left:** `¿QUÉ HAY `**`TRAS`** sits in the empty space above the mask.
+- **Middle:** the mask + smiley on the left, held out on a long tentacle by
+  the beast on the right. Eyestalks and whips rise beside the headline,
+  but stay clear of the logo's clear space (art top ≥ ~66 mm).
+- **Bottom (centred):** `LA CARA `**`AMABLE`** / `DE LA `**`IA`**`?`.
 
-- **Top** — `¿QUÉ HAY `**`TRAS`** (one line; accent word **TRAS**).
-- **Centre** — the shoggoth line drawing (centred, ~115 mm wide).
-- **Bottom** — `LA CARA `**`AMABLE`**, then `DE LA `**`IA`**`?`.
-
-Read top-to-bottom through the image: *¿qué hay tras — [the friendly face] —
-la cara amable de la IA?* Each headline line is a **single size**; the accent
-words (**TRAS / AMABLE / IA**) carry `class="accent"` and differ by **colour
-only**, swapping white↔orange per tee.
-
-The three stage labels sit on the **left**, each hugging its target with a
-short arrow — **aprendizaje no supervisado** (top-left → the beast/head),
-**ajuste fino supervisado** (→ the mask) and **RLHF (la guinda)** (→ the
-smiley). Edit the phrase/label positions directly in `es.orange.front.svg`,
-then regenerate EN + white/black via the builder.
+The reading path runs *¿qué hay tras* → the friendly face → *la cara amable
+de la IA?*. The three stage labels (4.2 pt) point with short arrows at the
+maw, the mask and the smiley. Text lives in the canonical SVGs, so edit it
+there, then regenerate the variants.
 
 ## Sources & attribution (verified)
 
-This design is a **derivative of a Creative Commons illustration** — the
-attribution below is a licence requirement, and a tiny credit line rides on
-the print itself (`<text id="credit">`).
+The art is an **original drawing**: nothing is traced and no raster is
+used. Its composition deliberately follows Anna Husfeldt's CC BY-SA
+illustration (the fanged maw, eyes on stalks, the mask on a tentacle, and
+the smiley on a stalk from the mask's mouth), so we treat it as an
+**adaptation** and credit her.
 
-- **Illustration:** *"…putting smileys on a Shoggoth"*, drawn by
+**Where the credit lives:** here, in this README, and not on the print. The
+chapter chose a clean front over a fine-print credit line. CC BY-SA 3.0
+asks for credit "reasonable to the medium", and credit that only appears in
+the repo is the weakest reading of that. If the design is sold, printed at
+volume, or contributed upstream, reconsider putting a one-line credit under
+the back QR, e.g. *"Dibujo basado en la ilustración de Anna Husfeldt · CC BY-SA
+3.0 · meme: @TetraspaceWest"*.
+
+- **Reference illustration:** *"…putting smileys on a Shoggoth"*, drawn by
   **Anna Husfeldt**, released under **CC-BY-SA 3.0**.
   - Requested attribution string: *"Image created by Anna Husfeldt, released
     under CC-BY SA 3.0."*
   - Source: Thore Husfeldt, "Reinforcement Learning using Human Feedback is
-    Putting Smileys on a Shoggoth", **2 March 2023** —
+    Putting Smileys on a Shoggoth", **2 March 2023**:
     https://thorehusfeldt.com/2023/03/02/reinforcement-learning-using-human-feedback-is-putting-smileys-on-a-shoggoth/
-  - We **traced** it to a black line drawing (no raster is embedded) and
-    **dropped** her English handwritten labels/arrows, **re-authoring** them
-    as Spanish (and English) text. We kept it black-on-white with her pink
-    mask and yellow smiley as she drew it; the linework, the mask face, and
-    the composition are all hers.
+  - Also reproduced in Dan Smith, "The meaning of shoggoth AI memes",
+    LessWrong, **31 July 2023**:
+    https://www.lesswrong.com/posts/yjzW7gxk2h7bBs2qr/the-meaning-of-shoggoth-ai-memes
 - **The meme concept** (shoggoth = the model, smiley = RLHF) originated with
-  Twitter/X user **@TetraspaceWest, 30 December 2022**. Credited on the print
-  as `meme: @TetraspaceWest`.
+  Twitter/X user **@TetraspaceWest, 30 December 2022**.
 - **RLHF** = *Reinforcement Learning from Human Feedback*, the post-training
   step that makes a raw model behave like a polite assistant. "La guinda" =
   the cherry on top / finishing touch.
@@ -135,95 +126,70 @@ the print itself (`<text id="credit">`).
 
 ### Licence / ShareAlike
 
-CC-BY-SA 3.0 permits commercial use and derivatives **provided the derivative
-is shared alike**. This repo licenses its designs under **CC BY-SA 4.0**
+CC-BY-SA 3.0 permits commercial use and adaptations **provided they are
+shared alike**. This repo licenses its designs under **CC BY-SA 4.0**
 ([`/LICENSE-DESIGNS`](../../LICENSE-DESIGNS)), the Creative-Commons-approved
-upgrade target for a 3.0 source — so this design ships under CC BY-SA 4.0
-with Anna Husfeldt credited. Keep the credit line on any variant. (No real
-person's likeness is used; this is an illustration, not an AI-generated
-portrait.)
+upgrade target for a 3.0 source, so this design ships under CC BY-SA 4.0
+with Anna Husfeldt credited (see *Where the credit lives* above). (No real
+person's likeness is used. The mask is a generic drawn face, not an
+AI-generated portrait.)
 
-## How the art was made
+## How the art is made
 
-`SVG is the source of truth` — the creature is **pure vector**, no embedded
-raster. Reproducible:
-
-```sh
-brew install potrace                          # the line-art vectorizer
-pip install pillow numpy scipy                 # in a venv; NOT pipeline deps
-python3 scripts/trace-shoggoth.py <anna.jpeg> <outdir>
-# then splice the emitted <g id="shoggoth-*"> layers back in between
-# <g id="shoggoth"> … </g> in es.orange.front.svg, and run
-# scripts/build-shoggoth-cara-amable.py
-```
-
-`scripts/trace-shoggoth.py` emits three layers: **shoggoth-mask** (a cleaned
-solid pink face fill), **shoggoth-smiley** (a cleaned yellow disc), and
-**shoggoth-ink** — *every* dark line of the drawing (creature + the mask's
-grimace + the smiley's eyes/smile) via a **luminance** threshold, drawn on top
-of the two fills. The light pink/yellow fills fall above the threshold and
-drop out like the original's white paper; the blue English labels are excluded
-explicitly. A connected-component pass despeckles and a 1-px grow keeps lines
-print-safe. The source is resized to height 671 px so potrace's transform
-matches the `<g id="art">` placement — a drop-in replacement. Requires `scipy`
-in addition to pillow/numpy. `es.orange.front.svg` is the hand-maintained source.
-
-### The green body fill + white eyes
-
-The colour fill is derived from the committed linework (no source image
-needed) by a second one-off generator:
+The creature is generated by **`scripts/draw-shoggoth.py`**, which is
+deterministic (fixed seed). It is a one-off art tool, **not** a pipeline
+stage:
 
 ```sh
-brew install potrace                          # vectorizer (macOS qlmanage too)
-pip install pillow numpy scipy                 # venv; NOT pipeline deps
-python3 scripts/trace-shoggoth-body.py        # splices the fill into es+en canon
-python3 scripts/build-shoggoth-cara-amable.py  # regenerate white/black variants
+brew install potrace
+python3 -m venv .venv && .venv/bin/pip install pillow numpy scipy
+.venv/bin/python scripts/draw-shoggoth.py --preview /tmp/shog   # PNG previews per tee
+.venv/bin/python scripts/draw-shoggoth.py                       # splice into es+en canon
+./scripts/build-all.sh                                          # variants, prints, mockups
 ```
 
-`scripts/trace-shoggoth-body.py` rasterises *only* `#shoggoth-ink` inside the
-design's square `0 0 200 200` viewBox (so the pixel grid maps cleanly back to
-mm), then: (1) builds the **silhouette** from local ink *density* — a gaussian
-blur + threshold — because Anna's loose, open contours have no closed outline
-to flood-fill; this hugs the creature without spilling into the background
-between splayed tentacles; (2) detects the **eyes** as small, round, *enclosed*
-white cells (it first seals hairline gaps in the eye outlines so open-outlined
-eyes still register) and stamps them back as white discs on top of the green —
-eyes that fall on the pink mask or yellow smiley are excluded so those faces
-are untouched. potrace turns both masks into the `#shoggoth-body` (green) and
-`#shoggoth-eyes` (white) paths, wrapped in `scale(200/N)` so they land exactly
-under the linework. Re-running is idempotent (it replaces any existing
-`#shoggoth-fill`). Tune `SIG`/`THRESH` (silhouette tightness) and
-`EYE_MIN`/`EYE_ROUND` (eye selectivity) at the top of the script.
+How it works:
+1. Every part is built from Catmull-Rom splines, lumpy blobs and discs:
+   `bubble()` (body lobes with hatching + cracks), `tentacle()` (tapered,
+   grooved, eyes along it), `eyestalk()`, `tendril()`, `maw()`, `mask()`,
+   `smiley()` and `eye()`.
+2. The parts are painted in painter's order into a label raster (20 px/mm),
+   one label per print colour. Each part first paints a knock-out outline,
+   which is what separates overlapping tentacles.
+3. Each colour is vectorised with potrace. Lower colours get a 3 px underlay
+   beneath the colours stacked on them, so there are no seams between
+   separations.
+4. The result replaces `<g id="art">` in both canonicals, placed on the
+   canvas by `ART_SCALE` / `ART_DX` / `ART_DY`. Headline and labels are
+   untouched.
+
+To reshape the creature, edit `draw_creature()` (coordinates are mm in the
+drawing frame), preview, and re-splice. If the art moves, re-aim the label
+arrows in both canonicals.
 
 ## Constraints honored
 
-- [x] Brand tokens for all swapping marks (`#111111`, `#FFFFFF`, `#FF9416`)
-- [x] Spot colours (green body, pink mask, yellow smiley) documented in
-      `brand/tokens.json` under `illustrationColors`; the old violet body
-      remains removed
-- [x] Eyes punched out to paper white, kept off the mask/smiley faces
-- [x] Body fill hugs the silhouette — no spill outside the creature
+- [x] Brand tokens for all swapping marks (`#111111`, `#FFFFFF`, `#FF9416`);
+      spot colours (green, pink, yellow) read from `brand/tokens.json`
+      (`illustrationColors`)
+- [x] Carved lines ≥ 0.4 mm at canvas scale (`THIN × ART_SCALE`, asserted)
 - [x] Does not modify any file in `brand/logos/` (logo swapped wholesale)
 - [x] Fits the 200 × 200 mm print area with ≥ 5 mm safe margins
-- [x] No embedded raster — vectorized line art + vectorized fill
-- [x] Hairlines ≥ 0.4 mm at tee scale (traced lines ≈ 0.5 mm after dilation)
-- [ ] Text outlined for production — run `scripts/print-export.py` before
-      sending to the printer
+- [x] No embedded raster, pure vector (~80 KB per front)
+- [x] Text outlined for production by `scripts/print-export.py`
 
 ## Notes / caveats
 
-- **Ink count ⇒ best on DTG.** Now four print colours — green body, pink mask,
-  yellow smiley, ink/paper linework — plus the white eyes and the logo's
-  orange. Comfortable on DTG; for **screen-print** this is a bigger separation
-  job (the green body is a large solid; the white eyes knock out of it), so
-  proof the green + the densest area (the maw) first.
-- **Reads on all three tees**, but differently: the **black tee** is the
-  showcase (white linework on dark green); on **white / orange** the black
-  linework sits quieter on the green and the **white eyes** do the heavy
-  lifting. See *Colour → Reads per tee*.
-- **File size ≈ 135 KB per front** — Anna's intricate linework plus the
-  vectorized green silhouette and eyes (still pure vector, no embedded raster).
-- The body fill is a chapter-added colour treatment over Anna's drawing; an
-  earlier *whole-body* violet wash was dropped because it buried the linework.
-  This version keeps the fill deep, flips the linework to white where it can
-  (black tee), and punches the eyes white so the creature still reads.
+- **Ink count:** green body, white, orange, pink, yellow, and ink details
+  (6 screens). DTG is the natural fit. For screen
+  print the large solid body is easy, but proof the fine carving (hatching
+  ≈ 0.4–0.65 mm) at the densest spots: the maw fangs and the eye rings.
+- On the **black tee** the deep green is the lowest-contrast of the three,
+  so it reads darker there. The white eyes and orange irises carry it.
+- On the **orange tee** the carving shows orange, which reads as a warm
+  "glow" around the eyes. That is intentional.
+- The front has no credit line; attribution is in this README (see
+  *Sources & attribution*).
+- Replaces an earlier version that traced Anna's drawing directly and washed
+  it green. At chest size it read as a muddy, busy blob. This version keeps
+  the green but as a solid, carved silhouette.
