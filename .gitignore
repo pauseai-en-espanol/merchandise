@@ -1,6 +1,5 @@
 # Generated outputs — built from SVG sources, never edited by hand.
 /build/
-/mockups/renders/*
 
 # Python tooling (scripts/ + one-off asset generators)
 __pycache__/

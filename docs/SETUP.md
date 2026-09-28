@@ -144,8 +144,8 @@ Stages:
    composing each design over the JHK TSRA 170 tee photos, with all
    text outlined to `<path>` so the SVGs render identically anywhere
    (including GitHub) without depending on Saira Condensed
-4. `qlmanage` — rasterizes every mockup SVG to PNG into
-   `mockups/renders/<slug>/`
+4. `qlmanage` + `sips` — rasterizes every mockup SVG to JPEG into
+   `renders/<slug>/` (top level, committed)
 5. `print-export.py` — outlined-text print SVGs at chapter print
    sizes (24 × 24 cm fronts, 20 × 22 cm backs) into `prints/`
 

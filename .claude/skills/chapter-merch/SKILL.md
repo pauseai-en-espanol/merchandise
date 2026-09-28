@@ -69,7 +69,7 @@ inner paths to the right variant.
 1. build-qr.py            backs (3 colors per design)
 2. build-<slug>.py        per-design color variants
 3. build-mockups.py       composes mockups/<slug>/{lang}.{color}.{side}.svg
-4. qlmanage renders       rasterizes to PNG
+4. qlmanage renders       rasterizes to JPEG (renders/)
 5. print-export.py        outlined-text SVGs for the printer
 ```
 
@@ -153,7 +153,7 @@ Onboard a new design from a brief.
    adapting the swap rules for this design.
 
 6. Run `./scripts/build-all.sh`. Verify the 3 variants × 2 sides render
-   correctly via `mockups/renders/<slug>/{es,en}.{orange,white,black}.{front,back}.png`.
+   correctly via `renders/<slug>/{es,en}.{orange,white,black}.{front,back}.jpg`.
 
 7. Commit: SVG sources + README + the new builder. Generated
    variants (`*.white.svg`, `*.black.svg`, `mockups/<slug>/*`, prints)
@@ -192,7 +192,7 @@ Workflow:
 3. If the change affects the *colour rules* (new accent zones, per-tee
    behaviour), update `scripts/build-<slug>.py` accordingly.
 4. Run `./scripts/build-all.sh`.
-5. Show the user the rendered mockups (`mockups/renders/<slug>/*.png`)
+5. Show the user the rendered mockups (`renders/<slug>/*.jpg`)
    for verification.
 
 For quick local checks during iteration, render the canonical SVG

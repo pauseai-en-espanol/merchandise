@@ -18,8 +18,10 @@ Designs may also be contributed upstream to [PauseAI Global](https://pauseai.inf
   source of truth referenced by every design.
 - **Product specs** (T-shirt print area, sticker dimensions, etc.) live in
   `products/` as YAML, so a single design can target multiple products.
-- **Mockups and renders** are built from the SVG sources — they are not
-  edited by hand and are not committed (see `.gitignore`).
+- **Mockups and renders** are built from the SVG sources by
+  `scripts/build-all.sh` and are never edited by hand. Both are committed so
+  reviewers can see every design on GitHub: composite SVGs in `mockups/`,
+  JPEGs in `renders/`.
 
 ## Quickstart
 

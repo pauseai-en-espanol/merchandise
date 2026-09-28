@@ -13,8 +13,8 @@
 #   4. build-mockups.py       composes mockups/<slug>/<lang>.<tee>
 #                             .<side>.svg from the prints + tee photo
 #                             (already outlined → no font dependency)
-#   5. qlmanage renders       rasterizes every mockup to PNG in
-#                             mockups/renders/
+#   5. qlmanage renders       rasterizes every mockup to JPEG in
+#                             renders/ (top level, committed)
 #
 # Stops on the first failure (set -e). Stage outputs are clearly
 # labeled so a partial failure is easy to locate.
@@ -79,13 +79,13 @@ if [[ "${SKIP_RENDERS:-0}" == "1" ]]; then
     echo "[5/5] qlmanage renders — SKIPPED (SKIP_RENDERS=1)"
 else
     echo
-    echo "[5/5] qlmanage renders — mockups/renders/<slug>/{lang}.{tee}.{side}.png"
+    echo "[5/5] qlmanage renders — renders/<slug>/{lang}.{tee}.{side}.jpg"
     for design_dir in designs/*/; do
         slug=$(basename "$design_dir")
         [[ "$slug" == _* ]] && continue
         mockup_dir="mockups/${slug}"
         [[ -d "$mockup_dir" ]] || continue
-        out_dir="mockups/renders/${slug}"
+        out_dir="renders/${slug}"
         mkdir -p "$out_dir"
         for lang in es en; do
             for color in orange white black; do
@@ -94,16 +94,21 @@ else
                     if [[ -f "$svg" ]]; then
                         qlmanage -t -s 1500 -o "$out_dir" "$svg" \
                             >/dev/null 2>&1
+                        # qlmanage writes a PNG; committed renders are JPEG
+                        # (the tee photo compresses ~12x better; see
+                        # mockups/README.md). sips ships with macOS.
                         src="${out_dir}/${lang}.${color}.${side}.svg.png"
-                        dst="${out_dir}/${lang}.${color}.${side}.png"
+                        dst="${out_dir}/${lang}.${color}.${side}.jpg"
                         if [[ -f "$src" ]]; then
-                            mv "$src" "$dst"
+                            sips -s format jpeg -s formatOptions 82 \
+                                "$src" --out "$dst" >/dev/null 2>&1
+                            rm -f "$src"
                         fi
                     fi
                 done
             done
         done
-        echo "  · $slug — PNGs rendered for es + en"
+        echo "  · $slug — renders (JPEG) for es + en"
     done
 fi
 

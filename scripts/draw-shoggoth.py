@@ -137,8 +137,10 @@ def normals(pts):
 
 
 def ribbon(pts, widths, label):
-    """Stroke a polyline with per-point width (round joins + caps)."""
-    widths = np.broadcast_to(np.asarray(widths, float), (len(pts),))
+    """Stroke a polyline with per-point width (round joins + caps).
+    No stroke is ever thinner than THIN (the hairline floor)."""
+    widths = np.maximum(np.broadcast_to(np.asarray(widths, float),
+                                        (len(pts),)), THIN)
     nrm = normals(pts)
     L = pts + nrm * widths[:, None] / 2
     R = pts - nrm * widths[:, None] / 2
@@ -166,7 +168,8 @@ def blob(c, rx, ry, lumps, rot=0.0, k=18):
     return spline(ctrl, n=16, closed=True)
 
 
-def fill_outline(outline, label, gap=GAP):
+def fill_outline(outline, label, gap=None):
+    gap = max(GAP if gap is None else gap, THIN)
     if gap:
         ribbon(np.vstack([outline, outline[:1]]), 2 * gap, KNOCK)
     poly(outline, label)
@@ -176,6 +179,7 @@ def fill_outline(outline, label, gap=GAP):
 
 def eye(c, r, gaze=(-0.3, 0.1), ring=0.7):
     """White sclera, orange iris, ink pupil, glint; knocked-out ring."""
+    ring = max(ring, THIN)
     disc(c, r + ring, KNOCK)
     disc(c, r, WHITE)
     gx, gy = gaze
@@ -190,8 +194,9 @@ def eye(c, r, gaze=(-0.3, 0.1), ring=0.7):
         disc((c[0] + gx * r * 0.3, c[1] + gy * r * 0.3), r * 0.5, INKFIX)
 
 
-def tentacle(ctrl, w0, w1, eyes=(), groove=True, gap=GAP, power=0.9,
+def tentacle(ctrl, w0, w1, eyes=(), groove=True, gap=None, power=0.9,
              groove_side=1):
+    gap = max(GAP if gap is None else gap, THIN)
     pts = spline(ctrl)
     w = taper(len(pts), w0, w1, power)
     ribbon(pts, w + 2 * gap, KNOCK)
@@ -213,10 +218,11 @@ def tentacle(ctrl, w0, w1, eyes=(), groove=True, gap=GAP, power=0.9,
 
 def eyestalk(ctrl, w0=1.9, w1=1.2, r=2.3):
     pts = spline(ctrl)
-    ribbon(pts, taper(len(pts), w0 + 1.4, w1 + 1.4), KNOCK)
+    g2 = 2 * max(0.7, THIN)
+    ribbon(pts, taper(len(pts), w0 + g2, w1 + g2), KNOCK)
     ribbon(pts, taper(len(pts), w0, w1), BODY)
     tip = tuple(pts[-1])
-    disc(tip, r + 1.2, KNOCK)
+    disc(tip, r + 0.55 + max(0.65, THIN), KNOCK)
     disc(tip, r + 0.55, BODY)       # little fleshy cup around the eye
     d = pts[-1] - pts[-6]
     d /= np.linalg.norm(d)
@@ -225,6 +231,7 @@ def eyestalk(ctrl, w0=1.9, w1=1.2, r=2.3):
 
 def tendril(ctrl, w0=1.7, w1=0.8, gap=0.6):
     """Thin flailing whip with no eye."""
+    gap = max(gap, THIN)
     pts = spline(ctrl)
     w = taper(len(pts), w0, w1)
     ribbon(pts, w + 2 * gap, KNOCK)
@@ -281,7 +288,7 @@ def hatch(c, rx, ry, a0, a1, n, length=(2.2, 4.2), rot=0.0, inset=1.4):
 # --- the creature ------------------------------------------------------
 
 def bubble(c, rx, ry, rot=0.0, eyes=(), veins_at=(), shade=(0.15, 2.0),
-           lumps=None, gap=GAP):
+           lumps=None, gap=None):
     """One protoplasmic bulb: filled lump, carved shading + cracks, eyes."""
     if lumps is None:
         lumps = [(rng.uniform(.02, .05), 3, rng.uniform(0, 6)),
@@ -447,7 +454,7 @@ def mask(center, rot):
 
 
 def smiley(c, r):
-    disc(c, r + 1.0, KNOCK)
+    disc(c, r + 0.55 + max(0.45, THIN), KNOCK)
     disc(c, r + 0.55, INKFIX)
     disc(c, r, YELLOW)
     x, y = c

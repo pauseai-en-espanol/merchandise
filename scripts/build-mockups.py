@@ -17,7 +17,7 @@ qlmanage — without Saira Condensed installed.
 
 Run print-export.py BEFORE this script so the prints exist (build-all.sh
 orders the stages). Rasterize the mockups to PNG with qlmanage into
-mockups/renders/.
+renders/ (build-all.sh stage 5).
 
 Run from the repo root:
     python3 scripts/build-mockups.py
