@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Draw the shoggoth-cara-amable creature from scratch and splice it, as pure
-vector art, into designs/shoggoth-cara-amable/{es,en}.orange.front.svg.
+Draw the shoggoth-friendly-face creature from scratch and splice it, as pure
+vector art, into designs/shoggoth-friendly-face/{es,en}.orange.front.svg.
 
 An ORIGINAL bold, linocut / flash-tattoo style re-drawing of the "shoggoth
 with a smiley face" meme, composed after Anna Husfeldt's CC BY-SA 3.0
@@ -60,7 +60,7 @@ from PIL import Image, ImageDraw
 from scipy import ndimage
 
 ROOT = Path(__file__).resolve().parent.parent
-DESIGN = ROOT / 'designs/shoggoth-cara-amable'
+DESIGN = ROOT / 'designs/shoggoth-friendly-face'
 
 PX = 20                     # raster px per mm
 W = H = 200                 # canvas, mm

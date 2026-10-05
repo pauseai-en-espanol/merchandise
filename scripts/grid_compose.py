@@ -4,7 +4,7 @@ Typographic grid composition helpers — Psalm-style packed layouts where
 every cell in a row has the same vertical span and every row has the
 same horizontal span.
 
-Used to author `designs/cais-extincion/design.es.svg`. The math is non-
+Used to author `designs/cais-extinction/design.es.svg`. The math is non-
 obvious enough that doing it by hand is error-prone; this module
 encapsulates the constraint solving so future designs can be 10 lines
 of Python instead of 50 numbers.

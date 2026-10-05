@@ -97,11 +97,11 @@ To regenerate variants after editing `design.es.svg` or any asset:
 
 ```sh
 python3 scripts/build-qr.py                          # all back.*.svg files
-python3 scripts/build-altman-fin-del-mundo.py        # altman variants
-python3 scripts/build-cais-extincion.py              # cais variants
-python3 scripts/build-p-doom-evidencia.py            # p-doom variants
-python3 scripts/build-preguntame.py                  # preguntame variants
-python3 scripts/build-si-alguien-la-crea.py          # si-alguien variants
+python3 scripts/build-altman-end-of-the-world.py     # altman variants
+python3 scripts/build-cais-extinction.py             # cais variants
+python3 scripts/build-p-doom-evidence.py             # p-doom variants
+python3 scripts/build-ask-me.py                      # ask-me variants
+python3 scripts/build-if-anyone-builds-it.py         # if-anyone variants
 python3 scripts/print-export.py                      # outlined prints — run BEFORE mockups
 python3 scripts/build-mockups.py                     # mockups composited from the prints
 ```

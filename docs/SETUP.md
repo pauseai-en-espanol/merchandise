@@ -40,8 +40,8 @@ xcode-select --install
 |---|---|---|
 | `fontTools` (≥ 4.60) | `scripts/print-export.py`, `scripts/text-to-outlines.py` | converts `<text>` to outline `<path>` for printer-ready SVGs |
 | `qrcode` | `scripts/build-qr.py` | generates the QR matrix for the back design |
-| `Pillow` (PIL) | `scripts/build-mockups.py`, `scripts/build-altman-fin-del-mundo.py` | raster manipulation for mockups + the raster-quote layer in altman |
-| `numpy` | `scripts/build-altman-fin-del-mundo.py` | raster ops on the altman quote PNGs |
+| `Pillow` (PIL) | `scripts/build-mockups.py`, `scripts/build-altman-end-of-the-world.py` | raster manipulation for mockups + the raster-quote layer in altman |
+| `numpy` | `scripts/build-altman-end-of-the-world.py` | raster ops on the altman quote PNGs |
 
 Install all in one command:
 
@@ -56,8 +56,8 @@ a raster sketch. Not needed by `build-all.sh`.
 
 | Package | Why |
 |---|---|
-| `psd-tools` | Extracts layers from contributor PSDs (used during the `altman-fin-del-mundo` onboarding) |
-| `potracer` | Vector tracing of raster sketches (used to produce `designs/altman-fin-del-mundo/assets/stencil.svg` from the hand-drawn portrait) |
+| `psd-tools` | Extracts layers from contributor PSDs (used during the `altman-end-of-the-world` onboarding) |
+| `potracer` | Vector tracing of raster sketches (used to produce `designs/altman-end-of-the-world/assets/stencil.svg` from the hand-drawn portrait) |
 
 ```sh
 pip3 install --user psd-tools potracer
@@ -85,14 +85,14 @@ on every active design.
 
 ### Legacy: Bebas Neue
 
-The `altman-fin-del-mundo` design's quote text is **embedded as raster
-PNG** (see `designs/altman-fin-del-mundo/assets/quote-*.png`). Bebas
+The `altman-end-of-the-world` design's quote text is **embedded as raster
+PNG** (see `designs/altman-end-of-the-world/assets/quote-*.png`). Bebas
 Neue does NOT need to be installed at any point.
 
 ### Italic
 
 Saira Condensed Italic is not in the repo. Italic styles in the SVG
-sources (e.g. `cais-extincion`'s attribution) are rendered:
+sources (e.g. `cais-extinction`'s attribution) are rendered:
 - by Safari / Preview as **synthetic italic** (system skew) — looks
   acceptable for preview purposes
 - by `scripts/print-export.py` as `skewX(-10°)` on the outlined paths
@@ -117,8 +117,8 @@ brew install cairo
 pip3 install --user cairosvg
 python3 -c "
 import cairosvg
-cairosvg.svg2pdf(url='prints/cais-extincion-front.svg',
-                 write_to='prints/cais-extincion-front.pdf')
+cairosvg.svg2pdf(url='prints/cais-extinction-front.svg',
+                 write_to='prints/cais-extinction-front.pdf')
 "
 ```
 

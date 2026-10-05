@@ -16,7 +16,7 @@ synthesized with a skewX(-10°) transform on the run group, since the
 chapter committed only the regular weight to the repo.
 
 Fronts at 200 × 200 mm are scaled up by 1.2 to fill the 240 × 240 mm
-canvas. The altman-fin-del-mundo design is already 240 × 240, so no
+canvas. The altman-end-of-the-world design is already 240 × 240, so no
 scale is applied there.
 
 Backs at 200 × 200 mm are placed inside a 200 × 220 mm canvas — the

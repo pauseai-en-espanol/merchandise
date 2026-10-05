@@ -38,8 +38,8 @@ subcommands below:
 - `#111111` ink (softer than pure black for screen-print contrast)
 - `#FFFFFF` paper
 
-### Per-tee colour conventions (recent — set during the cais-extincion
-and preguntame iterations):
+### Per-tee colour conventions (recent — set during the cais-extinction
+and ask-me iterations):
 
 | Tee | Body | Accent |
 |---|---|---|
@@ -52,7 +52,7 @@ or `class="accent" stroke="#FFFFFF"` on `<line>` (for rule/caret marks),
 in the canonical SVG. The per-design builder swaps the accent
 fill/stroke per tee.
 
-The `altman-fin-del-mundo` design predates this convention (uses
+The `altman-end-of-the-world` design predates this convention (uses
 raster-embedded quote PNGs and a different swap rule). Treat it as
 the exception, not the template.
 
@@ -112,7 +112,7 @@ you don't need rasterized mockups.
 Onboard a new design from a brief.
 
 1. Ask the user (only if not already in conversation):
-   - **Slug** (kebab-case, used as folder name) — e.g. `cais-extincion`
+   - **Slug** (kebab-case, used as folder name) — e.g. `cais-extinction`
    - **Voice lane** A or B
    - **One-paragraph idea**
    - **Quote source(s)** — verbatim text + date + URL + signatories
@@ -149,7 +149,7 @@ Onboard a new design from a brief.
    - Add `id="..."` to groups so the builder regex can target them.
 
 5. Create `scripts/build-<slug>.py` by copying the smallest existing
-   builder (`build-preguntame.py` or `build-cais-extincion.py`) and
+   builder (`build-ask-me.py` or `build-cais-extinction.py`) and
    adapting the swap rules for this design.
 
 6. Run `./scripts/build-all.sh`. Verify the 3 variants × 2 sides render
@@ -249,7 +249,7 @@ use `scripts/grid_compose.py`. It solves the constraint math so:
 ### When to reach for this
 
 - **Yes**: Lane B activist tee with a verbatim multi-word quote +
-  named signatories (cais-extincion pattern).
+  named signatories (cais-extinction pattern).
 - **No**: a single centred phrase, or a design that's mostly imagery.
   Use straight `<text>` elements.
 
@@ -327,8 +327,8 @@ Margins: 5 mm left/right (row_w = 190 mm), so designs span x=5..x=195.
 
 ### Reference implementation
 
-`designs/cais-extincion/es.orange.front.svg` is the canonical example. Its
-build script `scripts/build-cais-extincion.py` handles the per-tee
+`designs/cais-extinction/es.orange.front.svg` is the canonical example. Its
+build script `scripts/build-cais-extinction.py` handles the per-tee
 colour swap (`<text class="accent" fill="#FFFFFF">` and
 `<tspan class="accent" fill="#FFFFFF">` → `#FF9416` on white/black
 tees). Re-use the same builder pattern for new grid designs.

@@ -68,12 +68,24 @@ CAMPAIGN = "tshirt"
 # Curated short utm_source per design folder — kept terse because they show
 # up verbatim in analytics. Add one line per new design; any folder missing
 # here falls back to tee-<folder> with a warning.
+# The values for designs that predate the 2026-10 English folder rename
+# keep their original (Spanish-slug) source so QRs already printed and new
+# prints report under the same name. Don't change an existing value.
 SOURCE_NAMES = {
-    "altman-fin-del-mundo": "tee-altman",
-    "p-doom-evidencia":     "tee-pdoom",
-    "preguntame":           "tee-preguntame",
-    "cais-extincion":       "tee-cais",
-    "si-alguien-la-crea":   "tee-sialguien",
+    "altman-end-of-the-world":   "tee-altman",
+    "ask-a-chicken":             "tee-pregunta-a-un-pollo",
+    "ask-me":                    "tee-preguntame",
+    "cais-extinction":           "tee-cais",
+    "exponential-growth":        "tee-crecimiento-exponencial",
+    "if-anyone-builds-it":       "tee-sialguien",
+    "loading-superintelligence": "tee-cargando-superinteligencia",
+    "not-a-robot":               "tee-no-soy-un-robot",
+    "p-doom-evidence":           "tee-pdoom",
+    "regulated-like-a-sandwich": "tee-regulado-como-un-sandwich",
+    "shoggoth-friendly-face":    "tee-shoggoth-cara-amable",
+    "the-last-garden":           "tee-el-ultimo-jardin",
+    "turing-1951":               "tee-turing-1951",
+    "what-if-it-wont-shut-down": "tee-y-si-no-se-deja-apagar",
 }
 
 
