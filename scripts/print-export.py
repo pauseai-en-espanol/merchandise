@@ -125,19 +125,26 @@ def _resolve(elem, name, default=None, inherited=None):
     return default
 
 
-def _runs_from_text(elem, inherited_fill):
-    """Walk a <text> element, return list of (text, fill) runs."""
+def _runs_from_text(elem, inherited_fill, font_size, font_style):
+    """Walk a <text> element, return list of (text, fill, size, style) runs.
+    A <tspan> may override fill, font-size and font-style (e.g. the small
+    italic notes in exponential-growth and the-last-garden); text outside
+    tspans uses the <text>'s own values."""
     fill = _resolve(elem, 'fill', inherited_fill or '#000000')
     runs = []
     if elem.text:
-        runs.append((elem.text, fill))
+        runs.append((elem.text, fill, font_size, font_style))
     for child in elem:
         if child.tag == TSPAN_TAG:
             child_fill = _resolve(child, 'fill', fill)
+            child_size = font_size
+            if 'font-size' in child.attrib:
+                child_size = float(re.match(r'[\d.]+', child.attrib['font-size']).group(0))
+            child_style = child.attrib.get('font-style', font_style)
             if child.text:
-                runs.append((child.text, child_fill))
+                runs.append((child.text, child_fill, child_size, child_style))
         if child.tail:
-            runs.append((child.tail, fill))
+            runs.append((child.tail, fill, font_size, font_style))
     return runs
 
 
@@ -164,7 +171,7 @@ def text_to_outlines(elem, inherited):
     # not needed by any current design.
     text_length_str = elem.attrib.get('textLength')
 
-    runs = _runs_from_text(elem, fill)
+    runs = _runs_from_text(elem, fill, font_size, font_style)
     if not runs:
         return None
 
@@ -172,9 +179,16 @@ def text_to_outlines(elem, inherited):
     units_per_em = font['head'].unitsPerEm
     scale = font_size / units_per_em
 
+    # A run with its own size or style needs per-run placement. Lines whose
+    # runs all match the <text> keep the original single-transform layout,
+    # so their output stays byte-identical to earlier exports.
+    if any(size != font_size or style != font_style for _, _, size, style in runs):
+        return _mixed_runs_to_outlines(elem, runs, font, text_x, text_y,
+                                       text_anchor, dominant_baseline)
+
     total_advance = 0
     n_glyphs = 0
-    for run_text, _ in runs:
+    for run_text, *_ in runs:
         for ch in run_text:
             _, adv = char_to_path(font, ch)
             total_advance += adv
@@ -220,7 +234,7 @@ def text_to_outlines(elem, inherited):
 
     cursor_units = 0.0  # in font units, relative to outer transform origin
     placed = 0
-    for run_text, run_fill in runs:
+    for run_text, run_fill, *_ in runs:
         if not run_text:
             continue
         run_g = ET.SubElement(outer, G_TAG)
@@ -236,6 +250,61 @@ def text_to_outlines(elem, inherited):
             placed += 1
             if placed < n_glyphs:  # justification gap between glyphs only
                 cursor_units += gap_units
+
+    return outer
+
+
+def _mixed_runs_to_outlines(elem, runs, font, text_x, text_y, text_anchor,
+                            dominant_baseline):
+    """Outline a <text> whose runs differ in size or style: each run gets
+    its own scale and (synthetic) italic skew, placed one after another on
+    the shared baseline. textLength is not supported here (no design
+    combines it with mixed runs)."""
+    units_per_em = font['head'].unitsPerEm
+    widths = []
+    for run_text, _, size, _ in runs:
+        units = sum(char_to_path(font, ch)[1] for ch in run_text)
+        widths.append(units * size / units_per_em)
+    total_width = sum(widths)
+
+    if text_anchor == 'middle':
+        start_x = text_x - total_width / 2
+    elif text_anchor == 'end':
+        start_x = text_x - total_width
+    else:
+        start_x = text_x
+
+    first_size = runs[0][2]
+    baseline_y = text_y
+    if dominant_baseline in ('central', 'middle'):
+        baseline_y = text_y + (cap_height_units(font) * first_size / units_per_em) / 2
+
+    elem_transform = elem.attrib.get('transform')
+    pre = f'{elem_transform} ' if elem_transform else ''
+    outer = ET.Element(G_TAG)
+    outer.set('transform', f'{pre}translate({start_x:.4f} {baseline_y:.4f})')
+
+    cursor_x = 0.0  # in user units, relative to the line start
+    for (run_text, run_fill, size, style), width in zip(runs, widths):
+        if not run_text:
+            continue
+        run_scale = size / units_per_em
+        skew = f' skewX({-ITALIC_SKEW_DEG})' if style == 'italic' else ''
+        run_g = ET.SubElement(outer, G_TAG)
+        run_g.set('fill', run_fill)
+        run_g.set('transform',
+                  f'translate({cursor_x:.4f} 0){skew} '
+                  f'scale({run_scale:.6f} {-run_scale:.6f})')
+        cursor_units = 0
+        for ch in run_text:
+            path_d, adv = char_to_path(font, ch)
+            if path_d:
+                path = ET.SubElement(run_g, PATH_TAG)
+                path.set('d', path_d)
+                if cursor_units:
+                    path.set('transform', f'translate({_fmt_units(cursor_units)} 0)')
+            cursor_units += adv
+        cursor_x += width
 
     return outer
 
