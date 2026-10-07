@@ -1,5 +1,5 @@
 import { type FontBook, render, type Rendered, wordmarkFor } from '@pauseai-es/merch-core';
-import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   designBySlug,
@@ -79,6 +79,17 @@ export const App = () => {
   }, [ui, t.app.title]);
 
   useEffect(() => save({ settings, step, ui }), [settings, step, ui]);
+
+  const workspace = useRef<HTMLElement>(null);
+  /** Change step and bring the panel back into view (long steps end far down the page). */
+  const goTo = (next: number) => {
+    setStep(next);
+    const top = workspace.current?.getBoundingClientRect().top ?? 0;
+    if (top < 0) {
+      const reduce = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ behavior: reduce ? 'auto' : 'smooth', top: window.scrollY + top - 8 });
+    }
+  };
 
   const startOver = () => {
     if (!globalThis.confirm(t.app.resetConfirm)) return;
@@ -168,7 +179,7 @@ export const App = () => {
               <button
                 type="button"
                 aria-current={i === step ? 'step' : undefined}
-                onClick={() => setStep(i)}
+                onClick={() => goTo(i)}
               >
                 <span className="step-n">{i + 1}</span>
                 {label}
@@ -178,7 +189,7 @@ export const App = () => {
         </ol>
       </nav>
 
-      <main className="workspace">
+      <main ref={workspace} className="workspace">
         <section className="controls" aria-label={steps[step]}>
           {step === 0 && (
             <TeeStep
@@ -216,12 +227,12 @@ export const App = () => {
 
           <div className="step-nav">
             {step > 0 && (
-              <button type="button" className="button secondary" onClick={() => setStep(step - 1)}>
+              <button type="button" className="button secondary" onClick={() => goTo(step - 1)}>
                 {t.nav.back}
               </button>
             )}
             {step < steps.length - 1 && (
-              <button type="button" className="button" onClick={() => setStep(step + 1)}>
+              <button type="button" className="button" onClick={() => goTo(step + 1)}>
                 {t.nav.next}
               </button>
             )}

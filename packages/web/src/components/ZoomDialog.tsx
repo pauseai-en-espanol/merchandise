@@ -141,15 +141,60 @@ export const ZoomDialog = ({
     return () => el.removeEventListener('wheel', onWheel);
   }, [open, zoomTo]);
 
+  // Two-finger pinch zooms around the fingers. One finger pans with the
+  // browser's own scrolling (the stage only allows pan-x/pan-y gestures).
+  useEffect(() => {
+    const el = stage.current;
+    if (!open || !el) return;
+    let pinch: { dist: number; zoom: number } | null = null;
+    const spread = (touches: TouchList) => {
+      const [a, b] = [touches[0], touches[1]];
+      if (!a || !b) return null;
+      return {
+        dist: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+        x: (a.clientX + b.clientX) / 2,
+        y: (a.clientY + b.clientY) / 2,
+      };
+    };
+    const onStart = (e: TouchEvent) => {
+      const s = e.touches.length === 2 ? spread(e.touches) : null;
+      if (!s) return;
+      e.preventDefault();
+      pinch = { dist: s.dist, zoom: zoomRef.current };
+    };
+    const onMove = (e: TouchEvent) => {
+      const s = pinch && e.touches.length === 2 ? spread(e.touches) : null;
+      if (!pinch || !s) return;
+      e.preventDefault();
+      zoomTo((pinch.zoom * s.dist) / pinch.dist, { x: s.x, y: s.y });
+    };
+    const onEnd = (e: TouchEvent) => {
+      if (e.touches.length < 2) pinch = null;
+    };
+    el.addEventListener('touchstart', onStart, { passive: false });
+    el.addEventListener('touchmove', onMove, { passive: false });
+    el.addEventListener('touchend', onEnd);
+    el.addEventListener('touchcancel', onEnd);
+    return () => {
+      el.removeEventListener('touchstart', onStart);
+      el.removeEventListener('touchmove', onMove);
+      el.removeEventListener('touchend', onEnd);
+      el.removeEventListener('touchcancel', onEnd);
+    };
+  }, [open, zoomTo]);
+
+  const [touch] = useState(() => globalThis.matchMedia?.('(pointer: coarse)').matches ?? false);
+
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === '+' || e.key === '=') zoomTo(zoom * STEP);
     else if (e.key === '-') zoomTo(zoom / STEP);
     else if (e.key === '0') zoomTo(1);
   };
 
+  // Mouse and pen drag to pan; touch scrolls natively.
   const onPointerDown = (e: React.PointerEvent) => {
     const st = stage.current;
-    if (!st || e.button !== 0) return;
+    if (!st || e.button !== 0 || e.pointerType === 'touch') return;
     drag.current = { left: st.scrollLeft, top: st.scrollTop, x: e.clientX, y: e.clientY };
     st.setPointerCapture(e.pointerId);
     setDragging(true);
@@ -260,7 +305,7 @@ export const ZoomDialog = ({
           </div>
         </div>
       </div>
-      <p className="zoom-hint">{t.preview.zoomHint}</p>
+      <p className="zoom-hint">{touch ? t.preview.zoomHintTouch : t.preview.zoomHint}</p>
     </dialog>
   );
 };

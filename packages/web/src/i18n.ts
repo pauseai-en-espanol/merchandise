@@ -87,6 +87,7 @@ const es = {
     print: 'Archivo de impresión',
     zoomHint:
       'Doble clic, ⌘/Ctrl + rueda o las teclas + y − para hacer zoom. Arrastra para moverte.',
+    zoomHintTouch: 'Pellizca o toca dos veces para hacer zoom. Desliza para moverte.',
     zoomIn: 'Acercar',
     zoomOut: 'Alejar',
   },
@@ -178,6 +179,7 @@ const en: Strings = {
     mockup: 'On the tee',
     print: 'Print file',
     zoomHint: 'Double-click, ⌘/Ctrl + scroll or the + and − keys to zoom. Drag to move around.',
+    zoomHintTouch: 'Pinch or double-tap to zoom. Swipe to move around.',
     zoomIn: 'Zoom in',
     zoomOut: 'Zoom out',
   },
