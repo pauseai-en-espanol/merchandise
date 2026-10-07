@@ -11,20 +11,23 @@ import type { Update } from '../App';
 import type { Strings } from '../i18n';
 
 import { DESIGNS, FAMILIES, familyById, type Lang, loadFront } from '../assets';
-import { type Settings, type TeeChoice, teeOf } from '../settings';
+import { type Settings, teeOf } from '../settings';
 
-const EXAMPLES: { hex: string; name: Record<Lang, string> }[] = [
-  { hex: '#1F2A44', name: { en: 'Navy', es: 'Azul marino' } },
-  { hex: '#C8102E', name: { en: 'Red', es: 'Rojo' } },
-  { hex: '#1E8C3A', name: { en: 'Green', es: 'Verde' } },
-  { hex: '#9E9E9E', name: { en: 'Grey', es: 'Gris' } },
-  { hex: '#4B2A7B', name: { en: 'Purple', es: 'Morado' } },
-  { hex: '#FFD100', name: { en: 'Yellow', es: 'Amarillo' } },
-  { hex: '#F4A6C0', name: { en: 'Pink', es: 'Rosa' } },
+/**
+ * Suggestions inside "Custom". The main choices are orange (the brand colour,
+ * default) and white; black is offered last among the suggestions: a gentle
+ * nudge towards cheerful shirts for anyone without a strong preference.
+ */
+const SUGGESTED: { hex: string; name: Record<Lang, string> }[] = [
   { hex: '#9CC3E6', name: { en: 'Light blue', es: 'Celeste' } },
+  { hex: '#FFD100', name: { en: 'Yellow', es: 'Amarillo' } },
+  { hex: '#1E8C3A', name: { en: 'Green', es: 'Verde' } },
+  { hex: '#C8102E', name: { en: 'Red', es: 'Rojo' } },
+  { hex: '#F4A6C0', name: { en: 'Pink', es: 'Rosa' } },
+  { hex: '#4B2A7B', name: { en: 'Purple', es: 'Morado' } },
+  { hex: '#1F2A44', name: { en: 'Navy', es: 'Azul marino' } },
+  { hex: '#9E9E9E', name: { en: 'Grey', es: 'Gris' } },
 ];
-
-const CHOICES: TeeChoice[] = ['orange', 'white', 'black', 'custom'];
 
 interface Props {
   chooseDesign: (slug: string, lang: Lang) => void;
@@ -78,6 +81,20 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
   );
 
   const setCustom = (hex: string) => update({ customHex: hex, teeChoice: 'custom' });
+  const customOpen = settings.teeChoice === 'custom' || settings.teeChoice === 'black';
+  const preset = (choice: 'orange' | 'white') => (
+    <button
+      key={choice}
+      type="button"
+      className="chip"
+      aria-pressed={settings.teeChoice === choice}
+      onClick={() => update({ teeChoice: choice })}
+    >
+      <span className="swatch" style={{ background: PRESET_TEES[choice].hex }} />
+      {t.tee.presets[choice]}
+      {choice === 'orange' && <small>{t.tee.default}</small>}
+    </button>
+  );
   const design = DESIGNS.find((d) => d.slug === settings.slug);
   const ordered = useMemo(
     () => DESIGNS.toSorted((a, b) => a.title[ui].localeCompare(b.title[ui], ui)),
@@ -89,25 +106,20 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
       <fieldset className="group">
         <legend>{t.tee.heading}</legend>
         <div className="chips">
-          {CHOICES.map((choice) => (
-            <button
-              key={choice}
-              type="button"
-              className="chip"
-              aria-pressed={settings.teeChoice === choice}
-              onClick={() => update({ teeChoice: choice })}
-            >
-              <span
-                className={`swatch${choice === 'custom' ? ' rainbow' : ''}`}
-                style={choice === 'custom' ? undefined : { background: PRESET_TEES[choice].hex }}
-              />
-              {choice === 'custom' ? t.tee.custom : t.tee.presets[choice]}
-              {choice === 'orange' && <small>{t.tee.default}</small>}
-            </button>
-          ))}
+          {preset('orange')}
+          {preset('white')}
+          <button
+            type="button"
+            className="chip"
+            aria-pressed={customOpen}
+            onClick={() => update({ teeChoice: 'custom' })}
+          >
+            <span className="swatch rainbow" />
+            {t.tee.custom}
+          </button>
         </div>
 
-        {settings.teeChoice === 'custom' && (
+        {customOpen && (
           <div className="custom">
             <div className="row">
               <input
@@ -132,19 +144,30 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
             </div>
             <p className="hint">{t.tee.customHint}</p>
             <div className="examples" aria-label={t.tee.examples}>
-              {EXAMPLES.map((ex) => (
+              {SUGGESTED.map((c) => (
                 <button
-                  key={ex.hex}
+                  key={c.hex}
                   type="button"
                   className="example"
-                  aria-pressed={settings.customHex === ex.hex}
-                  title={`${ex.name[ui]} ${ex.hex}`}
-                  onClick={() => setCustom(ex.hex)}
+                  aria-pressed={settings.teeChoice === 'custom' && settings.customHex === c.hex}
+                  title={`${c.name[ui]} ${c.hex}`}
+                  onClick={() => setCustom(c.hex)}
                 >
-                  <span className="swatch large" style={{ background: ex.hex }} />
-                  {ex.name[ui]}
+                  <span className="swatch large" style={{ background: c.hex }} />
+                  {c.name[ui]}
                 </button>
               ))}
+              {/* Black is the chapter's own black tee (real photo, exact print rule). */}
+              <button
+                type="button"
+                className="example"
+                aria-pressed={settings.teeChoice === 'black'}
+                title={`${t.tee.presets.black} ${PRESET_TEES.black.hex}`}
+                onClick={() => update({ teeChoice: 'black' })}
+              >
+                <span className="swatch large" style={{ background: PRESET_TEES.black.hex }} />
+                {t.tee.presets.black}
+              </button>
             </div>
           </div>
         )}
