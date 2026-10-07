@@ -38,6 +38,7 @@ where <lang> ∈ {es,en}, <tee> ∈ {orange,white,black}.
 Run from the repo root:
     python3 scripts/build-qr.py
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -65,28 +66,19 @@ FG_COLOR = {
 # --- Tracking (UTM) -------------------------------------------------------
 CAMPAIGN = "tshirt"
 
-# Curated short utm_source per design folder — kept terse because they show
-# up verbatim in analytics. Add one line per new design; any folder missing
-# here falls back to tee-<folder> with a warning.
-# The values for designs that predate the 2026-10 English folder rename
-# keep their original (Spanish-slug) source so QRs already printed and new
-# prints report under the same name. Don't change an existing value.
-SOURCE_NAMES = {
-    "altman-end-of-the-world":   "tee-altman",
-    "ask-a-chicken":             "tee-pregunta-a-un-pollo",
-    "ask-me":                    "tee-preguntame",
-    "cais-extinction":           "tee-cais",
-    "exponential-growth":        "tee-crecimiento-exponencial",
-    "if-anyone-builds-it":       "tee-sialguien",
-    "loading-superintelligence": "tee-cargando-superinteligencia",
-    "not-a-robot":               "tee-no-soy-un-robot",
-    "p-doom-evidence":           "tee-pdoom",
-    "regulated-like-a-sandwich": "tee-regulado-como-un-sandwich",
-    "shoggoth-friendly-face":    "tee-shoggoth-cara-amable",
-    "the-last-garden":           "tee-el-ultimo-jardin",
-    "turing-1951":               "tee-turing-1951",
-    "what-if-it-wont-shut-down": "tee-y-si-no-se-deja-apagar",
-}
+# Curated short utm_source per design, read from designs/<slug>/design.json
+# ("utmSource") so the web generator uses the same names. Kept terse because
+# they show up verbatim in analytics. Designs that predate the 2026-10 English
+# folder rename keep their original (Spanish-slug) source so QRs already
+# printed and new prints report under the same name. Don't change an existing
+# value. A folder without one falls back to tee-<folder> with a warning.
+def source_name(design_dir):
+    meta = design_dir / "design.json"
+    if meta.exists():
+        source = json.loads(meta.read_text()).get("utmSource")
+        if source:
+            return source
+    return None
 
 
 def _xml(s):
@@ -338,11 +330,11 @@ def main():
 
         for design_dir in design_dirs:
             # 3) Campaign+source QR — unique per design (its own screen).
-            source = SOURCE_NAMES.get(design_dir.name)
+            source = source_name(design_dir)
             if source is None:
                 source = f"tee-{design_dir.name}"
                 print(f"  ! {design_dir.name}: no curated utm_source, "
-                      f"using '{source}' (add it to SOURCE_NAMES)")
+                      f"using '{source}' (add utmSource to its design.json)")
             url_sourced = f"{base}/?utm_campaign={CAMPAIGN}&utm_source={source}"
             sourced_qrs = {
                 tee: _build_qr_for(url_sourced, mark_vb, mark_inner,

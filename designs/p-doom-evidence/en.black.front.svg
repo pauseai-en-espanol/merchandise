@@ -44,37 +44,42 @@
      font-family="Saira Condensed, Impact, sans-serif"
      fill="#FFFFFF">
     <text x="22" y="120" font-weight="700" font-size="8">Geoffrey Hinton (ex-Google)</text>
-    <text x="178" y="120"
+    <text class="accent" x="178" y="120"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="9"
-          text-anchor="end" fill="#FF9416">10-20 %</text>
+          fill="#FF9416"
+          text-anchor="end">10-20 %</text>
 
     <text x="22" y="134" font-weight="700" font-size="8">Yoshua Bengio (Mila)</text>
-    <text x="178" y="134"
+    <text class="accent" x="178" y="134"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="9"
-          text-anchor="end" fill="#FF9416">20 %</text>
+          fill="#FF9416"
+          text-anchor="end">20 %</text>
 
     <text x="22" y="148" font-weight="700" font-size="8">Dario Amodei (Anthropic)</text>
-    <text x="178" y="148"
+    <text class="accent" x="178" y="148"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="9"
-          text-anchor="end" fill="#FF9416">10-25 %</text>
+          fill="#FF9416"
+          text-anchor="end">10-25 %</text>
 
     <text x="22" y="162" font-weight="700" font-size="8">Elon Musk (xAI)</text>
-    <text x="178" y="162"
+    <text class="accent" x="178" y="162"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="9"
-          text-anchor="end" fill="#FF9416">10-30 %</text>
+          fill="#FF9416"
+          text-anchor="end">10-30 %</text>
 
     <text x="22" y="176" font-weight="700" font-size="8">Sam Altman (OpenAI)</text>
-    <text x="178" y="176"
+    <text class="accent" x="178" y="176"
           font-family="Saira Condensed, Impact, sans-serif"
           font-weight="700" font-size="8"
-          text-anchor="end" fill="#FF9416">«…end of the world»</text>
+          fill="#FF9416"
+          text-anchor="end">«…end of the world»</text>
   </g>
 
-  <text x="100" y="195" id="footer"
+  <text x="100" y="195" id="footer" class="accent"
         font-family="Saira Condensed, Impact, sans-serif" font-style="italic"
         font-weight="700" font-size="12"
         fill="#FF9416" text-anchor="middle">...and they keep building.</text>

@@ -1,0 +1,9 @@
+{
+  "title": {
+    "es": "Título en español",
+    "en": "English title"
+  },
+  "lane": "A",
+  "sourced": false,
+  "utmSource": "tee-<short-name>"
+}
