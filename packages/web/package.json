@@ -1,0 +1,28 @@
+{
+  "name": "@pauseai-es/merch-web",
+  "type": "module",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Web generator: pick a design and tee colour, add a logo, URL and text, download print-ready files",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint --type-aware --max-warnings 0 .",
+    "lint:fix": "oxlint --type-aware --fix --max-warnings 0 .",
+    "test": "echo 'no web tests yet; the rendering engine is tested in @pauseai-es/merch-core'"
+  },
+  "dependencies": {
+    "@pauseai-es/merch-core": "workspace:*",
+    "fflate": "0.8.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "vite": "8.3.3"
+  }
+}

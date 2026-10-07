@@ -1,0 +1,23 @@
+# Design sources, brand assets and generated outputs: authored by hand or by
+# the Python pipeline, never reformatted.
+designs/
+brand/
+prints/
+mockups/
+renders/
+products/
+scripts/
+docs/
+*.md
+
+# Build output
+dist/
+
+# Worktrees
+.claude/worktrees/
+
+# pnpm owns the lockfile format
+pnpm-lock.yaml
+
+# Helm templates (Go template syntax is not valid YAML)
+charts/*/templates/

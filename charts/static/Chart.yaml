@@ -1,0 +1,6 @@
+apiVersion: v2
+name: pauseai-es-merchandise-static
+description: Static build of the PauseAI merch generator (designs → print-ready t-shirt files)
+type: application
+version: 1.0.0
+appVersion: '1.0.0'

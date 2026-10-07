@@ -1,12 +1,45 @@
 {
-  "name": "merchandise",
+  "name": "pauseai-es-merchandise",
+  "type": "module",
+  "private": true,
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Open-source merchandise designs for PauseAI en Español, plus the web generator that turns them into print-ready files",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm --filter @pauseai-es/merch-web dev",
+    "build": "pnpm --filter @pauseai-es/merch-web build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "oxlint --max-warnings 0 . && pnpm -r lint",
+    "lint:fix": "oxlint --fix --max-warnings 0 . && pnpm -r lint:fix",
+    "format": "prettier --ignore-unknown --write .",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && prettier --ignore-unknown --check .",
+    "prepare": "[ \"$PACKAGED\" = true ] && echo 'Skipping prepare for packaged production dependencies install' || husky"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "MIT",
+  "engines": {
+    "node": "26.10.0",
+    "pnpm": "12.9.1"
+  },
+  "packageManager": "pnpm@12.9.1",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.9.1",
+      "onFail": "download"
+    }
+  },
+  "devDependencies": {
+    "@slango.configs/lint-staged": "2.0.7",
+    "@slango.configs/oxlint": "0.1.11",
+    "@slango.configs/prettier": "1.0.34",
+    "@slango.configs/typescript": "2.0.16",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
+    "oxlint": "1.87.0",
+    "oxlint-tsgolint": "7.0.2003",
+    "prettier": "3.9.9",
+    "typescript": "7.0.2"
+  }
 }

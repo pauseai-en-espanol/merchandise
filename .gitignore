@@ -26,3 +26,8 @@ Thumbs.db
 # Local env / secrets (none expected yet, but better to have the rule).
 .env
 .env.local
+
+# Web generator
+dist/
+.turbo/
+*.tsbuildinfo

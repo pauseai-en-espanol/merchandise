@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pauseai-es-merchandise-static.fullname" . }}-nginx
+  labels:
+    {{- include "pauseai-es-merchandise-static.labels" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+        listen 80;
+        root /usr/share/nginx/html;
+        index index.html;
+
+        {{- if .Values.headSnippet }}
+        sub_filter '</head>' '{{ .Values.headSnippet }}</head>';
+        sub_filter_once on;
+        {{- end }}
+
+        {{- range .Values.redirects }}
+        location = {{ .from }} {
+            return 301 {{ .to }};
+        }
+        {{- if .prefix }}
+        location ~ ^{{ .from }}(/.*) {
+            return 301 {{ .to }}$1;
+        }
+        {{- end }}
+        {{- end }}
+
+        # Vite fingerprints everything under assets/: cache it for good.
+        location ~ "/assets/" {
+            add_header Cache-Control "public, max-age=31536000, immutable";
+            try_files $uri =404;
+        }
+
+        # Single-page app without client-side routes: serve files, else 404.
+        location / {
+            try_files $uri $uri/ =404;
+        }
+    }

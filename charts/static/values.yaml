@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  repository: pauseai-es-merchandise-static
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+# HTML snippet injected before </head> via nginx sub_filter.
+# Set from GitOps values, e.g.:
+#   headSnippet: '<script defer data-domain="pauseai.es" src="https://plausible.example.com/js/plausible.js"></script>'
+headSnippet: ''
+
+# Nginx 301 redirects, e.g. if the base path ever changes.
+# Each entry generates a `location = <from> { return 301 <to>; }` block.
+# Set `prefix: true` to also redirect subpaths.
+redirects: []

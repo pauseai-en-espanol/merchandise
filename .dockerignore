@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+.git
+.idea
+.husky
+.claude
+prints
+renders
+mockups/*
+!mockups/tshirt-*.jpg
+scripts
+**/.DS_Store

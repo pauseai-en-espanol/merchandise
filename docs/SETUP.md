@@ -18,6 +18,18 @@ cp brand/fonts/files/SairaCondensed-Bold.ttf ~/Library/Fonts/
 
 Everything below is the detail behind those four lines.
 
+## Web generator (Node)
+
+The site in `packages/` needs Node 26 and pnpm 12 (the versions are pinned
+in `.nvmrc` and `package.json`; pnpm downloads its pinned version itself).
+
+```sh
+nvm use               # Node 26.10
+pnpm install          # also installs the husky pre-commit hook
+pnpm dev              # http://localhost:5173
+pnpm check            # lint, typecheck, tests, prettier
+```
+
 ## macOS tools (built-in)
 
 | Tool | Used by | Purpose |
@@ -47,6 +59,21 @@ Install all in one command:
 
 ```sh
 pip3 install --user fontTools qrcode pillow numpy
+```
+
+## Python packages (brand assets)
+
+Only needed to regenerate the single-ink logos
+(`brand/logos/pauseai-*-mono-ink.svg`). Not needed by `build-all.sh`.
+
+| Package | Used by | Purpose |
+|---|---|---|
+| `fontTools` | `scripts/build-mono-logos.py` | parses the logo SVG paths |
+| `skia-pathops` | `scripts/build-mono-logos.py` | trims the gap between the circle and the letters (path boolean ops) |
+
+```sh
+pip3 install --user fontTools skia-pathops
+python3 scripts/build-mono-logos.py
 ```
 
 ## Python packages (historical / onboarding)

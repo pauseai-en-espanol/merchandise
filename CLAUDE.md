@@ -118,6 +118,49 @@ favour of this per-design split because its naive string-replace
 collided with the back QR colours (which now live exclusively in
 `build-qr.py` — see below).
 
+### Any other tee colour (web generator)
+
+The web generator (`packages/`, see *Web generator* below) prints on any
+tee colour. It never adds colours: it picks whichever of the three rules
+above stands out best against the chosen colour, measured by contrast. On
+pale tees (yellow, pastels, light greys), where neither orange nor white
+reads, it uses a fourth rule: everything in ink with the single-ink logo
+(`pauseai-*-mono-ink.svg`). The three preset tees always keep their own
+rule, and a parity test checks that the generator reproduces the committed
+white/black fronts exactly.
+
+## Web generator
+
+`packages/web` is a static site (Vite + React + TypeScript) where anyone
+picks a design and tee colour, sets their group's logo family and website
+(QR on the back), adapts the text, and downloads print-ready files: outlined
+SVGs, 300 dpi PNGs, tee mockups and a print sheet. `packages/core` is the
+rendering engine, a TypeScript port of `tee_variants.py`, `build-qr.py` and
+`print-export.py`. Tooling mirrors the `presentaciones` repo: pnpm workspace,
+`@slango.configs` (TypeScript, oxlint, prettier, lint-staged), husky,
+Docker → nginx, Helm chart in `charts/static`.
+
+What the site reads, straight from the repo at build time:
+- `designs/<slug>/{es,en}.orange.front.svg`: the canonical fronts;
+- `designs/<slug>/design.json`: title per language, voice lane, whether the
+  text is sourced (quotes or data; the site warns translators), and the
+  `utmSource` (also read by `build-qr.py`);
+- `brand/logos/`, `brand/fonts/files/`, `mockups/tshirt-*.jpg`.
+
+So a design shows up on the site once it has a canonical front and a
+`design.json`. For its colours to work on every tee, it must follow the
+standard rule: body `#111111`, highlights `class="accent"` authored white,
+fixed ink details `class="keep"`. Run `pnpm test` after touching a design:
+the parity test fails if the site would print a preset tee differently
+from the Python pipeline. Text slots come from the `<text>` elements; in the
+editor, `*…*` maps to the accent tspan and `_…_` to the small italic one.
+
+```sh
+pnpm install
+pnpm dev     # http://localhost:5173
+pnpm check   # lint, typecheck, tests, prettier
+```
+
 ## Brand rules
 
 - **Primary color:** `#FF9416` (PauseAI orange). Use it as the dominant
@@ -128,6 +171,11 @@ collided with the back QR colours (which now live exclusively in
 - **Logos in `brand/logos/` are canonical.** Do not recolor, redraw,
   re-letter, or distort. If a design needs a different logo treatment, open
   an issue first.
+- **Single-ink logos** (`pauseai-{es,global}-mono-ink.svg`) are
+  derived files: they're generated from the `on-orange` files by `scripts/build-mono-logos.py` (every white fill
+  → ink, plus a ≈ 1 mm gap trimmed out of the circle where letters
+  touch it). Use them on pale tees where neither orange nor white reads,
+  and for one-colour prints. Never edit them by hand; re-run the script.
 - **Typography:** the broader PauseAI brand spec allows three fonts
   (Saira Condensed 700, Montserrat 900 Black, Roboto Slab 300 / 700 —
   see `brand/fonts.md`), but **the chapter currently uses Saira
@@ -190,6 +238,8 @@ A good SVG is:
 2. Edit the README to describe the idea, declare the **voice lane**
    (A or B), target languages, target products. If the design quotes
    anyone or cites data, list every source there with date + link.
+   Fill in `design.json` too (titles, lane, `sourced`, `utmSource`):
+   it puts the design on the web generator.
 3. Read `brand/tokens.json` and the relevant `products/<target>.yaml`
    first; design within those constraints.
 4. Author the SVG. Preview in a browser. Iterate.
