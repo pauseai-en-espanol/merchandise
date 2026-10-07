@@ -30,6 +30,16 @@ Canonical PauseAI logos. **Do not modify these files** when authoring designs
   overlays (chapter construction style), as opposed to the global's
   evenodd-cutout compound path. For chapter favicons, social
   profile pictures, small chest prints.
+- `pauseai-es-mono-ink.svg` — **Single ink, for pale backgrounds.**
+  Everything `#111111`; the mark's cutouts (P bars, ñ-tilde) are
+  transparent, so the surface shows through. For pale tees where
+  neither orange nor white reads (yellow, pastels, light greys) and
+  for any one-colour screen print. **Generated** from
+  `pauseai-es-on-orange.svg` by `scripts/build-mono-logos.py`, which
+  also trims a thin gap (≈ 1 mm at 150 mm wide) out of the circle
+  where the P of PAUSE and the E of EN sit against it; in one colour
+  they would otherwise merge into the circle. Letter paths are
+  unchanged. Don't edit by hand; re-run the script.
 
 ### PauseAI Global
 
@@ -57,13 +67,20 @@ P-stem cutouts render consistently regardless of the surface beneath.
   the P-stem cutouts always read white regardless of where the SVG
   sits. No ñ-tilde — see `pauseai-es-mark.svg` for the chapter
   version with the Spanish-flavored ñ accent.
+- `pauseai-global-mono-ink.svg` — **Single ink, for pale
+  backgrounds.** Everything black; P-stem cutouts transparent. Same
+  use and construction as `pauseai-es-mono-ink.svg`: generated from
+  `pauseai-global-on-orange.svg` by `scripts/build-mono-logos.py`,
+  with the circle trimmed by a thin gap where the P of "Pause"
+  overlaps it.
 
 ## Adding more
 
 Other variants we may want over time:
 
-- `pauseai-*-mono-white.svg` / `pauseai-*-mono-ink.svg` — single-color
-  versions for one-color screen printing on apparel.
+- `pauseai-*-mono-white.svg` — single-color white version, the
+  counterpart of the `mono-ink` files above. Can be generated the same
+  way by `scripts/build-mono-logos.py` if a design needs it.
 
 Add each new file to this README and pick colors from
 `brand/tokens.json`.
