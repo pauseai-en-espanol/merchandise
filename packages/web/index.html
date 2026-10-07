@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Elige un diseño de PauseAI, el color de la camiseta, tu logo y tu web, y descarga archivos listos para imprimir."
+      content="Crea tu camiseta de PauseAI y descarga los archivos para imprimirla."
     />
     <link rel="icon" type="image/svg+xml" href="../../brand/logos/pauseai-es-mark.svg" />
     <title>Camisetas PauseAI</title>
+    <script>
+      try {
+        const theme = JSON.parse(localStorage.getItem('pauseai-merch') || '{}').theme;
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

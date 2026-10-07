@@ -20,8 +20,9 @@
   color-scheme: light;
 }
 
+/* Theme: follows the device unless the visitor picks one (data-theme on <html>). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #111214;
     --surface: #1a1c20;
     --fg: #eceef1;
@@ -33,6 +34,19 @@
     --notice-bg: #22262c;
     color-scheme: dark;
   }
+}
+
+:root[data-theme='dark'] {
+  --bg: #111214;
+  --surface: #1a1c20;
+  --fg: #eceef1;
+  --muted: #a3a9b3;
+  --line: #2e333a;
+  --pressed-ring: #eceef1;
+  --warn-fg: #ffb877;
+  --warn-bg: #3a2614;
+  --notice-bg: #22262c;
+  color-scheme: dark;
 }
 
 * {
@@ -143,6 +157,20 @@ input {
 }
 
 /* Stepper */
+.stepper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.start-over {
+  color: var(--muted);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
 .stepper ol {
   list-style: none;
   margin: 0;
@@ -152,7 +180,7 @@ input {
   gap: 8px;
 }
 
-.stepper button {
+.stepper ol button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -178,12 +206,12 @@ input {
   font-size: 0.95rem;
 }
 
-.stepper button[aria-current='step'] {
+.stepper ol button[aria-current='step'] {
   border-color: var(--orange);
   box-shadow: inset 0 0 0 1px var(--orange);
 }
 
-.stepper button[aria-current='step'] .step-n {
+.stepper ol button[aria-current='step'] .step-n {
   background: var(--orange);
   color: var(--ink);
 }
@@ -675,22 +703,38 @@ input.hex {
   height: auto;
 }
 
-/* Inline preview: click to expand */
+/* Inline zoom (like shop product photos) */
 .preview-open {
   position: relative;
+}
+
+.zoom-frame {
   display: block;
   width: 100%;
   padding: 0;
   border: 0;
+  border-radius: var(--radius);
   background: none;
+  overflow: hidden;
   cursor: zoom-in;
+  touch-action: pan-y;
 }
 
-.preview-open .print {
+.zoom-frame.zoomed {
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.zoom-target {
+  display: block;
+  transition: transform 0.18s ease-out;
+}
+
+.zoom-target .print {
   display: block;
 }
 
-.expand-badge {
+.zoom-badge {
   position: absolute;
   right: 10px;
   bottom: 10px;
@@ -700,112 +744,15 @@ input.hex {
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 600;
-  opacity: 0.85;
+  pointer-events: none;
 }
 
-.preview-open:hover .expand-badge,
-.preview-open:focus-visible .expand-badge {
-  opacity: 1;
+.chip.icon {
+  padding: 4px 8px;
 }
 
-/* Full-screen zoom */
-.zoom-dialog {
-  width: 100vw;
-  height: 100dvh;
-  max-width: none;
-  max-height: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: var(--bg);
-  color: var(--fg);
-}
-
-.zoom-dialog[open] {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-}
-
-.zoom-dialog::backdrop {
-  background: rgb(0 0 0 / 60%);
-}
-
-.zoom-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface);
-}
-
-.zoom-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-}
-
-.zoom-controls .chip:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-
-.zoom-level {
-  min-width: 4.5em;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.zoom-stage {
-  /* Positioned so the content's offsetTop/Left are measured from here: the
-     zoom anchoring in ZoomDialog relies on it. */
-  position: relative;
-  overflow: auto;
-  overscroll-behavior: contain;
-  cursor: grab;
-  touch-action: pan-x pan-y;
-  user-select: none;
-}
-
-.zoom-stage.dragging {
-  cursor: grabbing;
-}
-
-.zoom-inner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  width: max-content;
-  min-width: 100%;
-  height: max-content;
-  min-height: 100%;
-}
-
-.zoom-content {
-  flex: none;
-}
-
-.zoom-content .mockup,
-.zoom-content .print svg {
+.chip.icon svg {
   display: block;
-  width: 100%;
-  height: auto;
-}
-
-.zoom-hint {
-  margin: 0;
-  padding: 8px 16px;
-  border-top: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--muted);
-  font-size: 0.8rem;
-  text-align: center;
 }
 
 .footer-links {
@@ -859,23 +806,24 @@ input.hex {
     font-size: 0.8rem;
   }
 
-  .preview-open {
-    display: flex;
-    justify-content: center;
+  .zoom-frame {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
   }
 
-  .preview-open .mockup {
+  .zoom-frame .mockup {
     width: auto;
     max-width: 100%;
     height: 30vh;
     height: 30dvh;
   }
 
-  .preview-open .print.front {
+  .zoom-frame .print.front {
     width: min(100%, 30dvh);
   }
 
-  .preview-open .print.back {
+  .zoom-frame .print.back {
     width: min(100%, calc(30dvh * 200 / 220));
   }
 
@@ -888,16 +836,6 @@ input.hex {
     border-radius: 0 0 14px 14px;
     background: var(--surface);
     box-shadow: 0 -6px 16px rgb(0 0 0 / 8%);
-  }
-
-  .zoom-bar {
-    padding: 8px 10px;
-    gap: 6px;
-  }
-
-  .zoom-bar .chip.small {
-    padding: 3px 9px;
-    font-size: 0.8rem;
   }
 }
 

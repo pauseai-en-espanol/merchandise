@@ -18,6 +18,7 @@ import { DownloadStep } from './components/DownloadStep';
 import { Preview } from './components/Preview';
 import { TeeStep } from './components/TeeStep';
 import { TextStep } from './components/TextStep';
+import { ThemeToggle } from './components/ThemeToggle';
 import { initialUiLang, STRINGS } from './i18n';
 import {
   defaultSettings,
@@ -27,7 +28,7 @@ import {
   type Settings,
   teeOf,
 } from './settings';
-import { clearSaved, loadSaved, save } from './storage';
+import { clearSaved, loadSaved, save, type Theme, THEMES } from './storage';
 
 export type Update = (patch: Partial<Settings>) => void;
 
@@ -61,6 +62,9 @@ export const App = () => {
   const [settings, setSettings] = useState<Settings>(() =>
     restoreSettings(saved.settings, defaultSettings(initialUiLang())),
   );
+  const [theme, setTheme] = useState<Theme>(() =>
+    THEMES.includes(saved.theme as Theme) ? (saved.theme as Theme) : 'auto',
+  );
   const [step, setStep] = useState(() =>
     typeof saved.step === 'number' && saved.step >= 0 && saved.step < STRINGS.es.steps.length
       ? saved.step
@@ -78,7 +82,12 @@ export const App = () => {
     document.title = t.app.title;
   }, [ui, t.app.title]);
 
-  useEffect(() => save({ settings, step, ui }), [settings, step, ui]);
+  useEffect(() => save({ settings, step, theme, ui }), [settings, step, theme, ui]);
+
+  useEffect(() => {
+    if (theme === 'auto') delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = theme;
+  }, [theme]);
 
   const workspace = useRef<HTMLElement>(null);
   /** Change step and bring the panel back into view (long steps end far down the page). */
@@ -98,6 +107,7 @@ export const App = () => {
     setUi(browser);
     setSettings(defaultSettings(browser));
     setStep(0);
+    setTheme('auto');
   };
 
   const key = `${settings.slug}/${settings.lang}`;
@@ -169,6 +179,7 @@ export const App = () => {
               {lang.toUpperCase()}
             </button>
           ))}
+          <ThemeToggle setTheme={setTheme} t={t} theme={theme} />
         </div>
       </header>
 
@@ -187,6 +198,9 @@ export const App = () => {
             </li>
           ))}
         </ol>
+        <button type="button" className="link start-over" onClick={startOver}>
+          ↺ {t.app.reset}
+        </button>
       </nav>
 
       <main ref={workspace} className="workspace">
@@ -251,9 +265,6 @@ export const App = () => {
       <footer className="footer">
         <span>{t.app.footer}</span>
         <span className="footer-links">
-          <button type="button" className="link" onClick={startOver}>
-            {t.app.reset}
-          </button>
           <a href={REPO_URL}>{t.app.source}</a>
         </span>
       </footer>

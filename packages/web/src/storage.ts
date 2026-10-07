@@ -14,6 +14,7 @@ const VERSION = 1;
 export interface Saved {
   settings?: unknown;
   step?: unknown;
+  theme?: unknown;
   ui?: unknown;
 }
 
@@ -28,7 +29,11 @@ export const loadSaved = (): Saved => {
   }
 };
 
-export const save = (data: { settings: Settings; step: number; ui: Lang }) => {
+export type Theme = 'auto' | 'dark' | 'light';
+
+export const THEMES: Theme[] = ['auto', 'light', 'dark'];
+
+export const save = (data: { settings: Settings; step: number; theme: Theme; ui: Lang }) => {
   try {
     localStorage.setItem(KEY, JSON.stringify({ v: VERSION, ...data }));
   } catch {

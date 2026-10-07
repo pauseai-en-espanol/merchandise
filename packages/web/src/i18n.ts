@@ -1,14 +1,13 @@
-import type { RuleKey } from '@pauseai-es/merch-core';
-
 import type { Lang } from './assets';
 
 const es = {
   app: {
     footer: 'Diseños CC BY-SA 4.0 · Código MIT',
-    intro:
-      'Elige un diseño y el color de la camiseta, pon el logo y la web de tu grupo, ajusta el texto y descarga archivos listos para cualquier imprenta.',
+    intro: 'Crea tu camiseta de PauseAI y descarga los archivos para imprimirla.',
     loading: 'Cargando…',
     reset: 'Empezar de nuevo',
+    theme: 'Tema',
+    themes: { auto: 'Automático', dark: 'Oscuro', light: 'Claro' },
     resetConfirm: '¿Borrar todas tus elecciones y textos y empezar de nuevo?',
     source: 'Código y diseños en GitHub',
     title: 'Camisetas PauseAI',
@@ -18,7 +17,6 @@ const es = {
   steps: ['Diseño y color', 'Logo y web', 'Texto', 'Descargar'],
   tee: {
     custom: 'Personalizado',
-    customHint: 'Cualquier color vale: el diseño se adapta solo.',
     customLabel: 'Color personalizado',
     default: 'por defecto',
     design: 'Diseño',
@@ -26,12 +24,8 @@ const es = {
     heading: 'Color de la camiseta',
     hexLabel: 'Código hexadecimal',
     presets: { black: 'Negra', orange: 'Naranja', white: 'Blanca' },
-    rules: {
-      dark: 'Color oscuro: el texto va en blanco y los resaltados en naranja PauseAI.',
-      ink: 'Color claro: ni el naranja ni el blanco destacarían, así que todo va en negro, con el logo a una tinta.',
-      light: 'Color claro: el texto va en negro y los resaltados en naranja PauseAI.',
-      mid: 'El naranja PauseAI no destacaría sobre este color, así que los resaltados y el logo van en blanco.',
-    } satisfies Record<RuleKey, string>,
+    paleNote:
+      'En un color tan claro ni el naranja ni el blanco destacarían, así que todo se imprime en negro.',
     sourced: 'Cita fuentes',
     textLanguage: 'Idioma del texto',
   },
@@ -79,17 +73,12 @@ const es = {
   },
   preview: {
     back: 'Espalda',
-    close: 'Cerrar',
-    expand: 'Ampliar',
-    fit: 'Ajustar',
     front: 'Pecho',
     mockup: 'En la camiseta',
     print: 'Archivo de impresión',
-    zoomHint:
-      'Doble clic, ⌘/Ctrl + rueda o las teclas + y − para hacer zoom. Arrastra para moverte.',
-    zoomHintTouch: 'Pellizca o toca dos veces para hacer zoom. Desliza para moverte.',
-    zoomIn: 'Acercar',
-    zoomOut: 'Alejar',
+    zoom: 'Ampliar la vista previa',
+    zoomHint: 'Pasa el ratón para ampliar',
+    zoomHintTouch: 'Toca para ampliar',
   },
 };
 
@@ -98,10 +87,11 @@ type Strings = typeof es;
 const en: Strings = {
   app: {
     footer: 'Designs CC BY-SA 4.0 · Code MIT',
-    intro:
-      "Pick a design and a tee colour, add your group's logo and website, adjust the text, and download print-ready files for any print shop.",
+    intro: 'Make your PauseAI t-shirt and download the files to print it.',
     loading: 'Loading…',
     reset: 'Start over',
+    theme: 'Theme',
+    themes: { auto: 'Automatic', dark: 'Dark', light: 'Light' },
     resetConfirm: 'Clear all your choices and text and start over?',
     source: 'Code and designs on GitHub',
     title: 'PauseAI T-shirts',
@@ -111,7 +101,6 @@ const en: Strings = {
   steps: ['Design and colour', 'Logo and website', 'Text', 'Download'],
   tee: {
     custom: 'Custom',
-    customHint: 'Any colour works: the design adapts automatically.',
     customLabel: 'Custom colour',
     default: 'default',
     design: 'Design',
@@ -119,12 +108,8 @@ const en: Strings = {
     heading: 'Tee colour',
     hexLabel: 'Hex code',
     presets: { black: 'Black', orange: 'Orange', white: 'White' },
-    rules: {
-      dark: 'Dark colour: text prints white and highlights in PauseAI orange.',
-      ink: 'Pale colour: neither orange nor white would stand out, so everything prints black, with the single-ink logo.',
-      light: 'Light colour: text prints black and highlights in PauseAI orange.',
-      mid: "PauseAI orange wouldn't stand out on this colour, so highlights and the logo print white.",
-    },
+    paleNote:
+      'On a colour this pale neither orange nor white would stand out, so everything prints black.',
     sourced: 'Cites sources',
     textLanguage: 'Text language',
   },
@@ -172,16 +157,12 @@ const en: Strings = {
   },
   preview: {
     back: 'Back',
-    close: 'Close',
-    expand: 'Expand',
-    fit: 'Fit',
     front: 'Front',
     mockup: 'On the tee',
     print: 'Print file',
-    zoomHint: 'Double-click, ⌘/Ctrl + scroll or the + and − keys to zoom. Drag to move around.',
-    zoomHintTouch: 'Pinch or double-tap to zoom. Swipe to move around.',
-    zoomIn: 'Zoom in',
-    zoomOut: 'Zoom out',
+    zoom: 'Zoom the preview',
+    zoomHint: 'Hover to zoom',
+    zoomHintTouch: 'Tap to zoom',
   },
 };
 

@@ -142,7 +142,6 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
                 }}
               />
             </div>
-            <p className="hint">{t.tee.customHint}</p>
             <div className="examples" aria-label={t.tee.examples}>
               {SUGGESTED.map((c) => (
                 <button
@@ -171,7 +170,7 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
             </div>
           </div>
         )}
-        <p className="rule-note">{t.tee.rules[rule.key]}</p>
+        {rule.key === 'ink' && <p className="rule-note">{t.tee.paleNote}</p>}
       </fieldset>
 
       <fieldset className="group">
