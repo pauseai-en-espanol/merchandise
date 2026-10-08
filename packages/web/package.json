@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --type-aware --max-warnings 0 .",
     "lint:fix": "oxlint --type-aware --fix --max-warnings 0 .",
+    "og": "node scripts/og-images.ts",
     "test": "echo 'no web tests yet; the rendering engine is tested in @pauseai-es/merch-core'"
   },
   "dependencies": {
@@ -20,6 +21,8 @@
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "@types/node": "26.6.4",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@vitejs/plugin-react": "6.1.2",

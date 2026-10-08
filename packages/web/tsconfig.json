@@ -3,13 +3,13 @@
   "extends": "@slango.configs/typescript/react.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "composite": false,
     "declaration": false,
     "declarationMap": false,
     "incremental": false,
     "paths": {}
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "*.ts"],
   "exclude": ["node_modules", "dist"]
 }

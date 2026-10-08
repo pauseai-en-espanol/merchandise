@@ -10,7 +10,7 @@ const es = {
     themes: { auto: 'Automático', dark: 'Oscuro', light: 'Claro' },
     resetConfirm: '¿Borrar todas tus elecciones y textos y empezar de nuevo?',
     source: 'Código y diseños en GitHub',
-    title: 'Camisetas PauseAI',
+    title: 'Merchandising PauseAI',
     uiLanguage: 'Idioma',
   },
   nav: { back: 'Atrás', next: 'Siguiente' },
@@ -94,7 +94,7 @@ const en: Strings = {
     themes: { auto: 'Automatic', dark: 'Dark', light: 'Light' },
     resetConfirm: 'Clear all your choices and text and start over?',
     source: 'Code and designs on GitHub',
-    title: 'PauseAI T-shirts',
+    title: 'PauseAI Merchandise',
     uiLanguage: 'Language',
   },
   nav: { back: 'Back', next: 'Next' },
@@ -174,5 +174,26 @@ export type { Strings };
 export const fill = (template: string, values: Record<string, number | string>): string =>
   template.replaceAll(/\{(\w+)\}/g, (_, key: string) => String(values[key] ?? ''));
 
-export const initialUiLang = (): Lang =>
+export const browserLang = (): Lang =>
   navigator.language.toLowerCase().startsWith('es') ? 'es' : 'en';
+
+/**
+ * Each language has its own page: Spanish at /, English at /en/ (so shared
+ * links preview in the right language). The page decides the interface
+ * language.
+ */
+export const LANG_PATH: Record<Lang, string> = { en: '/en/', es: '/' };
+
+export const pathLang = (): Lang => (/^\/en(?:\/|$)/.test(location.pathname) ? 'en' : 'es');
+
+/**
+ * Interface language on load. /en/ is always English. At /, a visitor who
+ * chose English before, or a first-time visitor whose browser isn't in
+ * Spanish, is moved to /en/ (without a reload).
+ */
+export const initialUiLang = (savedUi: unknown): Lang => {
+  if (pathLang() === 'en') return 'en';
+  const preferred = savedUi === 'en' || savedUi === 'es' ? savedUi : browserLang();
+  if (preferred === 'en') history.replaceState(null, '', LANG_PATH.en + location.hash);
+  return preferred;
+};

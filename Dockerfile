@@ -30,7 +30,9 @@ COPY designs ./designs
 COPY brand ./brand
 COPY mockups/tshirt-*.jpg ./mockups/
 
-RUN cd packages/web && pnpm build
+# Public address of the site, for absolute links in the social preview tags.
+ARG VITE_SITE_URL=https://merchandise.pauseai.es
+RUN cd packages/web && VITE_SITE_URL="${VITE_SITE_URL}" pnpm build
 
 # Everything world-readable: the nginx worker runs as non-root.
 RUN cp -r packages/web/dist /output && chmod -R a+rX /output

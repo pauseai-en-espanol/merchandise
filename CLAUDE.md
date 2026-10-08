@@ -155,9 +155,18 @@ the parity test fails if the site would print a preset tee differently
 from the Python pipeline. Text slots come from the `<text>` elements; in the
 editor, `*…*` maps to the accent tspan and `_…_` to the small italic one.
 
+The site has one page per language: Spanish at `/`, English at `/en/`
+(`packages/web/index.html`, `packages/web/en/index.html`), each with its own
+title, description and social preview image. The preview images
+(`packages/web/public/og-{es,en}.png`, 1200 × 630) are generated from the
+logos and three tee renders by `pnpm --filter @pauseai-es/merch-web og`;
+re-run it if the name, tagline or featured renders change. The public
+address used in those tags is `VITE_SITE_URL` (default in
+`packages/web/vite.config.ts`, overridable at build time).
+
 ```sh
 pnpm install
-pnpm dev     # http://localhost:5173
+pnpm dev     # http://localhost:5173 (English: /en/)
 pnpm check   # lint, typecheck, tests, prettier
 ```
 

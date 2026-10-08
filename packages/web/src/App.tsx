@@ -19,15 +19,8 @@ import { Preview } from './components/Preview';
 import { TeeStep } from './components/TeeStep';
 import { TextStep } from './components/TextStep';
 import { ThemeToggle } from './components/ThemeToggle';
-import { initialUiLang, STRINGS } from './i18n';
-import {
-  defaultSettings,
-  isLang,
-  isValidUrl,
-  restoreSettings,
-  type Settings,
-  teeOf,
-} from './settings';
+import { browserLang, initialUiLang, LANG_PATH, pathLang, STRINGS } from './i18n';
+import { defaultSettings, isValidUrl, restoreSettings, type Settings, teeOf } from './settings';
 import { clearSaved, loadSaved, save, type Theme, THEMES } from './storage';
 
 export type Update = (patch: Partial<Settings>) => void;
@@ -54,14 +47,26 @@ const safeRender = (settings: Settings, canonical: string, fonts: FontBook): Ren
 };
 
 export const App = () => {
-  // First visit: interface and text language follow the browser. After that,
-  // everything the visitor chose is restored from this browser's storage.
+  // The page (/ or /en/) sets the interface language; a first visit at / follows
+  // the browser. Everything else the visitor chose is restored from storage.
   const [saved] = useState(loadSaved);
-  const [ui, setUi] = useState<Lang>(() => (isLang(saved.ui) ? saved.ui : initialUiLang()));
+  const [ui, setUiState] = useState<Lang>(() => initialUiLang(saved.ui));
   const t = STRINGS[ui];
   const [settings, setSettings] = useState<Settings>(() =>
-    restoreSettings(saved.settings, defaultSettings(initialUiLang())),
+    restoreSettings(saved.settings, defaultSettings(ui)),
   );
+
+  /** Switch language and move to that language's page (no reload). */
+  const setUi = useCallback((lang: Lang) => {
+    setUiState(lang);
+    if (pathLang() !== lang) history.pushState(null, '', LANG_PATH[lang] + location.hash);
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => setUiState(pathLang());
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
   const [theme, setTheme] = useState<Theme>(() =>
     THEMES.includes(saved.theme as Theme) ? (saved.theme as Theme) : 'auto',
   );
@@ -103,7 +108,7 @@ export const App = () => {
   const startOver = () => {
     if (!globalThis.confirm(t.app.resetConfirm)) return;
     clearSaved();
-    const browser = initialUiLang();
+    const browser = browserLang();
     setUi(browser);
     setSettings(defaultSettings(browser));
     setStep(0);

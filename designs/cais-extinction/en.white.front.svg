@@ -51,8 +51,11 @@
 
   <g id="attribution"
      font-family="Saira Condensed, Impact, sans-serif"
-     font-weight="700" font-style="italic" font-size="5"
+     font-weight="700" font-style="italic" font-size="4"
      fill="#111111" text-anchor="middle">
-    <text x="100" y="197">Statement on AI Risk, CAIS 2023. Signed by Altman, Hassabis, Amodei, Hinton, Bengio, Sutskever, Gates, Russell.</text>
+    <!-- Two lines, like the ES version: on one line at 5 mm it ran 200.6 mm
+         wide (past both edges) with its baseline inside the 5 mm safe area. -->
+    <text x="100" y="190.6">Statement on AI Risk, CAIS 2023.</text>
+    <text x="100" y="195">Signed by Altman, Hassabis, Amodei, Hinton, Bengio, Sutskever, Gates, Russell.</text>
   </g>
 </svg>

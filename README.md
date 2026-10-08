@@ -55,8 +55,10 @@ for how designs reach the site.
 ### Docker build
 
 ```sh
-# Static nginx image; the site is served from the root of its own subdomain
+# Static nginx image; the site is served from the root of its own subdomain.
+# VITE_SITE_URL is the public address, used in the social preview tags.
 docker build --platform linux/amd64 \
+  --build-arg VITE_SITE_URL=https://merchandise.pauseai.es \
   -t harbor.danilupion.com/pauseai-es/merchandise:latest .
 
 # Try it locally
