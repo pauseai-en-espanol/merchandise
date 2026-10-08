@@ -167,8 +167,8 @@ importers:
   .:
     devDependencies:
       '@slango.configs/lint-staged':
-        specifier: 2.0.7
-        version: 2.0.7(lint-staged@17.6.0)
+        specifier: 2.0.8
+        version: 2.0.8(lint-staged@17.6.0)
       '@slango.configs/oxlint':
         specifier: 0.1.11
         version: 0.1.11(eslint@10.12.0)(oxlint-tsgolint@7.0.2003)(oxlint@1.87.0(oxlint-tsgolint@7.0.2003))(typescript@7.0.2)
@@ -664,8 +664,8 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@slango.configs/lint-staged@2.0.7':
-    resolution: {integrity: sha512-yLchzETav8e8H2qy26eeklhv17Ykz/43QbX6W4PcTDJtTriD0b1qYPFfvy9bIzlMMVbo/fqkJPp32tjHv/fgkQ==}
+  '@slango.configs/lint-staged@2.0.8':
+    resolution: {integrity: sha512-bAaUvVK9xmw3YU3WiO7TbgjBxI2SyA3VPDwZuTKuANGfGhFbc5NyGuaF3y4v9IPB5c6uEyYBZHbSs8IFLc3vnQ==}
     peerDependencies:
       lint-staged: ^17.6.0
 
@@ -1759,7 +1759,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@slango.configs/lint-staged@2.0.7(lint-staged@17.6.0)':
+  '@slango.configs/lint-staged@2.0.8(lint-staged@17.6.0)':
     dependencies:
       deepmerge: 4.3.1
       lint-staged: 17.6.0
