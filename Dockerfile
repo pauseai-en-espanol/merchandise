@@ -9,7 +9,7 @@
 #
 #   The site is served from the root of its own subdomain.
 
-ARG NODE_IMAGE=node:26.10.0-alpine
+ARG NODE_IMAGE=node:26.11.1-alpine
 # Pin pnpm here to match the root package.json `packageManager` field.
 # Node 26 dropped the bundled corepack shim, so install pnpm directly via npm.
 ARG PNPM_VERSION=12.9.1
