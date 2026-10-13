@@ -3,5 +3,5 @@
 # pipeline and committing the result in the same PR. See docs/SETUP.md.
 fonttools==4.60.2
 qrcode==8.2
-pillow==11.3.0
+pillow==12.3.0
 numpy==2.0.2
