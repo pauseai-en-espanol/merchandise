@@ -21,9 +21,16 @@ Thanks for wanting to help PauseAI en Español!
 
 4. **Preview** by opening the SVG in any browser, or dragging it onto a tab.
 
-5. **Open a PR.** Include a screenshot of the SVG and ideally a quick mockup
+5. **Add a changeset.** Run `pnpm release:note`, pick
+   `@pauseai-es/merch-web` and describe the change in a sentence: that is
+   what puts it on the site at the next release. For changes the site
+   doesn't show (a README, docs), run `pnpm release:empty` instead. CI
+   checks it (see `.changeset/README.md`).
+
+6. **Open a PR.** Include a screenshot of the SVG and ideally a quick mockup
    on a product blank (drop the SVG onto a photo from `mockups/` in any image
-   editor).
+   editor). CI re-runs the design pipeline and fails if a generated file is
+   out of date: run `./scripts/build-all.sh` and commit what it changes.
 
 ## Working with Claude Code
 

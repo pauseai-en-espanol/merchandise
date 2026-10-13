@@ -5,8 +5,8 @@ What you need installed to develop and build this repo.
 ## TL;DR
 
 ```sh
-# Python deps for the regular build pipeline
-pip3 install --user fontTools qrcode pillow
+# Python deps for the regular build pipeline (pinned: CI checks the output)
+pip3 install --user -r scripts/requirements.txt
 
 # (Optional, one-time) install the chapter font so SVGs preview correctly
 # in Safari / Preview / Quick Look. Printing does NOT need this.
@@ -55,10 +55,12 @@ xcode-select --install
 | `Pillow` (PIL) | `scripts/build-mockups.py`, `scripts/build-altman-end-of-the-world.py` | raster manipulation for mockups + the raster-quote layer in altman |
 | `numpy` | `scripts/build-altman-end-of-the-world.py` | raster ops on the altman quote PNGs |
 
-Install all in one command:
+Install all in one command, at the versions CI uses
+(`scripts/requirements.txt`; CI re-runs the pipeline and fails if any
+committed file differs, so other versions may produce a diff):
 
 ```sh
-pip3 install --user fontTools qrcode pillow numpy
+pip3 install --user -r scripts/requirements.txt
 ```
 
 ## Python packages (brand assets)

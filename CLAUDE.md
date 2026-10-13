@@ -179,6 +179,29 @@ pnpm dev     # http://localhost:5173 (English: /en/)
 pnpm check   # lint, typecheck, tests, prettier
 ```
 
+## CI and releases
+
+GitHub Actions, modelled on the aiontheballot repo (`.github/workflows/`):
+
+- **CI** (every PR and push to main): lint, formatting, type check, tests
+  (the parity test included), the site's build and a Helm lint of
+  `charts/static`; a **Generated designs** job re-runs
+  `scripts/build-all.sh` (renders skipped: they need macOS) with the
+  pinned `scripts/requirements.txt` and fails if any committed file
+  differs. Pull requests run on GitHub-hosted runners; pushes to main on
+  the chapter's self-hosted runner.
+- **Changesets**: a PR needs one. `pnpm release:note` when the site
+  changes, which includes a design's canonical front or `design.json`, the
+  logos, the fonts or the tee photos (release `@pauseai-es/merch-web`);
+  `pnpm release:empty` otherwise (a design's README, prints, docs, CI).
+  `scripts/check-deployables-released.sh` enforces it; Renovate PRs get
+  theirs added automatically.
+- **Release** (after CI passes on main): applies the changesets, builds
+  the site's image as `harbor.danilupion.com/pauseai-es/merchandise:<version>.<short sha>`,
+  writes the tag into `charts/static/values.yaml` and commits it; Argo CD
+  deploys the chart from main (gitops: `catalog/apps/pauseai-es-merchandise`).
+  The gitops values must not set `image.tag`.
+
 ## Brand rules
 
 - **Primary color:** `#FF9416` (PauseAI orange). Use it as the dominant
@@ -271,3 +294,6 @@ A good SVG is:
 7. For apparel with a back print (e.g., QR + URL), add `back.svg` in
    the same folder. The back is usually language-agnostic.
 8. Update the design's README with what you produced and any caveats.
+9. Run `./scripts/build-all.sh` and commit the generated files, then add a
+   changeset (`pnpm release:note`, releasing `@pauseai-es/merch-web`) so
+   the release puts the design on the site.

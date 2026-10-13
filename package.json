@@ -12,7 +12,12 @@
     "lint": "oxlint --max-warnings 0 . && pnpm -r lint",
     "lint:fix": "oxlint --fix --max-warnings 0 . && pnpm -r lint:fix",
     "format": "prettier --ignore-unknown --write .",
-    "check": "pnpm lint && pnpm typecheck && pnpm test && prettier --ignore-unknown --check .",
+    "format:check": "prettier --ignore-unknown --check .",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm format:check",
+    "release:note": "changeset add",
+    "release:empty": "changeset add --empty",
+    "release:bump": "changeset version",
+    "release:check": "changeset status --since=origin/main",
     "prepare": "[ \"$PACKAGED\" = true ] && echo 'Skipping prepare for packaged production dependencies install' || husky"
   },
   "keywords": [],
@@ -31,6 +36,7 @@
     }
   },
   "devDependencies": {
+    "@changesets/cli": "3.0.3",
     "@slango.configs/lint-staged": "2.0.8",
     "@slango.configs/oxlint": "0.1.12",
     "@slango.configs/prettier": "1.0.35",

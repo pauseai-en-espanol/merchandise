@@ -1,0 +1,154 @@
+name: 🧪 CI
+
+# Modelled on aiontheballot's CI. No pull_request_target anywhere: untrusted PR code never runs with a write token or
+# secrets.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  # Superseded PR runs are cancelled; runs on main finish, because the release workflow follows each one.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Runners: every pull_request job runs on a GitHub-hosted runner, since the repository is public and a pull request's
+# code, a fork's included, must never run on ours; pushes to main (and a manual run) use the self-hosted runner, as the
+# release that follows them does. Each job repeats the choice: `runs-on` can't read `env`.
+jobs:
+  checks:
+    name: Checks
+    if: github.event.pull_request.draft != true
+    runs-on: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-24.04"]' || '["self-hosted", "juggernaut"]') }}
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: the changeset checks diff against the base.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/install-pnpm-dependencies
+
+      # Renovate PRs get theirs from the renovate-changeset job below.
+      - name: Require a changeset
+        if: github.event_name == 'pull_request' && github.event.pull_request.user.login != 'renovate[bot]'
+        run: |
+          if ! pnpm release:check; then
+            echo "::error::Missing changeset. Run 'pnpm release:note', or 'pnpm release:empty' for changes the site doesn't show (docs, CI, prints)."
+            exit 1
+          fi
+
+      # A design, logo or photo the site shows changes the image too, though no package changed (.changeset/README.md).
+      - name: The changed site is released
+        if: >-
+          github.event_name != 'workflow_dispatch' &&
+          !(github.event_name == 'pull_request' && github.event.pull_request.user.login == 'renovate[bot]')
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: scripts/check-deployables-released.sh "$BASE"
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Formatting
+        run: pnpm format:check
+
+      - name: Type check
+        run: pnpm typecheck
+
+      # Includes the parity test: the site prints every preset tee exactly as the Python pipeline committed it.
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Setup Helm
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
+        with:
+          version: v4.3.0
+
+      - name: Lint the Helm chart
+        run: helm lint --strict charts/static
+
+  designs:
+    name: Generated designs
+    if: github.event.pull_request.draft != true
+    # Always GitHub-hosted, unlike the other jobs: it needs no secrets and only Python, which the hosted image ships
+    # (the self-hosted one may not), and it is the amd64 Linux the pipeline was checked to reproduce byte for byte.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install the pipeline's Python packages
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet -r scripts/requirements.txt
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+
+      # Every generated file (white/black fronts, backs, prints, mockups) is committed: re-running the pipeline must
+      # change nothing. The JPEG renders need macOS (qlmanage), so they are skipped and not checked.
+      - name: Generated files are up to date
+        run: |
+          SKIP_RENDERS=1 ./scripts/build-all.sh > "$RUNNER_TEMP/build-all.log" 2>&1 || {
+            cat "$RUNNER_TEMP/build-all.log"
+            exit 1
+          }
+          if [ -n "$(git status --porcelain -- designs prints mockups brand)" ]; then
+            git status --short -- designs prints mockups brand | head -40
+            echo "::error::Generated files are out of date. Run ./scripts/build-all.sh and commit the result."
+            exit 1
+          fi
+          echo "Every generated file matches the pipeline"
+
+  # Renovate doesn't write changesets. Once the checks pass, add a patch changeset for each package the PR touches and
+  # amend it into the PR (as aiontheballot does, without pull_request_target: Renovate branches live in this
+  # repository, so a pull_request run can get a write token). A push made with GITHUB_TOKEN doesn't trigger workflows,
+  # so the amended head has no check runs of its own; its code is what the checks above just tested.
+  renovate-changeset:
+    name: Renovate changeset
+    needs: [checks, designs]
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.user.login == 'renovate[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    # A pull_request job only.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/install-pnpm-dependencies
+
+      - name: Add and push the changeset
+        env:
+          BASE: origin/${{ github.base_ref }}
+          HUSKY: 0
+        run: |
+          scripts/renovate-changeset.sh "$BASE"
+          git add .changeset
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          # --amend keeps Renovate as the author, so Renovate still treats the branch as its own and keeps rebasing it.
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit --amend --no-edit
+          git push --force-with-lease

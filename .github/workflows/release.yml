@@ -1,0 +1,135 @@
+name: 📦 Release
+
+# After CI passes on main (modelled on aiontheballot's release):
+#   1. version: apply the changesets (versions and changelogs) and commit the result.
+#   2. deploy: when the site's version is ahead of the image tag in charts/static/values.yaml, build and push its image
+#      to Harbor, then write the new tag into the chart. Argo CD deploys the chart from main (gitops:
+#      catalog/apps/pauseai-es-merchandise).
+# Both jobs work on the commit CI tested, never on whatever main points to by the time they start.
+on:
+  workflow_run:
+    workflows: ['🧪 CI']
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Version
+    # A pull request whose head branch is called main also passes the branches filter, hence the event check.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: [self-hosted, juggernaut]
+    timeout-minutes: 15
+    outputs:
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          # Changesets links each changelog entry to the commit that added it.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/install-pnpm-dependencies
+
+      # Changesets 3 fails when there is nothing to version (a push of docs only, say): then there is nothing to do.
+      - name: Apply changesets
+        run: |
+          if find .changeset -maxdepth 1 -name '*.md' ! -name 'README.md' | grep -q .; then
+            pnpm release:bump
+          else
+            echo "::notice::No changesets: nothing to version."
+          fi
+
+      - name: Commit the release
+        id: commit
+        env:
+          TESTED: ${{ github.event.workflow_run.head_sha || github.sha }}
+          HUSKY: 0
+        run: |
+          git fetch --quiet origin main
+          if [ "$(git rev-parse origin/main)" != "$TESTED" ]; then
+            echo "::notice::main has moved past $TESTED. The release after CI passes on the newer commit includes this one."
+            exit 0
+          fi
+          git add -A
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m "Release: bump versions [skip ci]"
+            git push origin HEAD:main
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Build and deploy
+    needs: version
+    if: needs.version.outputs.sha != ''
+    runs-on: [self-hosted, juggernaut]
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.version.outputs.sha }}
+
+      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-pnpm
+      - uses: ./.github/actions/setup-yq
+
+      - name: Plan the release
+        id: plan
+        run: |
+          scripts/release-plan.sh | tee "$RUNNER_TEMP/release-plan"
+          if [ -s "$RUNNER_TEMP/release-plan" ]; then
+            echo "due=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "The site is already at its current version"
+          fi
+
+      - name: Prepare Buildx (shared host-daemon builder)
+        if: steps.plan.outputs.due == 'true'
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          driver: docker # shares the daemon's image store
+          install: false # would write into the docker config.json
+          use: true
+
+      # Tag <version>.<short sha>, pushed to the runner's DOCKER_REGISTRY (Harbor). The runner is arm64 and the cluster
+      # amd64, so the build runs under emulation.
+      - name: Build and push the image
+        if: steps.plan.outputs.due == 'true'
+        run: |
+          : "${DOCKER_REGISTRY:?The runner must set DOCKER_REGISTRY}"
+          export DOCKER_PLATFORM="${DOCKER_PLATFORM:-linux/amd64}"
+          DOCKER_TAG_SUFFIX="$(git rev-parse --short HEAD)"
+          export DOCKER_TAG_SUFFIX
+          echo "DOCKER_TAG_SUFFIX=$DOCKER_TAG_SUFFIX" >> "$GITHUB_ENV"
+          pnpm --filter @pauseai-es/merch-web run docker:build
+          pnpm --filter @pauseai-es/merch-web run docker:push
+
+      # If main has moved on, the push fails and nothing is lost: the next release still finds the version ahead of the
+      # chart and builds it again.
+      - name: Write the image tag into the chart
+        if: steps.plan.outputs.due == 'true'
+        env:
+          HUSKY: 0
+        run: |
+          read -r key _ version < "$RUNNER_TEMP/release-plan"
+          tag="$version.$DOCKER_TAG_SUFFIX"
+          TAG="$tag" yq -i '.image.tag = env(TAG)' charts/static/values.yaml
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m "Release: update image tag [skip ci]" -- charts/static/values.yaml
+          git push origin HEAD:main
+          git tag "$key-v$tag"
+          git push origin "$key-v$tag"
