@@ -1,7 +1,7 @@
 # Python packages for the design pipeline (scripts/build-all.sh), pinned: CI regenerates every generated file and
 # fails if one differs from what is committed, so a version bump that changes the output means re-running the
 # pipeline and committing the result in the same PR. See docs/SETUP.md.
-fonttools==4.60.2
+fonttools==4.66.1
 qrcode==8.2
 pillow==11.3.0
 numpy==2.0.2
