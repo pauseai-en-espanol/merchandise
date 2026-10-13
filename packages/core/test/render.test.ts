@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { INK, ORANGE, render } from '../src/index';
+import { INK, ORANGE, render, WHITE } from '../src/index';
 import { FAMILIES, fonts, read } from './repo';
 
 const base = {
@@ -28,6 +28,25 @@ describe('render', () => {
     const out = render({ ...base, tee: { hex: '#FFD100', preset: null } });
     expect(out.rule.key).toBe('ink');
     expect(out.inks).toEqual([INK]);
+  });
+
+  it('prints the QR mark in the back ink, cut-outs and all, without a mask', () => {
+    for (const family of Object.values(FAMILIES)) {
+      const out = render({ ...base, family, tee: { hex: '#1A1A1A', preset: 'black' } });
+      const mark =
+        /<svg x="[\d.]+" y="[\d.]+" width="\d+" height="\d+" viewBox="0 0 \d+ \d+">.*?<\/svg>/s.exec(
+          out.back,
+        )?.[0];
+      expect(mark).toBeDefined();
+      expect(out.back).not.toContain('<mask');
+      expect(new Set(mark?.match(/fill="[^"]+"/g))).toEqual(new Set([`fill="${WHITE}"`]));
+    }
+  });
+
+  it('lets a dark custom tee show through the global mark', () => {
+    const out = render({ ...base, family: FAMILIES.global, tee: { hex: '#1F3A5F', preset: null } });
+    expect(out.rule.key).toBe('dark');
+    expect(out.inks.toSorted()).toEqual([ORANGE, WHITE]);
   });
 
   it('adds tracking to the QR only', () => {

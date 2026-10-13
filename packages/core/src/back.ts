@@ -17,43 +17,28 @@ const escapeXml = (s: string) =>
     .replaceAll('"', '&quot;');
 
 /**
- * Monochrome mark for the QR centre. The two brand marks are built
- * differently, so the cut-outs are made differently:
- * - ES chapter mark: orange `<circle>` with white decorations on top. The
- *   decorations become a mask, so they are real holes in the circle.
- * - Global mark: white backing ellipse behind a compound path that already
- *   carves its cut-outs; dropping the backing fill is enough.
+ * The family's single-ink mark (`*-mark-mono-ink.svg`) in the QR colour. Its
+ * cut-outs are already holes, so the tee shows through them and only its one
+ * fill changes (the global family's ink is `black`, the QR's `#111111`). Its
+ * `<title>` is dropped: the back's own title is the URL.
  */
-const monoMark = (mark: SvgPart, fg: string, maskId: string): string => {
-  if (mark.inner.includes('<circle')) {
-    const [, , w, h] = mark.viewBox.split(/\s+/).map(Number);
-    const circle = /<circle[^/]*?fill="#FF9416"[^/]*\/>/.exec(mark.inner)?.[0];
-    if (!circle) throw new Error('ES mark: expected an orange <circle>');
-    const cutouts = [...mark.inner.matchAll(/<(?:path|rect)[^/]*?fill="#FFFFFF"[^/]*\/>/g)].map(
-      (m) => m[0].replace('#FFFFFF', 'black'),
-    );
-    return (
-      `<defs><mask id="${maskId}" maskUnits="userSpaceOnUse">` +
-      `<rect x="0" y="0" width="${w}" height="${h}" fill="white"/>${cutouts.join('')}</mask></defs>` +
-      circle.replace('#FF9416', fg).replace('/>', ` mask="url(#${maskId})"/>`)
-    );
-  }
-  return mark.inner
-    .replaceAll('#FF9416', '__FG__')
-    .replaceAll('"white"', '"none"')
-    .replaceAll('__FG__', fg);
+const markIn = (mark: SvgPart, fg: string): string => {
+  const inner = mark.inner.replace(/<title>[\s\S]*?<\/title>\s*/, '');
+  const fills = new Set([...inner.matchAll(/fill="([^"]+)"/g)].map((m) => m[1]));
+  fills.delete('none');
+  const [ink] = fills;
+  if (fills.size !== 1 || !ink) throw new Error('QR mark: expected a single-ink mark');
+  return inner.replaceAll(`fill="${ink}"`, `fill="${fg}"`);
 };
 
 export interface QrOptions {
   fg: string;
   mark: SvgPart;
-  /** Unique per document, for the ES mark's mask. */
-  maskId?: string;
   url: string;
 }
 
 /** QR modules as an SVG part (viewBox in modules, 1-module quiet zone). */
-export const qrPart = ({ fg, mark, maskId = 'qr-mark-cutouts', url }: QrOptions) => {
+export const qrPart = ({ fg, mark, url }: QrOptions) => {
   const qr = qrcode(0, 'H');
   qr.addData(url);
   qr.make();
@@ -85,7 +70,7 @@ export const qrPart = ({ fg, mark, maskId = 'qr-mark-cutouts', url }: QrOptions)
   );
   const centre =
     `<svg x="${logoMin + 0.5}" y="${logoMin + 0.5}" width="${logo - 1}" height="${logo - 1}" viewBox="${mark.viewBox}">` +
-    `${monoMark(mark, fg, maskId)}</svg>`;
+    `${markIn(mark, fg)}</svg>`;
 
   return {
     inner: `<path fill="${fg}" d="${modules.join('')}"/>${finders.join('')}${centre}`,

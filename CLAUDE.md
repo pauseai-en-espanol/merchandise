@@ -44,9 +44,11 @@ can quickly see what's appropriate.
 - **No mockery or caricature of individuals.** Quote them accurately;
   don't distort their face, words, or position. The point is
   accountability, not insult.
-- **Real photos only, with attribution.** Never AI-generated portraits.
-  If a design uses a person's likeness, the README cites the photo's
-  source and license.
+- **Real photos or human-drawn illustrations only, with attribution.**
+  Never AI-generated portraits. If a design uses a person's likeness, the
+  README cites the photo's or the illustration's source and license
+  (commissioned portraits live in `illustrations/portraits/<person>/`,
+  credited in `illustrations/portraits/README.md`).
 - **No catastrophe imagery.** Mushroom clouds, bombs, body counts,
   burning cities — out, regardless of lane. We argue for caution, not
   catastrophe-porn.
@@ -145,7 +147,8 @@ What the site reads, straight from the repo at build time:
 - `designs/<slug>/design.json`: title per language, voice lane, whether the
   text is sourced (quotes or data; the site warns translators), and the
   `utmSource` (also read by `build-qr.py`);
-- `brand/logos/`, `brand/fonts/files/`, `mockups/tshirt-*.jpg`.
+- `brand/logos/`, `brand/fonts/files/`, `mockups/tshirt-*.jpg`. The back's
+  QR centre is the single-ink mark (`pauseai-*-mark-mono-ink.svg`).
 
 So a design shows up on the site once it has a canonical front and a
 `design.json`. For its colours to work on every tee, it must follow the
@@ -154,6 +157,12 @@ fixed ink details `class="keep"`. Run `pnpm test` after touching a design:
 the parity test fails if the site would print a preset tee differently
 from the Python pipeline. Text slots come from the `<text>` elements; in the
 editor, `*…*` maps to the accent tspan and `_…_` to the small italic one.
+
+Besides the generator, the site has a logos page (`#logos`, linked from the
+header and footer) where anyone downloads every lockup and mark of both
+families as SVG or 2400 px PNG, one by one or as a ZIP per family with a
+short usage note (`packages/web/src/brandLogos.ts`). It loads on demand, so
+the generator's bundle carries only the logos it prints.
 
 The site has one page per language: Spanish at `/`, English at `/en/`
 (`packages/web/index.html`, `packages/web/en/index.html`), each with its own

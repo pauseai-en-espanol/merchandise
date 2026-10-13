@@ -17,8 +17,6 @@ export interface RenderInput {
   /** All known families, to find the design's logo slot. */
   families: LogoFamily[];
   fonts: FontBook;
-  /** Unique per rendered document, for SVG ids that must not collide on a page. */
-  idPrefix?: string;
   tee: Tee;
   /** Add `utm_campaign=tshirt` (and `utm_source`, when given) to the QR only. */
   tracking: { source?: string } | false;
@@ -60,7 +58,6 @@ export const render = (input: RenderInput): Rendered => {
     backSvg({
       fg: rule.qr,
       mark: input.family.mark,
-      maskId: `${input.idPrefix ?? 'm'}-qr-mark`,
       url: qrUrl,
       wordmark: input.wordmark,
       wordmarkSize: Math.round(WORDMARK_SIZE * wordmarkScale * 100) / 100,

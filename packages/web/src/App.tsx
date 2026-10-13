@@ -1,5 +1,14 @@
 import { type FontBook, render, type Rendered, wordmarkFor } from '@pauseai-es/merch-core';
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   designBySlug,
@@ -25,6 +34,15 @@ import { clearSaved, loadSaved, save, type Theme, THEMES } from './storage';
 
 export type Update = (patch: Partial<Settings>) => void;
 
+// The logos page and every logo file it offers load only when it opens.
+const LogosPage = lazy(() =>
+  import('./components/LogosPage').then((m) => ({ default: m.LogosPage })),
+);
+
+/** The generator, or the logos page at #logos (linkable, and Back returns). */
+type View = 'generator' | 'logos';
+const viewOf = (): View => (location.hash === '#logos' ? 'logos' : 'generator');
+
 const safeRender = (settings: Settings, canonical: string, fonts: FontBook): Rendered | null => {
   const design = designBySlug(settings.slug);
   try {
@@ -34,7 +52,6 @@ const safeRender = (settings: Settings, canonical: string, fonts: FontBook): Ren
       families: FAMILIES,
       family: familyById(settings.familyId),
       fonts,
-      idPrefix: 'preview',
       tee: teeOf(settings),
       tracking: settings.tracking ? { source: design.utmSource } : false,
       url: isValidUrl(settings.url) ? settings.url : familyById(settings.familyId).url,
@@ -62,11 +79,26 @@ export const App = () => {
     if (pathLang() !== lang) history.pushState(null, '', LANG_PATH[lang] + location.hash);
   }, []);
 
+  const [view, setView] = useState<View>(viewOf);
+
   useEffect(() => {
-    const onPop = () => setUiState(pathLang());
+    const onPop = () => {
+      setUiState(pathLang());
+      setView(viewOf());
+    };
     window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
+    window.addEventListener('hashchange', onPop);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      window.removeEventListener('hashchange', onPop);
+    };
   }, []);
+
+  const closeLogos = () => {
+    history.pushState(null, '', location.pathname);
+    setView('generator');
+    window.scrollTo({ top: 0 });
+  };
   const [theme, setTheme] = useState<Theme>(() =>
     THEMES.includes(saved.theme as Theme) ? (saved.theme as Theme) : 'auto',
   );
@@ -84,8 +116,8 @@ export const App = () => {
 
   useEffect(() => {
     document.documentElement.lang = ui;
-    document.title = t.app.title;
-  }, [ui, t.app.title]);
+    document.title = view === 'logos' ? `${t.logos.title} · ${t.app.title}` : t.app.title;
+  }, [ui, view, t.app.title, t.logos.title]);
 
   useEffect(() => save({ settings, step, theme, ui }), [settings, step, theme, ui]);
 
@@ -172,104 +204,122 @@ export const App = () => {
             <p className="intro">{t.app.intro}</p>
           </div>
         </div>
-        <div className="ui-lang" role="group" aria-label={t.app.uiLanguage}>
-          {LANGS.map((lang) => (
-            <button
-              key={lang}
-              type="button"
-              className="chip small"
-              aria-pressed={ui === lang}
-              onClick={() => setUi(lang)}
-            >
-              {lang.toUpperCase()}
-            </button>
-          ))}
-          <ThemeToggle setTheme={setTheme} t={t} theme={theme} />
+        <div className="masthead-tools">
+          <a
+            className="chip small"
+            href="#logos"
+            aria-current={view === 'logos' ? 'page' : undefined}
+          >
+            {t.logos.link}
+          </a>
+          <div className="ui-lang" role="group" aria-label={t.app.uiLanguage}>
+            {LANGS.map((lang) => (
+              <button
+                key={lang}
+                type="button"
+                className="chip small"
+                aria-pressed={ui === lang}
+                onClick={() => setUi(lang)}
+              >
+                {lang.toUpperCase()}
+              </button>
+            ))}
+            <ThemeToggle setTheme={setTheme} t={t} theme={theme} />
+          </div>
         </div>
       </header>
 
-      <nav className="stepper" aria-label="Steps">
-        <ol>
-          {steps.map((label, i) => (
-            <li key={label}>
-              <button
-                type="button"
-                aria-current={i === step ? 'step' : undefined}
-                onClick={() => goTo(i)}
-              >
-                <span className="step-n">{i + 1}</span>
-                {label}
-              </button>
-            </li>
-          ))}
-        </ol>
-        <button type="button" className="link start-over" onClick={startOver}>
-          ↺ {t.app.reset}
-        </button>
-      </nav>
+      {view === 'logos' ? (
+        <Suspense fallback={<p className="muted">{t.app.loading}</p>}>
+          <LogosPage onBack={closeLogos} t={t} />
+        </Suspense>
+      ) : (
+        <>
+          <nav className="stepper" aria-label="Steps">
+            <ol>
+              {steps.map((label, i) => (
+                <li key={label}>
+                  <button
+                    type="button"
+                    aria-current={i === step ? 'step' : undefined}
+                    onClick={() => goTo(i)}
+                  >
+                    <span className="step-n">{i + 1}</span>
+                    {label}
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <button type="button" className="link start-over" onClick={startOver}>
+              ↺ {t.app.reset}
+            </button>
+          </nav>
 
-      <main ref={workspace} className="workspace">
-        <section className="controls" aria-label={steps[step]}>
-          {step === 0 && (
-            <TeeStep
-              chooseDesign={chooseDesign}
-              fonts={fonts}
-              settings={settings}
-              t={t}
-              ui={ui}
-              update={update}
-            />
-          )}
-          {step === 1 && (
-            <ChapterStep rendered={rendered} settings={settings} t={t} update={update} />
-          )}
-          {step === 2 && current && fonts && (
-            <TextStep
-              canonical={current}
-              design={design}
-              rendered={rendered}
-              settings={settings}
-              t={t}
-              update={update}
-            />
-          )}
-          {step === 3 && current && (
-            <DownloadStep
-              canonical={current}
-              design={design}
-              rendered={rendered}
-              settings={settings}
-              t={t}
-              ui={ui}
-            />
-          )}
+          <main ref={workspace} className="workspace">
+            <section className="controls" aria-label={steps[step]}>
+              {step === 0 && (
+                <TeeStep
+                  chooseDesign={chooseDesign}
+                  fonts={fonts}
+                  settings={settings}
+                  t={t}
+                  ui={ui}
+                  update={update}
+                />
+              )}
+              {step === 1 && (
+                <ChapterStep rendered={rendered} settings={settings} t={t} update={update} />
+              )}
+              {step === 2 && current && fonts && (
+                <TextStep
+                  canonical={current}
+                  design={design}
+                  rendered={rendered}
+                  settings={settings}
+                  t={t}
+                  update={update}
+                />
+              )}
+              {step === 3 && current && (
+                <DownloadStep
+                  canonical={current}
+                  design={design}
+                  rendered={rendered}
+                  settings={settings}
+                  t={t}
+                  ui={ui}
+                />
+              )}
 
-          <div className="step-nav">
-            {step > 0 && (
-              <button type="button" className="button secondary" onClick={() => goTo(step - 1)}>
-                {t.nav.back}
-              </button>
-            )}
-            {step < steps.length - 1 && (
-              <button type="button" className="button" onClick={() => goTo(step + 1)}>
-                {t.nav.next}
-              </button>
-            )}
-          </div>
-        </section>
+              <div className="step-nav">
+                {step > 0 && (
+                  <button type="button" className="button secondary" onClick={() => goTo(step - 1)}>
+                    {t.nav.back}
+                  </button>
+                )}
+                {step < steps.length - 1 && (
+                  <button type="button" className="button" onClick={() => goTo(step + 1)}>
+                    {t.nav.next}
+                  </button>
+                )}
+              </div>
+            </section>
 
-        <aside className="preview">
-          {rendered ? (
-            <Preview rendered={rendered} settings={deferred} t={t} />
-          ) : (
-            <p className="muted">{t.app.loading}</p>
-          )}
-        </aside>
-      </main>
+            <aside className="preview">
+              {rendered ? (
+                <Preview rendered={rendered} settings={deferred} t={t} />
+              ) : (
+                <p className="muted">{t.app.loading}</p>
+              )}
+            </aside>
+          </main>
+        </>
+      )}
 
       <footer className="footer">
         <span>{t.app.footer}</span>
         <span className="footer-links">
+          <a href="#logos">{t.logos.link}</a>
           <a href={REPO_URL}>{t.app.source}</a>
         </span>
       </footer>

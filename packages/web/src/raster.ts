@@ -35,16 +35,15 @@ const loadImage = (src: string): Promise<HTMLImageElement> => {
 
 /**
  * Decode an SVG as an image at a given pixel size. The root width/height are
- * rewritten to that size first: some browsers rasterise an SVG image at its
- * intrinsic size (240 mm ≈ 907 px) and then scale it, which blurs large draws.
+ * set to that size first (added if missing): some browsers rasterise an SVG
+ * image at its intrinsic size (240 mm ≈ 907 px) and then scale it, which
+ * blurs large draws.
  */
 const svgImage = async (svg: string, width: number, height: number): Promise<HTMLImageElement> => {
-  const end = svg.indexOf('>', svg.indexOf('<svg'));
-  const root = svg
-    .slice(0, end)
-    .replace(/\swidth="[^"]*"/, ` width="${width}"`)
-    .replace(/\sheight="[^"]*"/, ` height="${height}"`);
-  const sized = root + svg.slice(end);
+  const start = svg.indexOf('<svg');
+  const end = svg.indexOf('>', start);
+  const root = svg.slice(start, end).replaceAll(/\s(?:width|height)="[^"]*"/g, '');
+  const sized = `${svg.slice(0, start)}${root} width="${width}" height="${height}"${svg.slice(end)}`;
   const url = URL.createObjectURL(new Blob([sized], { type: 'image/svg+xml' }));
   try {
     const img = new Image();
@@ -151,6 +150,28 @@ export const printPng = async (printSvg: string, side: Side): Promise<Blob> => {
   const { canvas, ctx } = canvas2d(px(mm.width), px(mm.height));
   ctx.drawImage(
     await svgImage(printSvg, canvas.width, canvas.height),
+    0,
+    0,
+    canvas.width,
+    canvas.height,
+  );
+  return canvasBlob(canvas);
+};
+
+/** Long side of a downloadable logo PNG, in pixels. */
+export const LOGO_PNG_PX = 2400;
+
+/** Transparent PNG of a brand logo, LOGO_PNG_PX on its long side. */
+export const logoPng = async (svg: string): Promise<Blob> => {
+  const [, , w = 1, h = 1] =
+    /viewBox="([^"]+)"/
+      .exec(svg)?.[1]
+      ?.split(/[\s,]+/)
+      .map(Number) ?? [];
+  const scale = LOGO_PNG_PX / Math.max(w, h);
+  const { canvas, ctx } = canvas2d(Math.round(w * scale), Math.round(h * scale));
+  ctx.drawImage(
+    await svgImage(svg, canvas.width, canvas.height),
     0,
     0,
     canvas.width,

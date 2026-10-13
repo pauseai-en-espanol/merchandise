@@ -76,6 +76,9 @@ pip3 install --user fontTools skia-pathops
 python3 scripts/build-mono-logos.py
 ```
 
+Then rerun `./scripts/build-all.sh`: the tee backs inline the single-ink
+marks.
+
 ## Python packages (historical / onboarding)
 
 Only needed if you're onboarding a new contributor PSD or vectorizing
@@ -89,6 +92,11 @@ a raster sketch. Not needed by `build-all.sh`.
 ```sh
 pip3 install --user psd-tools potracer
 ```
+
+The commissioned portraits in `illustrations/` are traced by
+`scripts/trace-portraits.py`, which uses Pillow and the `potrace` command
+line tool instead (`brew install potrace`); see
+`illustrations/portraits/README.md`.
 
 ## Fonts
 

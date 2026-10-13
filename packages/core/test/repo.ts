@@ -8,11 +8,12 @@ export const ROOT = join(import.meta.dirname, '..', '..', '..');
 
 export const read = (path: string) => readFileSync(join(ROOT, path), 'utf8');
 
+/** Same files as packages/web/src/assets.ts. */
 const family = (prefix: string, meta: { id: string; name: string; url: string }) =>
   logoFamily(meta, {
     dark: read(`brand/logos/${prefix}-on-dark.svg`),
     light: read(`brand/logos/${prefix}-on-light.svg`),
-    mark: read(`brand/logos/${prefix}-mark.svg`),
+    mark: read(`brand/logos/${prefix}-mark-mono-ink.svg`),
     mono: read(`brand/logos/${prefix}-mono-ink.svg`),
     orange: read(`brand/logos/${prefix}-on-orange.svg`),
   });

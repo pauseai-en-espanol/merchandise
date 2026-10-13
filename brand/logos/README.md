@@ -18,10 +18,10 @@ Canonical PauseAI logos. **Do not modify these files** when authoring designs
   natural cutouts. Wordmark stays in ink. Designed for `#C45A00`
   (`brand/tokens.json#colors.orangeDeep`) or similar burnt-orange.
 - `pauseai-es-on-dark.svg` — **For dark backgrounds.** Mark stays in
-  brand orange; the smile detail stays white; "Pause" letters and the
-  "en Español" sub-wordmark are white; "AI" letters stay orange. The
-  mark's counterform rects *and* the ñ body + its tilde are black, so
-  they all read as cutouts/negative space on near-black surfaces.
+  brand orange, with its ñ-tilde and P bars drawn in white on top;
+  "Pause" letters and the "en Español" sub-wordmark are white; "AI" and
+  the ñ of "Español" stay orange. Nothing in it is a backing colour, so
+  it reads the same on any dark surface.
 - `pauseai-es-mark.svg` — **Mark only, no wordmark.** Clean orange
   circle (viewBox `0 0 905 929`) with the chapter's signature
   ñ-tilde decoration sitting on top of the mark — a curvy white
@@ -42,19 +42,17 @@ mark constructed as a single compound path (`fill-rule="evenodd"`) — much
 leaner than the chapter SVGs above. Use these for content contributed
 upstream to PauseAI Global, not chapter-specific.
 
-Each banner variant embeds its own backing-color strategy so the mark's
-P-stem cutouts render consistently regardless of the surface beneath.
+In every banner variant the mark's P-stem cutouts are transparent, so
+they show whatever surface the logo sits on.
 
 - `pauseai-global-on-light.svg` — **For light backgrounds.** Mark in
-  brand orange; "Pause" in black, "AI" in orange. White backing rect
-  behind the mark cutouts. No baked-in canvas fill.
+  brand orange; "Pause" in black, "AI" in orange. No baked-in canvas
+  fill.
 - `pauseai-global-on-orange.svg` — **For `#FF9416` brand-orange
   surfaces.** Mark and "AI" in white; "Pause" in black. Cutouts are
   transparent, so the orange surface shows through them naturally.
 - `pauseai-global-on-dark.svg` — **For dark backgrounds.** Mark stays
-  in brand orange; "Pause" in white, "AI" in orange. Black backing
-  rect behind the cutouts — looks cleanest on near-black surfaces; on
-  navy/dark-gray the cutouts will read slightly darker than the bg.
+  in brand orange; "Pause" in white, "AI" in orange.
 - `pauseai-global-mark.svg` — **Mark only, no wordmark.** Square
   canvas (654 × 654). For favicons, social profile pictures, small
   chest prints, app icons. White ellipse behind the orange mark, so
@@ -79,7 +77,9 @@ edit them by hand, re-run the script.
 | white | `pauseai-*-mono-white.svg` | `pauseai-*-mark-mono-white.svg` | `#FFFFFF` / `white` | dark or busy backgrounds (black, navy, deep colours, photos) |
 | orange | `pauseai-*-mono-orange.svg` | `pauseai-*-mark-mono-orange.svg` | `#FF9416` | brand orange alone, on white, grey or black |
 
-Any of them also works for a one-colour screen print.
+Any of them also works for a one-colour screen print. The tee backs
+put `pauseai-*-mark-mono-ink.svg` in the centre of the QR, in the back's
+own colour (`scripts/build-qr.py`, `packages/core/src/back.ts`).
 
 How they're built:
 
@@ -117,3 +117,8 @@ lockup (or PauseAI ES shares the original source), we should swap.
 The global SVGs in this folder are local copies of PauseAI Global's
 official brand assets. If the upstream evolves, refresh these files
 rather than editing them in place.
+
+One deliberate difference: upstream's light and dark banners put a
+white / black rect behind the mark's P bars. Ours drop it (2026-10), so
+the bars show the surface instead of printing as stray white or black on
+any other colour (an extra ink on a tee). Drop it again when refreshing.

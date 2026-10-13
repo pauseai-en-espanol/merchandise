@@ -12,11 +12,11 @@ no background panel — the tee fabric shows through "light" areas:
   - black tee          → paper (#FFFFFF)
 The finder patterns are drawn as hollow rings + centre dots (a path
 with fill-rule="evenodd") so the dark/light/dark scan pattern reads
-against the bare tee. The centre brand mark is recoloured to match:
-the orange circle becomes the foreground colour and the white
-decorations become transparent (so the ñ-tilde + P-stem counterforms
-show as tee colour). Error correction H (30 %) carries the centre
-logo without breaking scannability.
+against the bare tee. The centre brand mark is the family's single-ink
+mark (brand/logos/*-mark-mono-ink.svg, from scripts/build-mono-logos.py)
+in the same foreground colour: its cutouts (the ñ-tilde, the P bars) are
+already holes, so they show as tee colour. Error correction H (30 %)
+carries the centre logo without breaking scannability.
 
 The standalone brand QR (brand/qr-pauseai-{es,info}.svg) keeps the
 original darker-orange-on-white treatment so it remains usable in
@@ -86,12 +86,14 @@ def _xml(s):
     return s.replace("&", "&amp;")
 
 
-# Per-language config: URL, wordmark label, centre-mark logo, output basenames
+# Per-language config: URL, wordmark label, centre marks (full colour for the
+# standalone QR, single ink for the tee backs), output basenames
 LANGUAGES = {
     "es": {
         "url": "https://pauseai.es",
         "wordmark": "PAUSEAI.ES",
         "mark_path": "brand/logos/pauseai-es-mark.svg",
+        "mono_mark_path": "brand/logos/pauseai-es-mark-mono-ink.svg",
         "qr_filename": "brand/qr-pauseai-es.svg",
         "lang": "es",
     },
@@ -99,6 +101,7 @@ LANGUAGES = {
         "url": "https://pauseai.info",
         "wordmark": "PAUSEAI.INFO",
         "mark_path": "brand/logos/pauseai-global-mark.svg",
+        "mono_mark_path": "brand/logos/pauseai-global-mark-mono-ink.svg",
         "qr_filename": "brand/qr-pauseai-info.svg",
         "lang": "en",
     },
@@ -116,64 +119,16 @@ def _load_mark(path):
     return vb, (m.group(1).strip() if m else "")
 
 
-def _recolor_mark(mark_inner, fg_color, mark_vb):
-    """Monochrome recolour for the bare-tee back QR. The two brand
-    marks have different structures, so the transformation differs:
-
-      - ES chapter mark: orange `<circle>` + separate white decoration
-        shapes (ñ-tilde `<path>` + two P-stem `<rect>`s). The white
-        shapes sit ON TOP of the circle, so just setting their fill to
-        'none' makes them invisible without cutting anything — the
-        circle stays solid. We wrap the (recoloured) circle in a
-        `<mask>` containing the decoration shapes filled black, so
-        they become real cutouts and the tee shows through.
-      - Global mark: white backing `<ellipse>` + a compound orange
-        path that already carves the P-stem cutouts via
-        `fill-rule="evenodd"`. Dropping the ellipse's fill to 'none'
-        is enough — the compound path's own cutouts then reveal the
-        tee."""
-    if "<circle" in mark_inner:
-        return _recolor_es_mark(mark_inner, fg_color, mark_vb)
-    return _recolor_global_mark(mark_inner, fg_color)
-
-
-def _recolor_es_mark(mark_inner, fg_color, mark_vb):
-    vb_parts = mark_vb.split()
-    vb_w, vb_h = float(vb_parts[2]), float(vb_parts[3])
-
-    circle_m = re.search(r'<circle[^/]*?fill="#FF9416"[^/]*/>', mark_inner)
-    if not circle_m:
-        raise ValueError("ES mark: expected an orange <circle>")
-    circle = (
-        circle_m.group(0)
-        .replace("#FF9416", fg_color)
-        .replace("/>", ' mask="url(#es-mark-cutouts)"/>')
-    )
-
-    decorations = re.findall(
-        r'<(?:path|rect)[^/]*?fill="#FFFFFF"[^/]*/>', mark_inner
-    )
-    if not decorations:
-        raise ValueError("ES mark: expected white decoration shapes")
-    mask_shapes = [d.replace("#FFFFFF", "black") for d in decorations]
-
-    return (
-        "<defs>"
-        '<mask id="es-mark-cutouts" maskUnits="userSpaceOnUse">'
-        f'<rect x="0" y="0" width="{vb_w}" height="{vb_h}" fill="white"/>'
-        + "".join(mask_shapes)
-        + "</mask>"
-        "</defs>"
-        + circle
-    )
-
-
-def _recolor_global_mark(mark_inner, fg_color):
-    sentinel = "__FG__"
-    s = mark_inner.replace("#FF9416", sentinel)
-    s = s.replace('"white"', '"none"')
-    s = s.replace(sentinel, fg_color)
-    return s
+def _recolor_mark(mark_inner, fg_color):
+    """Single-ink mark → the back's foreground colour. Its cutouts are
+    already holes, so the tee shows through them; only its one fill
+    changes (the global family's ink is `black`, the backs' is #111111).
+    Its <title> is dropped: the back's own title is the URL."""
+    mark_inner = re.sub(r"<title>.*?</title>\s*", "", mark_inner, flags=re.DOTALL)
+    fills = set(re.findall(r'fill="([^"]+)"', mark_inner)) - {"none"}
+    if len(fills) != 1:
+        raise ValueError(f"expected a single-ink mark, found fills {sorted(fills)}")
+    return mark_inner.replace(f'fill="{fills.pop()}"', f'fill="{fg_color}"')
 
 
 def _build_qr_for(url, mark_vb, mark_inner, fg_color, bg_color):
@@ -182,8 +137,8 @@ def _build_qr_for(url, mark_vb, mark_inner, fg_color, bg_color):
     fg_color: data modules, finder rings, centre mark fill.
     bg_color: 'light' areas (outer panel, finder inner ring, behind
               centre mark). If None, those areas are transparent so the
-              surface beneath shows through, and the centre mark is
-              recoloured to drop its secondary white fills."""
+              surface beneath shows through, and the centre mark (then
+              the single-ink one) takes the foreground colour."""
     qr = qrcode.QRCode(
         error_correction=qrcode.constants.ERROR_CORRECT_H,
         box_size=1, border=0,
@@ -249,7 +204,7 @@ def _build_qr_for(url, mark_vb, mark_inner, fg_color, bg_color):
         )
         mark_to_embed = mark_inner
     else:
-        mark_to_embed = _recolor_mark(mark_inner, fg_color, mark_vb)
+        mark_to_embed = _recolor_mark(mark_inner, fg_color)
     p.append(
         f'  <svg x="{logo_min + 0.5}" y="{logo_min + 0.5}" '
         f'width="{logo_size - 1}" height="{logo_size - 1}" '
@@ -310,6 +265,7 @@ def main():
     for lang_code, cfg in LANGUAGES.items():
         base = cfg["url"]
         mark_vb, mark_inner = _load_mark(cfg["mark_path"])
+        mono_vb, mono_inner = _load_mark(cfg["mono_mark_path"])
 
         # 1) Standalone brand QR — unchanged: darker orange on a white
         #    panel. Generic asset for posters / slides, not for tees.
@@ -323,7 +279,7 @@ def main():
         #    own foreground, so each tee's back SVG differs by colour).
         url_campaign = f"{base}/?utm_campaign={CAMPAIGN}"
         campaign_qrs = {
-            tee: _build_qr_for(url_campaign, mark_vb, mark_inner,
+            tee: _build_qr_for(url_campaign, mono_vb, mono_inner,
                                FG_COLOR[tee], None)
             for tee in ("orange", "white", "black")
         }
@@ -337,7 +293,7 @@ def main():
                       f"using '{source}' (add utmSource to its design.json)")
             url_sourced = f"{base}/?utm_campaign={CAMPAIGN}&utm_source={source}"
             sourced_qrs = {
-                tee: _build_qr_for(url_sourced, mark_vb, mark_inner,
+                tee: _build_qr_for(url_sourced, mono_vb, mono_inner,
                                    FG_COLOR[tee], None)
                 for tee in ("orange", "white", "black")
             }

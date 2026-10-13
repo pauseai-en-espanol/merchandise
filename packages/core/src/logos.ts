@@ -7,12 +7,12 @@ export interface SvgPart {
 }
 
 /**
- * A logo family: every variant of one lockup plus its mark (used in the QR
- * centre). Families come from `brand/logos/` and are never edited here.
+ * A logo family: every variant of one lockup plus its single-ink mark (used in
+ * the QR centre). Families come from `brand/logos/` and are never edited here.
  */
 export interface LogoFamily {
   id: string;
-  /** Mark only, for the centre of the back QR. */
+  /** Single-ink mark (`*-mark-mono-ink.svg`), for the centre of the back QR. */
   mark: SvgPart;
   name: string;
   /** Default site for this family (QR target and back wordmark). */
