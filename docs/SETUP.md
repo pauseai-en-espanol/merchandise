@@ -64,7 +64,7 @@ pip3 install --user fontTools qrcode pillow numpy
 ## Python packages (brand assets)
 
 Only needed to regenerate the single-ink logos
-(`brand/logos/pauseai-*-mono-ink.svg`). Not needed by `build-all.sh`.
+(`brand/logos/pauseai-*-mono-*.svg`). Not needed by `build-all.sh`.
 
 | Package | Used by | Purpose |
 |---|---|---|

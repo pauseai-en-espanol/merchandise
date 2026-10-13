@@ -23,11 +23,16 @@ export const REPO_URL = 'https://github.com/pauseai-en-espanol/merchandise';
 
 // --- Logo families ---------------------------------------------------------
 
-const logoFiles = import.meta.glob<string>('../../../brand/logos/*.svg', {
-  eager: true,
-  import: 'default',
-  query: '?raw',
-});
+// Only the files `family` reads: brand/logos/ also holds variants the site
+// never prints (white, orange and mark single-inks), kept out of the bundle.
+const logoFiles = import.meta.glob<string>(
+  '../../../brand/logos/pauseai-{es,global}-{on-dark,on-light,on-orange,mark,mono-ink}.svg',
+  {
+    eager: true,
+    import: 'default',
+    query: '?raw',
+  },
+);
 
 const logo = (name: string): string => {
   const svg = logoFiles[`../../../brand/logos/${name}.svg`];

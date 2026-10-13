@@ -180,11 +180,15 @@ pnpm check   # lint, typecheck, tests, prettier
 - **Logos in `brand/logos/` are canonical.** Do not recolor, redraw,
   re-letter, or distort. If a design needs a different logo treatment, open
   an issue first.
-- **Single-ink logos** (`pauseai-{es,global}-mono-ink.svg`) are
-  derived files: they're generated from the `on-orange` files by `scripts/build-mono-logos.py` (every white fill
-  → ink, plus a ≈ 1 mm gap trimmed out of the circle where letters
-  touch it). Use them on pale tees where neither orange nor white reads,
-  and for one-colour prints. Never edit them by hand; re-run the script.
+- **Single-ink logos** (`pauseai-{es,global}-mono-{ink,white,orange}.svg`
+  and the marks `pauseai-{es,global}-mark-mono-{ink,white,orange}.svg`)
+  are derived files: `scripts/build-mono-logos.py` generates the
+  lockups from the `on-orange` files (every fill → the one colour, plus
+  a ≈ 1 mm gap trimmed out of the circle where letters touch it) and
+  the marks from the `mark` files (the white overlays become holes).
+  Use ink on pale tees where neither orange nor white reads, white on
+  dark or busy surfaces, orange for the brand colour alone, and any of
+  them for one-colour prints. Never edit them by hand; re-run the script.
 - **Typography:** the broader PauseAI brand spec allows three fonts
   (Saira Condensed 700, Montserrat 900 Black, Roboto Slab 300 / 700 —
   see `brand/fonts.md`), but **the chapter currently uses Saira
