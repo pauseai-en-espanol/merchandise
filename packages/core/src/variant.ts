@@ -60,6 +60,37 @@ export const findLogoSlot = (svg: string, known: LogoFamily[]) => {
   };
 };
 
+const ratio = (viewBox: string) => {
+  const [, , w = 1, h = 1] = viewBox.trim().split(/\s+/).map(Number);
+  return h / w;
+};
+
+const numAttr = (tag: string, name: string) => {
+  const m = new RegExp(String.raw`\s${name}="([\d.]+)"`).exec(tag);
+  return m ? Number(m[1]) : undefined;
+};
+
+const setAttr = (tag: string, name: string, value: number) =>
+  tag.replace(new RegExp(String.raw`(\s${name}=")[\d.]+"`), `$1${Math.round(value * 100) / 100}"`);
+
+/**
+ * Reshape a logo slot for a logo of other proportions. The hand-authored
+ * layouts keep the logo's width across families and centre the taller or
+ * shorter lockup on the same line (not-a-robot: es y=15 h=41, en y=8 h=55.48),
+ * so do the same instead of letting `meet` shrink it into the old box. The
+ * global lockup's viewBox has room above and below the artwork, so its box may
+ * start above the canvas while the logo itself stays where the chapter's was.
+ */
+const fitSlot = (openTag: string, from: string, to: string) => {
+  if (Math.abs(ratio(to) / ratio(from) - 1) < 0.01) return openTag;
+  const y = numAttr(openTag, 'y');
+  const width = numAttr(openTag, 'width');
+  const height = numAttr(openTag, 'height');
+  if (y === undefined || width === undefined || height === undefined) return openTag;
+  const fitted = width * ratio(to);
+  return setAttr(setAttr(openTag, 'y', y + (height - fitted) / 2), 'height', fitted);
+};
+
 /** Apply a tee colour rule (and optionally a different logo family) to a front SVG. */
 export const recolourFront = (svg: string, rule: ColourRule, logo: LogoChoice): string => {
   const slot = findLogoSlot(svg, logo.known);
@@ -68,9 +99,14 @@ export const recolourFront = (svg: string, rule: ColourRule, logo: LogoChoice): 
   const authored = logo.known.find((f) => f.variants.orange.viewBox === slot.viewBox);
   const unchanged = rule.logo === 'orange' && authored?.id === logo.use.id;
   const part = logo.use.variants[rule.logo];
+  const openTag = fitSlot(
+    `<svg${slot.attrs}viewBox="${part.viewBox}"${slot.rest}>`,
+    slot.viewBox,
+    part.viewBox,
+  );
   const logoMarkup = unchanged
     ? svg.slice(slot.start, slot.end)
-    : `<svg${slot.attrs}viewBox="${part.viewBox}"${slot.rest}>\n${part.inner}\n</svg>`;
+    : `${openTag}\n${part.inner}\n</svg>`;
 
   return (
     recolourTags(svg.slice(0, slot.start), rule) +

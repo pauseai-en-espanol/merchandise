@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { INK, ORANGE, render, WHITE } from '../src/index';
+import { INK, type LogoFamily, ORANGE, recolourFront, render, RULES, WHITE } from '../src/index';
 import { FAMILIES, fonts, read } from './repo';
 
 const base = {
@@ -76,5 +76,19 @@ describe('render', () => {
       tee: { hex: ORANGE, preset: 'orange' },
     });
     expect(out.front).toContain('viewBox="33 0 1214 449"');
+  });
+
+  it('keeps the logo width when printing the other family', () => {
+    const swap = (lang: 'en' | 'es', use: LogoFamily) =>
+      /<svg x="25" y="([\d.]+)" width="150" height="([\d.]+)" viewBox="(?:0 0 3400 929|33 0 1214 449)">/.exec(
+        recolourFront(read(`designs/not-a-robot/${lang}.orange.front.svg`), RULES.mid, {
+          known: Object.values(FAMILIES),
+          use,
+        }),
+      );
+    // The global lockup grows to the en layout's box (y=8 h=55.48), centred on
+    // the chapter's line, instead of shrinking into es's 150 × 41.
+    expect(swap('es', FAMILIES.global)?.slice(1)).toEqual(['7.76', '55.48']);
+    expect(swap('en', FAMILIES.es)?.slice(1)).toEqual(['15.25', '40.99']);
   });
 });
