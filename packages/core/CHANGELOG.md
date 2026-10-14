@@ -1,5 +1,12 @@
 # @pauseai-es/merch-core
 
+## 1.1.1
+
+### Patch Changes
+
+- 2cd4c79: Printing a design with the other logo family keeps the logo's width: the global logo on a Spanish design no longer shrinks
+  into the chapter logo's box (and the chapter logo on an English design is centred where the global one was).
+
 ## 1.1.0
 
 ### Minor Changes
