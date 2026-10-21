@@ -1,5 +1,11 @@
 # @pauseai-es/merch-web
 
+## 1.1.2
+
+### Patch Changes
+
+- 3330586: The image builds on Node.js 26.12.1, with the dependency bumps (React 19.3.1 among them).
+
 ## 1.1.1
 
 ### Patch Changes

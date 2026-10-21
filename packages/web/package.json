@@ -2,7 +2,7 @@
   "name": "@pauseai-es/merch-web",
   "type": "module",
   "private": true,
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Web generator: pick a design and tee colour, add a logo, URL and text, download print-ready files",
   "scripts": {
     "dev": "vite",
