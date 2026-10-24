@@ -24,6 +24,8 @@ IMAGE_INPUTS=(
   packages
   ':(glob)designs/*/design.json' ':(glob)designs/*/*.orange.front.svg'
   brand/logos brand/fonts/files
+  ':(glob)illustrations/portraits/*/lines.svg' ':(glob)illustrations/portraits/*/halftone.svg'
+  ':(glob)illustrations/portraits/*/tone.svg'
   ':(glob)mockups/tshirt-*.jpg'
 )
 

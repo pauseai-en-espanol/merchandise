@@ -25,9 +25,11 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages ./packages
 RUN PACKAGED=true pnpm install --frozen-lockfile
 
-# Design sources, brand assets and the six tee photos the site composes onto.
+# Design sources, brand assets, the portraits' finishes and the six tee photos
+# the site composes onto.
 COPY designs ./designs
 COPY brand ./brand
+COPY illustrations/portraits ./illustrations/portraits
 COPY mockups/tshirt-*.jpg ./mockups/
 
 # Public address of the site, for absolute links in the social preview tags.

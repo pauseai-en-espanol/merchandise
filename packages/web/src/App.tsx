@@ -182,9 +182,15 @@ export const App = () => {
   useEffect(() => {
     if (!person || !portraitKey) return;
     let alive = true;
-    void loadPortrait(person, settings.portraitStyle).then((svg) => {
-      if (alive) setPortrait({ key: portraitKey, svg });
-    });
+    void loadPortrait(person, settings.portraitStyle)
+      .catch((error: unknown) => {
+        // Never leave the preview loading: print the authored finish instead.
+        console.error(error);
+        return '';
+      })
+      .then((svg) => {
+        if (alive) setPortrait({ key: portraitKey, svg });
+      });
     return () => {
       alive = false;
     };
@@ -231,7 +237,7 @@ export const App = () => {
   const rendered = useMemo(
     () =>
       fonts && current && currentPortrait !== null
-        ? safeRender(deferred, current, fonts, currentPortrait)
+        ? safeRender(deferred, current, fonts, currentPortrait || undefined)
         : null,
     [fonts, current, currentPortrait, deferred],
   );
