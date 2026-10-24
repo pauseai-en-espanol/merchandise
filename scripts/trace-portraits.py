@@ -11,7 +11,8 @@ Every <name>.jpeg / .jpg / .png in the source folder becomes a folder
   lines.svg         one ink: the line work only (the darkest hatching
                     survives, the grey shading drops out)
   halftone.svg      one ink: line work + the shading as a 45° dot screen
-                    (HALFTONE_CELL_MM at NOMINAL_WIDTH_MM)
+                    (HALFTONE_CELL_MM cells when printed
+                    HALFTONE_PRINT_WIDTH_MM wide)
   tone.svg          two inks: line work in ink + the shading as one flat
                     tone, for white and orange tees
   tone.orange.svg   the same, lines in brand orange, for black tees
@@ -45,10 +46,13 @@ TONE = {k: _TOK['illustrationColors'][f'portraitTone{k}']['hex'] for k in ('Ink'
 # Working resolution: the drawing is resized to this width before tracing.
 # ~270 dpi at the nominal width; more only adds nodes, not visible detail.
 WORK_PX = 1600
-# Nominal print width of a portrait: sets the SVG's physical size and the
-# halftone screen. A design that prints it smaller or larger should
-# re-run with a matching HALFTONE_CELL_MM to keep the screen printable.
+# Nominal print width of a portrait: sets the SVG's physical size.
 NOMINAL_WIDTH_MM = 150
+# The halftone screen is sized for the width the portraits actually print
+# at, so its dots hold on fabric there: the portrait-quote tees
+# (scripts/draw-portrait-quotes.py) print them 103–108 mm wide. If designs
+# print them at another size, change this and re-run.
+HALFTONE_PRINT_WIDTH_MM = 106
 HALFTONE_CELL_MM = 0.85     # ≈ 30 lines per inch, safe on tees
 MIN_DOT_MM = 0.2            # smaller dots don't hold on fabric
 
@@ -127,7 +131,7 @@ def paint(mask):
 def halftone_dots(im, lines, shade):
     """45° dot screen for the shading, as one path of circles (pixel space).
     Only the shading counts: line work and its soft edges read as paper."""
-    px_per_mm = WORK_PX / NOMINAL_WIDTH_MM
+    px_per_mm = WORK_PX / HALFTONE_PRINT_WIDTH_MM    # printed mm, not nominal
     cell = HALFTONE_CELL_MM * px_per_mm
     min_r = MIN_DOT_MM * px_per_mm / 2
     only_shading = ImageChops.lighter(im, ImageChops.invert(shade))
@@ -192,7 +196,8 @@ def build(src, out_dir):
     }
     notes = {
         'lines.svg': f'line work only, one ink ({INK}).',
-        'halftone.svg': f'line work + shading as a {HALFTONE_CELL_MM} mm dot screen, one ink ({INK}).',
+        'halftone.svg': (f'line work + shading as a {HALFTONE_CELL_MM} mm dot screen when printed '
+                         f'{HALFTONE_PRINT_WIDTH_MM} mm wide, one ink ({INK}).'),
     }
     for suffix, (line, tone, tee) in COLOURWAYS.items():
         key = f'tone{suffix}.svg'

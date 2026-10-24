@@ -76,17 +76,12 @@ Things to know when picking:
   lines and shading on paper; drawn in white or orange on black, the
   shadows become highlights (most visible on Coxon's cap brim).
 - **The halftone screen is sized for print**: 0.85 mm cells (≈ 30 lines per
-  inch) when the portrait prints 150 mm wide. A design that prints it
-  much smaller or larger should regenerate it with a matching
-  `HALFTONE_CELL_MM` so the dots still hold on fabric.
-  - **Not yet done for the portrait-quote tees**, which print the portrait
-    103–108 mm wide. There the cells come out at 0.6 mm (≈ 42 lpi, still
-    common for garment screen printing) and the smallest dots at 0.14 mm,
-    so the lightest shading may not hold.
-  - To fix it, re-run the tracer from the originals with
-    `HALFTONE_CELL_MM = 1.2` and `MIN_DOT_MM = 0.28`. That gives 0.85 mm
-    cells and 0.2 mm dots at about 106 mm.
-- **Sizes**: 100–480 KB each. Detailed line art, so well above the ~50 KB
+  inch) and no dot under 0.2 mm, at the width the portraits print on the
+  portrait-quote tees (103–108 mm; `HALFTONE_PRINT_WIDTH_MM = 106` in
+  `scripts/trace-portraits.py`). A design that prints them at a very
+  different size should change that and re-run the tracer, so the dots still
+  hold on fabric.
+- **Sizes**: 100–430 KB each. Detailed line art, so well above the ~50 KB
   of a simple mark; fine for print and for the web generator.
 
 ## Regenerating
@@ -105,4 +100,6 @@ The script crops each drawing, traces the line work and the shading
 separately with potrace (dropping the soft grey edge of every line, so
 lines don't get a grey rim) and writes all five versions into the person's
 folder. It only touches the people whose drawings you pass it.
-Thresholds and sizes are constants at the top of the script.
+Thresholds and sizes are constants at the top of the script. With the pinned
+Pillow (`scripts/requirements.txt`) and potrace 1.16, a re-run reproduces
+the committed files byte for byte, so it only changes what you changed.

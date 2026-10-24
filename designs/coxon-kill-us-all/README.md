@@ -57,9 +57,7 @@ with the illustrator's signature, about 108 mm wide at print size.
 **Styles:** the repo's prints and mockups use the line version. On the web
 generator the card offers all three finishes of the same drawing: **lines**
 (1 ink), **halftone** (shading as dots, 1 ink) and **tone** (shading as a
-flat second ink, the body colour faded toward the tee). The halftone screen
-isn't yet resized for this print size; see
-[`illustrations/portraits/README.md`](../../illustrations/portraits/README.md).
+flat second ink, the body colour faded toward the tee).
 
 ## Source (verified 2026-10-24)
 
