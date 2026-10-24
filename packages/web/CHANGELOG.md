@@ -1,5 +1,14 @@
 # @pauseai-es/merch-web
 
+## 1.2.2
+
+### Patch Changes
+
+- 9fe2ebe: The site's image build leaves out the portraits' original scans, now kept in the repo for re-tracing; the site itself is
+  unchanged.
+- acd5b38: Russell's "best case scenario" tee highlights "Chernobyl" and "regulate" too; in Spanish, words inside a line can now be
+  highlighted (the editor shows them as `*…*`).
+
 ## 1.2.1
 
 ### Patch Changes
