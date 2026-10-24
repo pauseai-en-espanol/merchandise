@@ -3,7 +3,7 @@
 Vectorize hand-drawn portraits (ink lines + grey pencil shading on white)
 into one-colour or two-colour SVGs for screen print.
 
-    python3 scripts/trace-portraits.py path/to/originals illustrations/portraits
+    python3 scripts/trace-portraits.py illustrations/portraits/originals illustrations/portraits
 
 Every <name>.jpeg / .jpg / .png in the source folder becomes a folder
 <name>/ (one per person) with:
@@ -22,9 +22,9 @@ The tone is the line colour faded part of the way toward the tee it is
 meant for, the way grey is black faded toward white. All colours come from
 brand/tokens.json (the tones are its illustrationColors.portraitTone*).
 
-The raster sources stay out of the repo (SVG is the source of truth); keep
-the illustrator's files and re-run this to regenerate. Needs Pillow and the
-potrace CLI (brew install potrace).
+The illustrators' originals are kept in illustrations/portraits/originals/
+as this script's input (the SVGs stay the source of truth: designs never
+embed the rasters). Needs Pillow and the potrace CLI (brew install potrace).
 """
 import json
 import math

@@ -6,6 +6,7 @@
 .claude
 prints
 renders
+illustrations/portraits/originals
 mockups/*
 !mockups/tshirt-*.jpg
 scripts

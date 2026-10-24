@@ -86,14 +86,17 @@ Things to know when picking:
 
 ## Regenerating
 
-The illustrators' rasters (LOB LAN's: A4 JPEGs at 300 dpi) are not in the
-repo: SVG is the source of truth, and the originals stay with whoever keeps
-the chapter's files. With them in a folder, each named after its person
-folder (`hinton.jpeg` → `hinton/`):
+The illustrators' originals (LOB LAN's: A4 JPEGs at 300 dpi) are kept in
+[`originals/`](originals/), each named after its person folder
+(`hinton.jpeg` → `hinton/`), so the portraits can always be re-traced.
+LOB LAN agreed to publishing the originals too (2026-10-24), under the same
+CC BY-SA 4.0. They are the tracer's input only. The SVGs are the source of
+truth: designs never embed the JPEGs, and the site's image leaves them out
+(`.dockerignore`).
 
 ```sh
 brew install potrace          # once; Pillow comes with the pipeline deps
-python3 scripts/trace-portraits.py path/to/originals illustrations/portraits
+python3 scripts/trace-portraits.py illustrations/portraits/originals illustrations/portraits
 ```
 
 The script crops each drawing, traces the line work and the shading

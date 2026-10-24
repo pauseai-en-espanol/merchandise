@@ -48,7 +48,9 @@ can quickly see what's appropriate.
   Never AI-generated portraits. If a design uses a person's likeness, the
   README cites the photo's or the illustration's source and license
   (commissioned portraits live in `illustrations/portraits/<person>/`,
-  credited in `illustrations/portraits/README.md`).
+  credited in `illustrations/portraits/README.md`; the illustrators'
+  original scans are kept in `illustrations/portraits/originals/` as the
+  tracer's input, never embedded in a design or shipped by the site).
 - **No catastrophe imagery.** Mushroom clouds, bombs, body counts,
   burning cities — out, regardless of lane. We argue for caution, not
   catastrophe-porn.
