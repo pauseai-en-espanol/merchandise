@@ -1,0 +1,14 @@
+{
+  "title": {
+    "es": "Hawking: serían reemplazados",
+    "en": "Hawking: superseded"
+  },
+  "lane": "A",
+  "sourced": true,
+  "utmSource": "tee-hawking-superseded",
+  "portrait": {
+    "person": "hawking",
+    "by": "LOB LAN",
+    "order": 1
+  }
+}

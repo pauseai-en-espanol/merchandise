@@ -1,0 +1,13 @@
+{
+  "title": {
+    "es": "Hinton: cachorro de tigre",
+    "en": "Hinton: tiger cub"
+  },
+  "lane": "A",
+  "sourced": true,
+  "utmSource": "tee-hinton",
+  "portrait": {
+    "person": "hinton",
+    "by": "LOB LAN"
+  }
+}

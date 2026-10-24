@@ -1,0 +1,14 @@
+{
+  "title": {
+    "es": "Hinton: cosas menos inteligentes",
+    "en": "Hinton: less intelligent things"
+  },
+  "lane": "A",
+  "sourced": true,
+  "utmSource": "tee-hinton-control",
+  "portrait": {
+    "person": "hinton",
+    "by": "LOB LAN",
+    "order": 1
+  }
+}

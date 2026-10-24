@@ -1,0 +1,14 @@
+{
+  "title": {
+    "es": "Coxon: se juegan nuestras vidas",
+    "en": "Coxon: gambling with our lives"
+  },
+  "lane": "B",
+  "sourced": true,
+  "utmSource": "tee-coxon-gambling",
+  "portrait": {
+    "person": "coxon",
+    "by": "LOB LAN",
+    "order": 1
+  }
+}
