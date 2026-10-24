@@ -1,4 +1,10 @@
-import { type FontBook, render, type Rendered, wordmarkFor } from '@pauseai-es/merch-core';
+import {
+  AUTHORED_STYLE,
+  type FontBook,
+  render,
+  type Rendered,
+  wordmarkFor,
+} from '@pauseai-es/merch-core';
 import {
   lazy,
   Suspense,
@@ -18,6 +24,7 @@ import {
   LANGS,
   loadFonts,
   loadFront,
+  loadPortrait,
   markUrl,
   NATIVE_FAMILY,
   REPO_URL,
@@ -43,7 +50,12 @@ const LogosPage = lazy(() =>
 type View = 'generator' | 'logos';
 const viewOf = (): View => (location.hash === '#logos' ? 'logos' : 'generator');
 
-const safeRender = (settings: Settings, canonical: string, fonts: FontBook): Rendered | null => {
+const safeRender = (
+  settings: Settings,
+  canonical: string,
+  fonts: FontBook,
+  portrait: string | undefined,
+): Rendered | null => {
   const design = designBySlug(settings.slug);
   try {
     return render({
@@ -52,6 +64,7 @@ const safeRender = (settings: Settings, canonical: string, fonts: FontBook): Ren
       families: FAMILIES,
       family: familyById(settings.familyId),
       fonts,
+      portrait,
       tee: teeOf(settings),
       tracking: settings.tracking ? { source: design.utmSource } : false,
       url: isValidUrl(settings.url) ? settings.url : familyById(settings.familyId).url,
@@ -109,6 +122,7 @@ export const App = () => {
   );
   const [fonts, setFonts] = useState<FontBook | null>(null);
   const [canonical, setCanonical] = useState<{ key: string; svg: string } | null>(null);
+  const [portrait, setPortrait] = useState<{ key: string; svg: string } | null>(null);
 
   useEffect(() => {
     void loadFonts().then(setFonts);
@@ -158,6 +172,24 @@ export const App = () => {
     };
   }, [key, settings.slug, settings.lang]);
 
+  // Portrait designs print the drawing in the chosen style (loaded on demand).
+  // The authored style needs no swap (and no download).
+  const person =
+    settings.portraitStyle === AUTHORED_STYLE
+      ? undefined
+      : designBySlug(settings.slug).portrait?.person;
+  const portraitKey = person ? `${person}/${settings.portraitStyle}` : null;
+  useEffect(() => {
+    if (!person || !portraitKey) return;
+    let alive = true;
+    void loadPortrait(person, settings.portraitStyle).then((svg) => {
+      if (alive) setPortrait({ key: portraitKey, svg });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [person, portraitKey, settings.portraitStyle]);
+
   const update: Update = useCallback((patch) => {
     setSettings((s) => {
       const next = { ...s, ...patch };
@@ -186,9 +218,22 @@ export const App = () => {
 
   const deferred = useDeferredValue(settings);
   const current = canonical?.key === `${deferred.slug}/${deferred.lang}` ? canonical.svg : null;
+  // undefined: the design has no portrait; null: its chosen style is still loading.
+  const deferredPerson =
+    deferred.portraitStyle === AUTHORED_STYLE
+      ? undefined
+      : designBySlug(deferred.slug).portrait?.person;
+  const currentPortrait = deferredPerson
+    ? portrait?.key === `${deferredPerson}/${deferred.portraitStyle}`
+      ? portrait.svg
+      : null
+    : undefined;
   const rendered = useMemo(
-    () => (fonts && current ? safeRender(deferred, current, fonts) : null),
-    [fonts, current, deferred],
+    () =>
+      fonts && current && currentPortrait !== null
+        ? safeRender(deferred, current, fonts, currentPortrait)
+        : null,
+    [fonts, current, currentPortrait, deferred],
   );
 
   const design = designBySlug(settings.slug);

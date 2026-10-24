@@ -131,6 +131,11 @@ reads, it uses a fourth rule: everything in ink with the single-ink logo
 rule, and a parity test checks that the generator reproduces the committed
 white/black fronts exactly.
 
+One exception: a portrait printed in the two-ink **tone** style (see
+`illustrations/portraits/README.md`). Its shading is the body colour faded
+58 % toward the tee. On the three preset tees that's a token
+(`portraitTone*`); on a custom tee it's derived from that tee's colour.
+
 ## Web generator
 
 `packages/web` is a static site (Vite + React + TypeScript) where anyone
@@ -145,8 +150,15 @@ Docker → nginx, Helm chart in `charts/static`.
 What the site reads, straight from the repo at build time:
 - `designs/<slug>/{es,en}.orange.front.svg`: the canonical fronts;
 - `designs/<slug>/design.json`: title per language, voice lane, whether the
-  text is sourced (quotes or data; the site warns translators), and the
-  `utmSource` (also read by `build-qr.py`);
+  text is sourced (quotes or data; the site warns translators), the
+  `utmSource` (also read by `build-qr.py`), and optionally a `portrait`
+  (`{ "person", "by", "order" }`). A portrait design offers its drawing in
+  each style (lines, halftone, tone) and needs a `<g id="portrait">` slot in
+  its front. Designs of the same person share one gallery card, as its
+  quotes (lowest `order` first); a new quote of someone with a portrait is
+  a new design folder, not a new card;
+- `illustrations/portraits/<person>/{lines,halftone,tone}.svg`, loaded on
+  demand by portrait designs;
 - `brand/logos/`, `brand/fonts/files/`, `mockups/tshirt-*.jpg`. The back's
   QR centre is the single-ink mark (`pauseai-*-mark-mono-ink.svg`).
 

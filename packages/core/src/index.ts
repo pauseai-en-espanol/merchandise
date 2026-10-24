@@ -2,6 +2,7 @@ export * from './back';
 export * from './colours';
 export * from './fonts';
 export * from './logos';
+export * from './portrait';
 export * from './print';
 export * from './render';
 export * from './text';

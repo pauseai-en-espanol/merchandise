@@ -24,9 +24,6 @@ The illustrator's signature is part of every drawing: keep it.
 
 ## Versions
 
-Status: **candidates**. The chapter picks a treatment; the others get
-deleted.
-
 | File              | Inks | Lines            | Shading                         | For tees        |
 | ----------------- | ---- | ---------------- | ------------------------------- | --------------- |
 | `lines.svg`       | 1    | ink `#111111`    | dropped (darkest hatching only) | white, orange   |
@@ -39,10 +36,41 @@ Each shading tone is the line colour faded 58 % toward the tee it is meant
 for, the way the grey is ink faded toward white
 (`brand/tokens.json#illustrationColors.portraitTone*`).
 
-¹ Grey reads flat on the orange tee; a tone between ink and orange would sit
-better there if that combination is wanted.
+¹ Grey reads flat on the orange tee. The web generator prints the tone
+there as ink faded toward orange instead (`portraitToneInkOnOrange`).
 
-Things to know before picking:
+### In designs and on the web generator
+
+A design that uses a portrait names it in its `design.json`
+(`"portrait": { "person": "hinton", "by": "LOB LAN", "order": 1 }`) and
+prints it in a `<g id="portrait">` slot, authored with `lines.svg` (see
+`scripts/draw-portrait-quotes.py`, which lays out every portrait-quote tee).
+The repo's own prints and mockups use that line version.
+
+On the web generator, all the designs of one person share a card, which
+shows the one with the lowest `order` (0 when omitted) first. Next to the
+title, a fanned stack of finish swatches (with the number of quotes, when
+there are several) opens a menu with two sections:
+
+- **Quote**: each design of that person, with a thumbnail and the start of
+  the quote;
+- **Finish**: the face in **lines**, **halftone** and **tone**, on the
+  chosen tee.
+
+Hovering or focusing an option previews it on the card: a quote crossfades
+in, and a finish wipes across the face while the card zooms in on it (only
+where the pointer can hover; on touch screens there's no zoom). Choosing an
+option picks it. The generator swaps the chosen file into the slot
+(`packages/core/src/portrait.ts`):
+
+- lines and dots are body ink, so they follow the tee's colour rule like
+  any other body element (white on dark tees);
+- the tone is the body colour faded 58 % toward the tee. On the white and
+  black tees that is exactly `tone.svg` and `tone.white.svg`, so those two
+  files and `tone.orange.svg` are reference renders: the generator doesn't
+  read the coloured ones.
+
+Things to know when picking:
 
 - **Light lines on a black tee print a negative.** The drawings are dark
   lines and shading on paper; drawn in white or orange on black, the
@@ -51,6 +79,13 @@ Things to know before picking:
   inch) when the portrait prints 150 mm wide. A design that prints it
   much smaller or larger should regenerate it with a matching
   `HALFTONE_CELL_MM` so the dots still hold on fabric.
+  - **Not yet done for the portrait-quote tees**, which print the portrait
+    103–108 mm wide. There the cells come out at 0.6 mm (≈ 42 lpi, still
+    common for garment screen printing) and the smallest dots at 0.14 mm,
+    so the lightest shading may not hold.
+  - To fix it, re-run the tracer from the originals with
+    `HALFTONE_CELL_MM = 1.2` and `MIN_DOT_MM = 0.28`. That gives 0.85 mm
+    cells and 0.2 mm dots at about 106 mm.
 - **Sizes**: 100–480 KB each. Detailed line art, so well above the ~50 KB
   of a simple mark; fine for print and for the web generator.
 

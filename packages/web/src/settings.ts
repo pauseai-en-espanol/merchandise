@@ -1,5 +1,7 @@
 import {
   normaliseHex,
+  PORTRAIT_STYLES,
+  type PortraitStyle,
   PRESET_TEES,
   type PresetTee,
   type Tee,
@@ -17,6 +19,8 @@ export interface Settings {
   familyId: string;
   /** Language of the design's text (the canonical it starts from). */
   lang: Lang;
+  /** How portrait designs print their drawing (the other designs ignore it). */
+  portraitStyle: PortraitStyle;
   slug: string;
   teeChoice: TeeChoice;
   tracking: boolean;
@@ -38,6 +42,7 @@ export const defaultSettings = (lang: Lang): Settings => {
     edits: {},
     familyId: family.id,
     lang,
+    portraitStyle: 'lines',
     slug: DESIGNS.find((d) => d.slug === 'ask-me')?.slug ?? DESIGNS[0]?.slug ?? '',
     teeChoice: 'orange',
     tracking: true,
@@ -84,6 +89,9 @@ export const restoreSettings = (saved: unknown, fallback: Settings): Settings =>
       ? (s.familyId as string)
       : fallback.familyId,
     lang,
+    portraitStyle: PORTRAIT_STYLES.includes(s.portraitStyle as PortraitStyle)
+      ? (s.portraitStyle as PortraitStyle)
+      : fallback.portraitStyle,
     slug: design.slug,
     teeChoice: TEE_CHOICES.includes(s.teeChoice as TeeChoice)
       ? (s.teeChoice as TeeChoice)

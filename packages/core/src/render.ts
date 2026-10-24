@@ -3,6 +3,7 @@ import type { LogoFamily } from './logos';
 import { backSvg, trackedUrl, WORDMARK_MAX_WIDTH, WORDMARK_SIZE } from './back';
 import { type ColourRule, contrast, ruleFor, type Tee } from './colours';
 import { advance, type FontBook } from './fonts';
+import { paintTone, swapPortrait } from './portrait';
 import { paintColours, printBack, printFront } from './print';
 import { applyTextEdits, type SlotReport } from './text';
 import { recolourFront } from './variant';
@@ -17,6 +18,11 @@ export interface RenderInput {
   /** All known families, to find the design's logo slot. */
   families: LogoFamily[];
   fonts: FontBook;
+  /**
+   * Another version of the design's portrait to print instead of the authored
+   * one (`illustrations/portraits/<person>/<style>.svg` source, see portrait.ts).
+   */
+  portrait?: string;
   tee: Tee;
   /** Add `utm_campaign=tshirt` (and `utm_source`, when given) to the QR only. */
   tracking: { source?: string } | false;
@@ -45,9 +51,16 @@ const WORDMARK_FAMILY = 'Saira Condensed';
 
 export const render = (input: RenderInput): Rendered => {
   const rule = ruleFor(input.tee);
-  const edited = applyTextEdits(input.canonical, input.edits, input.fonts);
+  const canonical = input.portrait
+    ? swapPortrait(input.canonical, input.portrait)
+    : input.canonical;
+  const edited = applyTextEdits(canonical, input.edits, input.fonts);
   const front = printFront(
-    recolourFront(edited.svg, rule, { known: input.families, use: input.family }),
+    paintTone(
+      recolourFront(edited.svg, rule, { known: input.families, use: input.family }),
+      rule,
+      input.tee.hex,
+    ),
     input.fonts,
   );
 

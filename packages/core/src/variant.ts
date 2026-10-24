@@ -37,7 +37,8 @@ const swapPaint = (tag: string, from: string, to: string) =>
         .replaceAll(`fill="${from}"`, `fill="${to}"`)
         .replaceAll(`stroke="${from}"`, `stroke="${to}"`);
 
-const recolourTags = (markup: string, rule: ColourRule): string =>
+/** Accent and body swap for a run of markup (no logo handling). */
+export const recolourTags = (markup: string, rule: ColourRule): string =>
   markup.replaceAll(/<[^>]+>/g, (tag) => {
     if (tag.startsWith('<!') || tag.startsWith('<?')) return tag;
     let out = tag;

@@ -5,6 +5,7 @@ import {
   type FontFamily,
   type LogoFamily,
   logoFamily,
+  type PortraitStyle,
 } from '@pauseai-es/merch-core';
 
 import bebasUrl from '../../../brand/fonts/files/BebasNeue-Regular.ttf?url';
@@ -67,6 +68,12 @@ export const NATIVE_FAMILY: Record<Lang, string> = { en: 'global', es: 'es' };
 
 export interface DesignMeta {
   lane: 'A' | 'B';
+  /**
+   * A commissioned portrait (illustrations/portraits/<person>/), offered in
+   * every style. Designs of the same person share one gallery card, as its
+   * quotes; `order` sets which comes first (lowest; default 0).
+   */
+  portrait?: { by: string; order?: number; person: string };
   /** Quotes real people or cites data: translations must stay faithful. */
   sourced: boolean;
   title: Record<Lang, string>;
@@ -98,6 +105,22 @@ export const DESIGNS: Design[] = Object.entries(metas)
   .filter((d) => !d.slug.startsWith('_') && d.langs.length > 0)
   .toSorted((a, b) => a.title.es.localeCompare(b.title.es, 'es'));
 
+/** A gallery card: one design, or every design of a portrait person (its quotes). */
+export interface Card {
+  designs: Design[];
+  key: string;
+}
+
+export const CARDS: Card[] = [
+  ...Map.groupBy(DESIGNS, (d) => (d.portrait ? `portrait:${d.portrait.person}` : d.slug)),
+].map(([key, designs]) => ({
+  designs: designs.toSorted(
+    (a, b) =>
+      (a.portrait?.order ?? 0) - (b.portrait?.order ?? 0) || a.title.es.localeCompare(b.title.es),
+  ),
+  key,
+}));
+
 export const designBySlug = (slug: string): Design =>
   DESIGNS.find((d) => d.slug === slug) ?? (DESIGNS[0] as Design);
 
@@ -117,6 +140,29 @@ export const loadFront = (slug: string, lang: Lang): Promise<string> => {
 };
 
 export const designNotesUrl = (slug: string) => `${REPO_URL}/tree/main/designs/${slug}`;
+
+// --- Portraits -------------------------------------------------------------
+
+// Each version of a drawing loads only when a portrait design asks for it.
+const portraits = import.meta.glob<string>(
+  '../../../illustrations/portraits/*/{lines,halftone,tone}.svg',
+  { import: 'default', query: '?raw' },
+);
+
+const portraitCache = new Map<string, Promise<string>>();
+
+/** One version of a commissioned portrait, as SVG source. */
+export const loadPortrait = (person: string, style: PortraitStyle): Promise<string> => {
+  const key = `../../../illustrations/portraits/${person}/${style}.svg`;
+  let cached = portraitCache.get(key);
+  if (!cached) {
+    const load = portraits[key];
+    if (!load) return Promise.reject(new Error(`No ${style} version of the ${person} portrait`));
+    cached = load();
+    portraitCache.set(key, cached);
+  }
+  return cached;
+};
 
 // --- Fonts -----------------------------------------------------------------
 

@@ -26,7 +26,20 @@ const es = {
     presets: { black: 'Negra', orange: 'Naranja', white: 'Blanca' },
     paleNote:
       'En un color tan claro ni el naranja ni el blanco destacarían, así que todo se imprime en negro.',
+    extraInk: '+1 tinta',
+    finish: 'Acabado del retrato',
+    portraitBy: 'dibujo de {by}',
+    portraitDark:
+      'En una camiseta oscura el retrato se imprime en negativo: las líneas salen claras y las sombras se leen como luces.',
+    quote: 'Frase',
     sourced: 'Cita fuentes',
+    sourcedLink: 'Cita fuentes: abre las notas y fuentes del diseño en una pestaña nueva',
+    styles: {
+      halftone: { name: 'Trama de puntos', note: 'Sombras con puntos' },
+      lines: { name: 'Líneas', note: 'Solo el trazo' },
+      tone: { name: 'Sombreado', note: 'Sombras en un tono' },
+    },
+    variantsTip: '{n} frases · {finish}',
     textLanguage: 'Idioma del texto',
   },
   chapter: {
@@ -116,7 +129,7 @@ const es = {
     print: 'Archivo de impresión',
     zoom: 'Ampliar la vista previa',
     zoomHint: 'Pasa el ratón para ampliar',
-    zoomHintTouch: 'Toca para ampliar',
+    zoomHintTouch: 'Pellizca o toca dos veces para ampliar',
   },
 };
 
@@ -148,7 +161,20 @@ const en: Strings = {
     presets: { black: 'Black', orange: 'Orange', white: 'White' },
     paleNote:
       'On a colour this pale neither orange nor white would stand out, so everything prints black.',
+    extraInk: '+1 ink',
+    finish: 'Portrait finish',
+    portraitBy: 'drawn by {by}',
+    portraitDark:
+      'On a dark tee the portrait prints as a negative: the lines come out light and the shadows read as highlights.',
+    quote: 'Quote',
     sourced: 'Cites sources',
+    sourcedLink: 'Cites sources: opens the design notes and sources in a new tab',
+    styles: {
+      halftone: { name: 'Halftone', note: 'Shading as dots' },
+      lines: { name: 'Lines', note: 'Line work only' },
+      tone: { name: 'Tone', note: 'Shading in one tone' },
+    },
+    variantsTip: '{n} quotes · {finish}',
     textLanguage: 'Text language',
   },
   chapter: {
@@ -238,7 +264,7 @@ const en: Strings = {
     print: 'Print file',
     zoom: 'Zoom the preview',
     zoomHint: 'Hover to zoom',
-    zoomHintTouch: 'Tap to zoom',
+    zoomHintTouch: 'Pinch or double-tap to zoom',
   },
 };
 

@@ -1,7 +1,15 @@
 import { BACK_MM, FRONT_MM, readTextSlots, type Rendered } from '@pauseai-es/merch-core';
 import { strToU8, zipSync } from 'fflate';
 
-import { type Design, designNotesUrl, familyById, type Lang, REPO_URL } from './assets';
+import {
+  type Design,
+  designBySlug,
+  designNotesUrl,
+  familyById,
+  type Lang,
+  REPO_URL,
+} from './assets';
+import { STRINGS } from './i18n';
 import { mockupJpeg, printPng } from './raster';
 import { type Settings, teeOf } from './settings';
 
@@ -15,6 +23,8 @@ const SHEET = {
         `Design notes, sources for every quote and figure, and the original files:`,
         `  ${notes}`,
       ].join('\n'),
+    portraitCredit: (by: string) => `Portrait hand-drawn by ${by}, licensed CC BY-SA 4.0.`,
+    portrait: 'Portrait',
     custom: 'custom colour',
     files: 'PRINT FILES',
     filesBody: [
@@ -46,6 +56,8 @@ const SHEET = {
         'Notas del diseño, fuentes de cada cita y dato, y los archivos originales:',
         `  ${notes}`,
       ].join('\n'),
+    portraitCredit: (by: string) => `Retrato dibujado a mano por ${by}, con licencia CC BY-SA 4.0.`,
+    portrait: 'Retrato',
     custom: 'color personalizado',
     files: 'ARCHIVOS',
     filesBody: [
@@ -103,6 +115,9 @@ export const printSheet = (
     t.tee,
     `  ${teeName}`,
     `  Logo: ${familyById(settings.familyId).name}`,
+    ...(design.portrait
+      ? [`  ${t.portrait}: ${STRINGS[ui].tee.styles[settings.portraitStyle].name}`]
+      : []),
     '',
     t.files,
     ...t.filesBody.map((l) => `  ${l}`),
@@ -123,6 +138,7 @@ export const printSheet = (
     '',
     t.credits,
     t.creditsBody(design.title[ui], designNotesUrl(design.slug)),
+    ...(design.portrait ? [t.portraitCredit(design.portrait.by)] : []),
     '',
   ];
   return lines.join('\n');
@@ -132,7 +148,8 @@ const bytes = async (blob: Blob) => new Uint8Array(await blob.arrayBuffer());
 
 export const zipName = (settings: Settings): string => {
   const tee = teeOf(settings);
-  return `pauseai-${settings.slug}-${settings.lang}-${tee.preset ?? tee.hex.slice(1).toLowerCase()}`;
+  const style = designBySlug(settings.slug).portrait ? `-${settings.portraitStyle}` : '';
+  return `pauseai-${settings.slug}-${settings.lang}-${tee.preset ?? tee.hex.slice(1).toLowerCase()}${style}`;
 };
 
 /** Build the ZIP with print files, PNGs, mockups and the print sheet. */

@@ -1,17 +1,32 @@
 import {
+  AUTHORED_STYLE,
   type FontBook,
   normaliseHex,
+  paintTone,
+  PORTRAIT_STYLES,
+  type PortraitStyle,
   PRESET_TEES,
   recolourFront,
   ruleFor,
+  swapPortrait,
 } from '@pauseai-es/merch-core';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { Update } from '../App';
 import type { Strings } from '../i18n';
 
-import { DESIGNS, FAMILIES, familyById, type Lang, loadFront } from '../assets';
+import {
+  CARDS,
+  designNotesUrl,
+  DESIGNS,
+  FAMILIES,
+  familyById,
+  type Lang,
+  loadFront,
+  loadPortrait,
+} from '../assets';
 import { type Settings, teeOf } from '../settings';
+import { VariantMenu, type VariantPreview } from './VariantMenu';
 
 /**
  * Suggestions inside "Custom". The main choices are orange (the brand colour,
@@ -28,6 +43,24 @@ const SUGGESTED: { hex: string; name: Record<Lang, string> }[] = [
   { hex: '#1F2A44', name: { en: 'Navy', es: 'Azul marino' } },
   { hex: '#9E9E9E', name: { en: 'Grey', es: 'Gris' } },
 ];
+
+/** The start of a design's quote, from its front's <title> ("quote — speaker"). */
+const excerptOf = (svg: string | undefined, max = 70): string => {
+  const title =
+    /<title>([^<]*)<\/title>/
+      .exec(svg ?? '')?.[1]
+      ?.split(' — ')[0]
+      ?.trim() ?? '';
+  if (title.length <= max) return title;
+  return `${title.slice(0, title.lastIndexOf(' ', max))}…`;
+};
+
+/** An open book: the design cites its sources. */
+const BookIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M3.5 5.5c2.9-1.2 5.9-1.1 8.5.6 2.6-1.7 5.6-1.8 8.5-.6v12.6c-2.9-1.2-5.9-1.1-8.5.6-2.6-1.7-5.6-1.8-8.5-.6ZM12 6.1v12.6" />
+  </svg>
+);
 
 interface Props {
   chooseDesign: (slug: string, lang: Lang) => void;
@@ -80,6 +113,42 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
     [sources, rule, family],
   );
 
+  // Portrait finishes other than the authored one, loaded the first time a
+  // card shows them (the chosen finish, or a preview), keyed `person/style`.
+  const [finishSources, setFinishSources] = useState<Record<string, string>>({});
+  const wantFinish = useCallback((person: string, style: PortraitStyle) => {
+    if (style === AUTHORED_STYLE) return;
+    const key = `${person}/${style}`;
+    void loadPortrait(person, style).then((svg) =>
+      setFinishSources((loaded) => (key in loaded ? loaded : { ...loaded, [key]: svg })),
+    );
+  }, []);
+  useEffect(() => {
+    for (const d of DESIGNS) if (d.portrait) wantFinish(d.portrait.person, settings.portraitStyle);
+  }, [settings.portraitStyle, wantFinish]);
+
+  /** Each portrait design's thumbnail in every finish loaded so far. */
+  const finishThumbs = useMemo(() => {
+    const out: Record<string, Partial<Record<PortraitStyle, string>>> = {};
+    for (const d of DESIGNS) {
+      const svg = sources[d.slug];
+      if (!d.portrait || !svg) continue;
+      for (const style of PORTRAIT_STYLES) {
+        const finish = finishSources[`${d.portrait.person}/${style}`];
+        if (!finish) continue;
+        const front = recolourFront(swapPortrait(svg, finish), rule, {
+          known: FAMILIES,
+          use: family,
+        });
+        (out[d.slug] ??= {})[style] = paintTone(front, rule, tee.hex);
+      }
+    }
+    return out;
+  }, [sources, finishSources, rule, family, tee.hex]);
+
+  // What a card's variant menu is previewing on it.
+  const [preview, setPreview] = useState<(VariantPreview & { card: string }) | null>(null);
+
   const setCustom = (hex: string) => update({ customHex: hex, teeChoice: 'custom' });
   const customOpen = settings.teeChoice === 'custom' || settings.teeChoice === 'black';
   const preset = (choice: 'orange' | 'white') => (
@@ -96,8 +165,11 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
     </button>
   );
   const design = DESIGNS.find((d) => d.slug === settings.slug);
-  const ordered = useMemo(
-    () => DESIGNS.toSorted((a, b) => a.title[ui].localeCompare(b.title[ui], ui)),
+  const cards = useMemo(
+    () =>
+      CARDS.toSorted((a, b) =>
+        (a.designs[0]?.title[ui] ?? '').localeCompare(b.designs[0]?.title[ui] ?? '', ui),
+      ),
     [ui],
   );
 
@@ -171,6 +243,9 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
           </div>
         )}
         {rule.key === 'ink' && <p className="rule-note">{t.tee.paleNote}</p>}
+        {rule.key === 'dark' && design?.portrait && (
+          <p className="rule-note">{t.tee.portraitDark}</p>
+        )}
       </fieldset>
 
       <fieldset className="group">
@@ -192,24 +267,100 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
           </div>
         )}
         <div className={`gallery${fonts ? '' : ' loading'}`}>
-          {ordered.map((d) => (
-            <button
-              key={d.slug}
-              type="button"
-              className="thumb"
-              aria-pressed={d.slug === settings.slug}
-              onClick={() => chooseDesign(d.slug, settings.lang)}
-            >
-              <span
-                className="art"
-                style={{ background: tee.hex }}
-                // Design SVGs come from this repo (no scripts, see CLAUDE.md).
-                dangerouslySetInnerHTML={{ __html: thumbs[d.slug] ?? '' }}
-              />
-              <span className="thumb-title">{d.title[ui]}</span>
-              {d.sourced && <span className="badge">{t.tee.sourced}</span>}
-            </button>
-          ))}
+          {cards.map((card) => {
+            const chosenHere = card.designs.find((d) => d.slug === settings.slug);
+            const mine = preview?.card === card.key ? preview : null;
+            const d =
+              card.designs.find((v) => v.slug === mine?.slug) ?? chosenHere ?? card.designs[0];
+            if (!d) return null;
+            const style = d.portrait ? (mine?.style ?? settings.portraitStyle) : null;
+            const finishes = finishThumbs[d.slug] ?? {};
+            return (
+              <div key={card.key} className="card" data-selected={!!chosenHere}>
+                <span
+                  className="art"
+                  data-zoom={!!mine?.style}
+                  style={{ background: tee.hex }}
+                  aria-hidden="true"
+                >
+                  <span className="zoom">
+                    {card.designs.map((v) => (
+                      <span
+                        key={v.slug}
+                        className="layer"
+                        data-shown={v.slug === d.slug}
+                        // Design SVGs come from this repo (no scripts, see CLAUDE.md).
+                        dangerouslySetInnerHTML={{ __html: thumbs[v.slug] ?? '' }}
+                      />
+                    ))}
+                    {PORTRAIT_STYLES.map(
+                      (s) =>
+                        finishes[s] && (
+                          <span
+                            key={`${d.slug}/${s}`}
+                            className="layer finish"
+                            data-shown={style === s}
+                            dangerouslySetInnerHTML={{ __html: finishes[s] }}
+                          />
+                        ),
+                    )}
+                  </span>
+                </span>
+                <div className="card-foot">
+                  {(d.sourced || d.portrait) && (
+                    <span className="card-tools">
+                      {d.sourced && (
+                        <a
+                          className="tool cite"
+                          href={designNotesUrl(d.slug)}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={t.tee.sourcedLink}
+                          data-tip={t.tee.sourced}
+                        >
+                          <BookIcon />
+                        </a>
+                      )}
+                      {d.portrait && (
+                        <VariantMenu
+                          by={d.portrait.by}
+                          person={d.portrait.person}
+                          quotes={card.designs.map((v) => ({
+                            art: thumbs[v.slug] ?? '',
+                            excerpt: excerptOf(sources[v.slug]),
+                            slug: v.slug,
+                            title: v.title[ui],
+                          }))}
+                          rule={rule}
+                          slug={d.slug}
+                          style={settings.portraitStyle}
+                          t={t}
+                          teeHex={tee.hex}
+                          onPreview={(p) => {
+                            if (p?.style && d.portrait) wantFinish(d.portrait.person, p.style);
+                            setPreview(p ? { ...p, card: card.key } : null);
+                          }}
+                          onPickQuote={(slug) => chooseDesign(slug, settings.lang)}
+                          onPickStyle={(s) => {
+                            if (d.slug !== settings.slug) chooseDesign(d.slug, settings.lang);
+                            update({ portraitStyle: s });
+                          }}
+                        />
+                      )}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    className="thumb"
+                    aria-pressed={!!chosenHere}
+                    onClick={() => chooseDesign(d.slug, settings.lang)}
+                  >
+                    <span className="thumb-title">{d.title[ui]}</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </fieldset>
     </div>

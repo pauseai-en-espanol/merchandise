@@ -503,61 +503,417 @@ input.hex {
     0 0 0 4px var(--pressed-ring);
 }
 
-/* Design gallery */
+/* Design gallery: big cards, three per row on a desktop (four at most on a
+   wider panel), two on phones. */
 .gallery {
+  --gap: 16px;
+  --card-min: 200px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(var(--card-min), calc((100% - 3 * var(--gap)) / 4)), 1fr)
+  );
+  gap: 22px var(--gap);
+}
+
+@media (max-width: 600px) {
+  .gallery {
+    --card-min: 140px;
+  }
 }
 
 .gallery.loading {
   opacity: 0.6;
 }
 
-.thumb {
+.card {
+  position: relative;
   display: grid;
-  gap: 6px;
+  gap: 8px;
   align-content: start;
+}
+
+/* The card is one button (the title's, stretched over the whole card); the
+   tools in its footer sit above it. */
+.thumb {
   padding: 0;
   border: 0;
   background: none;
+  color: inherit;
   cursor: pointer;
   text-align: left;
 }
 
-.thumb .art {
+.thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+}
+
+.thumb:focus-visible {
+  outline: none;
+}
+
+.card:has(.thumb:focus-visible) .art {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.thumb-title {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.card .art {
+  position: relative;
   display: block;
   aspect-ratio: 1;
   border-radius: var(--radius);
   border: 1px solid rgb(0 0 0 / 12%);
   overflow: hidden;
+  transition: transform 0.2s ease;
 }
 
-.thumb .art svg {
-  display: block;
-  width: 100%;
-  height: 100%;
+.card:hover .art {
+  transform: translateY(-2px);
 }
 
-.thumb[aria-pressed='true'] .art {
+.card[data-selected='true'] .art {
   box-shadow:
     0 0 0 2px var(--surface),
     0 0 0 4px var(--pressed-ring);
 }
 
-.thumb-title {
+.card .art .zoom,
+.card .art .layer {
+  position: absolute;
+  inset: 0;
+}
+
+.card .art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* A person's quotes crossfade on the card. */
+.card .art .layer {
+  transition: opacity 0.3s ease;
+}
+
+.card .art .layer[data-shown='false'] {
+  opacity: 0;
+}
+
+/* The portrait-quote layout's face (portrait on the left, see
+   scripts/draw-portrait-quotes.py): previewing a finish zooms in on it. One
+   wrapper zooms, so a finish that loads mid-zoom stays in register. Only
+   where there is a pointer that hovers: on touch, the finish just wipes in. */
+.card .art .zoom {
+  transform-origin: 26% 64%;
+  transition: transform 0.45s ease;
+}
+
+@media (hover: hover) {
+  .card .art[data-zoom='true'] .zoom {
+    transform: scale(2.4);
+  }
+}
+
+/* A portrait finish wipes in across the drawing, over the authored lines. */
+.card .art .layer.finish {
+  opacity: 1;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.45s ease;
+}
+
+.card .art .layer.finish[data-shown='true'] {
+  clip-path: inset(0);
+}
+
+/* Tools left of the title; on a narrow card the title wraps below them. */
+.card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  align-items: flex-start;
+}
+
+.card-foot .thumb {
+  flex: 1 1 100px;
+  min-width: 0;
+}
+
+.card-tools {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex: none;
+}
+
+.card:has(.variant-menu) {
+  z-index: 5;
+}
+
+/* Small round tools with a tooltip */
+.tool {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tool.cite svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linejoin: round;
+}
+
+.tool.cite:hover {
+  color: var(--fg);
+}
+
+[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 10;
+  width: max-content;
+  max-width: 220px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  background: var(--fg);
+  color: var(--surface);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: left;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(3px);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after {
+  opacity: 1;
+  transform: none;
+  transition-delay: 0.25s;
+}
+
+/* The variant control: the finish swatches as a fanned stack, the chosen
+   one in front; it fans out under the pointer. */
+.variants {
+  position: relative;
+}
+
+.variant-trigger {
+  padding-inline: 2px;
+}
+
+.coin {
+  display: block;
+  width: 22px;
+  height: 22px;
+  padding: 3px;
+  border: 1px solid rgb(0 0 0 / 18%);
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 18%);
+  transition: margin 0.2s ease;
+}
+
+.coin + .coin {
+  margin-left: -16px;
+}
+
+.variant-trigger:hover .coin + .coin,
+.variant-trigger[aria-expanded='true'] .coin + .coin {
+  margin-left: -6px;
+}
+
+.coin svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.variant-count {
+  position: absolute;
+  top: -5px;
+  right: -7px;
+  min-width: 16px;
+  height: 16px;
+  padding-inline: 4px;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--surface);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.variant-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  display: grid;
+  gap: 4px;
+  width: min(290px, calc(100vw - 32px));
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 22%);
+  animation: menu-in 0.16s ease;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.variant-group {
+  display: grid;
+  gap: 2px;
+}
+
+.variant-group + .variant-group {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.variant-heading {
+  margin: 0 0 2px;
+  padding-inline: 6px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.variant-heading span {
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.variant-option {
+  display: grid;
+  grid-template-columns: 46px 1fr 18px;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 6px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.variant-option:hover,
+.variant-option:focus-visible {
+  outline: none;
+  background: var(--notice-bg);
+}
+
+.variant-art {
+  display: block;
+  width: 46px;
+  height: 46px;
+  overflow: hidden;
+  border: 1px solid rgb(0 0 0 / 12%);
+}
+
+.variant-art.quote-art {
+  border-radius: 8px;
+}
+
+.variant-art.face-art {
+  border-radius: 999px;
+}
+
+.variant-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.variant-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.variant-name {
   font-size: 0.85rem;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+.variant-note {
+  color: var(--muted);
+  font-size: 0.75rem;
   line-height: 1.25;
 }
 
-.badge {
-  justify-self: start;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--notice-bg);
-  color: var(--muted);
-  font-size: 0.7rem;
+.variant-note strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.variant-check {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: var(--fg);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+
+.variant-option[aria-checked='true'] .variant-check {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card .art,
+  .card .art .layer,
+  .card .art .zoom,
+  .coin,
+  [data-tip]::after {
+    transition: none;
+  }
+
+  .variant-menu {
+    animation: none;
+  }
 }
 
 /* Logo families */
@@ -730,7 +1086,8 @@ input.hex {
   background: none;
   overflow: hidden;
   cursor: zoom-in;
-  touch-action: pan-y;
+  /* One finger scrolls the page; pinches come to the preview, not the browser. */
+  touch-action: pan-x pan-y;
 }
 
 .zoom-frame.zoomed {
@@ -741,6 +1098,11 @@ input.hex {
 .zoom-target {
   display: block;
   transition: transform 0.18s ease-out;
+}
+
+/* Under the fingers, the picture follows them without lag. */
+.zoom-target.gesturing {
+  transition: none;
 }
 
 .zoom-target .print {
