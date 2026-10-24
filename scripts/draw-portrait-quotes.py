@@ -42,7 +42,15 @@ CAP = _font['OS/2'].sCapHeight / _upm
 
 
 def adv(s):
-    return sum(_hmtx[_cmap[ord(c)]][0] for c in s) / _upm
+    return sum(_hmtx[_cmap[ord(c)]][0] for c in s.replace('*', '')) / _upm
+
+
+def runs(s):
+    """A setup line's markup: *…* marks accent words inside it (as in the web
+    generator's text editor), emitted as accent tspans."""
+    parts = s.split('*')
+    return ''.join(f'<tspan class="accent" fill="{WHITE}">{part}</tspan>' if i % 2 else part
+                   for i, part in enumerate(parts) if part)
 
 
 # --- layout (mm) ------------------------------------------------------------
@@ -60,7 +68,9 @@ ATTR_GAP = 7                   # quote → attribution
 
 # --- the series -------------------------------------------------------------
 #
-# setup: quote lines in the body colour; payoff: the accent lines.
+# setup: quote lines in the body colour (*…* highlights words inside one);
+# payoff: the accent lines. Up to three of each, alternating: setup, payoff,
+# setup2, payoff2, setup3, payoff3.
 # lead: optional context line set outside the quote marks.
 # sub: attribution lines under the name (wrapped to the column).
 
@@ -197,9 +207,10 @@ DESIGNS = {
             title='Veía este desastre a escala de Chernóbil como el mejor escenario '
                   'posible, porque entonces los gobiernos regularían. — Stuart Russell',
             lead='Sobre el director de una gran empresa de IA:',
-            setup=['«…VEÍA ESTE DESASTRE', 'A ESCALA DE CHERNÓBIL', 'COMO'],
-            payoff=['EL MEJOR', 'ESCENARIO POSIBLE,'],
-            setup2=['PORQUE ENTONCES', 'LOS GOBIERNOS', 'REGULARÍAN…»'],
+            setup=['«…VEÍA ESTE DESASTRE', 'A ESCALA DE *CHERNÓBIL*', 'COMO *EL MEJOR*'],
+            payoff=['ESCENARIO POSIBLE,'],
+            setup2=['PORQUE ENTONCES', 'LOS GOBIERNOS'],
+            payoff2=['REGULARÍAN…»'],
             name='STUART RUSSELL',
             sub=['Catedrático de Informática, UC Berkeley',
                  '«The Diary of a CEO», 4 de diciembre de 2025',
@@ -208,9 +219,12 @@ DESIGNS = {
             title='He looked at this Chernobyl-scale disaster as the best case scenario, '
                   'because then the governments would regulate. — Stuart Russell',
             lead='On the head of a leading AI company:',
-            setup=['“…HE LOOKED AT THIS', 'CHERNOBYL-SCALE', 'DISASTER AS'],
-            payoff=['THE BEST CASE', 'SCENARIO,'],
-            setup2=['BECAUSE THEN THE', 'GOVERNMENTS WOULD', 'REGULATE…”'],
+            setup=['“…HE LOOKED AT THIS'],
+            payoff=['CHERNOBYL-SCALE'],
+            setup2=['DISASTER AS'],
+            payoff2=['THE BEST CASE', 'SCENARIO,'],
+            setup3=['BECAUSE THEN THE', 'GOVERNMENTS WOULD'],
+            payoff3=['REGULATE…”'],
             name='STUART RUSSELL',
             sub=['Professor of Computer Science, UC Berkeley',
                  '“The Diary of a CEO”, 4 December 2025']),
@@ -336,8 +350,8 @@ def stack(t, top, bottom):
     """Justified column, as in ask-a-chicken: payoff lines always fill COL_W;
     setup lines fill it unless that would make them larger than SETUP_MAX
     (then left-aligned). Shrinks to fit, centres if there is room to spare."""
-    groups = [(t.get('setup', []), False), (t.get('payoff', []), True),
-              (t.get('setup2', []), False), (t.get('payoff2', []), True)]
+    groups = [(t.get(f'{kind}{n}', []), kind == 'payoff')
+              for n in ('', '2', '3') for kind in ('setup', 'payoff')]
     rows = [(s, acc, gi) for gi, (g, acc) in enumerate(groups) for s in g]
 
     def layout(k):
@@ -376,7 +390,7 @@ def front(slug, d, lang, logo):
     lines = []
     for s, acc, sz, y in stack(t, top, attr_top - ATTR_GAP):
         fill = 'class="accent" fill="#FFFFFF"' if acc else f'fill="{INK}"'
-        lines.append(f'    <text x="{COL_X}" y="{y:.2f}" font-size="{sz:.2f}" {fill}>{s}</text>')
+        lines.append(f'    <text x="{COL_X}" y="{y:.2f}" font-size="{sz:.2f}" {fill}>{runs(s)}</text>')
     attr_svg = []
     for i, (s, sz, italic, y) in enumerate(attr):
         gid = 'attribution' if i == 0 else f'attribution-sub-{i}'

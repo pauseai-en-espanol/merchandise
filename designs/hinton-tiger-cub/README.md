@@ -19,7 +19,7 @@ reflection. It doesn't accuse anyone.
 
 ## Status
 
-`draft`: ES + EN on orange, white and black tees. The fronts are generated
+`ready`: ES + EN on orange, white and black tees. The fronts are generated
 by `scripts/draw-portrait-quotes.py`; the white/black variants by
 `scripts/build-hinton-tiger-cub.py` (standard rule, `scripts/tee_variants.py`).
 

@@ -1427,14 +1427,13 @@ c-10 -8 -16 -17 -12 -21 7 -7 48 16 48 27 0 12 -14 9 -36 -6z M8965 1660 c-21
 
   <text id="lead" x="101" y="75.16" font-family="Saira Condensed, Impact, sans-serif" font-weight="700" font-style="italic" font-size="4.6" fill="#FFFFFF">Sobre el director de una gran empresa de IA:</text>
   <g id="quote" font-family="Saira Condensed, Impact, sans-serif" font-weight="700">
-    <text x="101" y="84.89" font-size="8.05" fill="#FFFFFF">«…VEÍA ESTE DESASTRE</text>
-    <text x="101" y="94.06" font-size="7.98" fill="#FFFFFF">A ESCALA DE CHERNÓBIL</text>
-    <text x="101" y="103.28" font-size="9.92" fill="#FFFFFF">COMO</text>
-    <text x="101" y="120.99" font-size="20.11" class="accent" fill="#FF9416">EL MEJOR</text>
-    <text x="101" y="129.81" font-size="9.33" class="accent" fill="#FF9416">ESCENARIO POSIBLE,</text>
-    <text x="101" y="140.51" font-size="9.92" fill="#FFFFFF">PORQUE ENTONCES</text>
-    <text x="101" y="149.73" font-size="9.92" fill="#FFFFFF">LOS GOBIERNOS</text>
-    <text x="101" y="160.55" font-size="9.92" fill="#FFFFFF">REGULARÍAN…»</text>
+    <text x="101" y="86.15" font-size="10.02" fill="#FFFFFF">«…VEÍA ESTE DESASTRE</text>
+    <text x="101" y="96.98" font-size="9.94" fill="#FFFFFF">A ESCALA DE <tspan class="accent" fill="#FF9416">CHERNÓBIL</tspan></text>
+    <text x="101" y="107.88" font-size="12.35" fill="#FFFFFF">COMO <tspan class="accent" fill="#FF9416">EL MEJOR</tspan></text>
+    <text x="101" y="120.10" font-size="11.62" class="accent" fill="#FF9416">ESCENARIO POSIBLE,</text>
+    <text x="101" y="132.83" font-size="12.35" fill="#FFFFFF">PORQUE ENTONCES</text>
+    <text x="101" y="143.73" font-size="12.35" fill="#FFFFFF">LOS GOBIERNOS</text>
+    <text x="101" y="160.64" font-size="14.95" class="accent" fill="#FF9416">REGULARÍAN…»</text>
   </g>
 
   <text id="attribution" x="101" y="173.58" font-family="Saira Condensed, Impact, sans-serif" font-weight="700" font-size="8.5" fill="#FFFFFF">STUART RUSSELL</text>

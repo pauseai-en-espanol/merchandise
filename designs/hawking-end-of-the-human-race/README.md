@@ -17,7 +17,7 @@ accuse anyone; it invites the question "was he right?"
 
 ## Status
 
-`draft`: ES + EN on orange, white and black tees. The fronts are generated
+`ready`: ES + EN on orange, white and black tees. The fronts are generated
 by `scripts/draw-portrait-quotes.py`; the white/black variants by
 `scripts/build-hawking-end-of-the-human-race.py` (standard rule,
 `scripts/tee_variants.py`).

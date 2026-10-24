@@ -5,8 +5,8 @@
 > LOB LAN's hand-drawn portrait of Stuart Russell beside his account of a
 > conversation with the head of a leading AI company, who sees a
 > Chernobyl-scale AI disaster as the best outcome left: **"…He looked at this
-> Chernobyl-scale disaster as `the best case scenario,` because then the
-> governments would regulate…"** It tells strangers that people inside the
+> `Chernobyl`-scale disaster as `the best case scenario,` because then the
+> governments would `regulate…`"** It tells strangers that people inside the
 > industry are already hoping for a warning shot. It's the second quote on
 > Russell's card in the web generator.
 
@@ -18,7 +18,7 @@ named, here or in the source.
 
 ## Status
 
-`draft`: ES + EN on orange, white and black tees. The fronts are generated
+`ready`: ES + EN on orange, white and black tees. The fronts are generated
 by `scripts/draw-portrait-quotes.py`; the white/black variants by
 `scripts/build-russell-best-case-scenario.py` (standard rule,
 `scripts/tee_variants.py`).
@@ -39,7 +39,7 @@ by `scripts/draw-portrait-quotes.py`; the white/black variants by
 | Element | Orange | White | Black |
 |---|---|---|---|
 | Portrait, lead-in, setup lines, attribution (**body**) | INK | INK | WHITE |
-| "The best case scenario" (`class="accent"`) | WHITE | ORANGE | ORANGE |
+| "Chernobyl", "the best case scenario", "regulate" (`class="accent"`) | WHITE | ORANGE | ORANGE |
 
 - [x] Orange (canonical), white: the drawing prints as drawn.
 - [x] Black: generated, but the portrait prints as a **negative** (white

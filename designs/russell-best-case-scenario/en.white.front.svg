@@ -1413,14 +1413,14 @@ c-10 -8 -16 -17 -12 -21 7 -7 48 16 48 27 0 12 -14 9 -36 -6z M8965 1660 c-21
 
   <text id="lead" x="101" y="75.16" font-family="Saira Condensed, Impact, sans-serif" font-weight="700" font-style="italic" font-size="4.6" fill="#111111">On the head of a leading AI company:</text>
   <g id="quote" font-family="Saira Condensed, Impact, sans-serif" font-weight="700">
-    <text x="101" y="85.82" font-size="9.40" fill="#111111">“…HE LOOKED AT THIS</text>
-    <text x="101" y="95.70" font-size="10.87" fill="#111111">CHERNOBYL-SCALE</text>
-    <text x="101" y="105.58" font-size="10.87" fill="#111111">DISASTER AS</text>
-    <text x="101" y="119.40" font-size="14.27" class="accent" fill="#FF9416">THE BEST CASE</text>
-    <text x="101" y="135.47" font-size="19.86" class="accent" fill="#FF9416">SCENARIO,</text>
-    <text x="101" y="146.96" font-size="10.87" fill="#111111">BECAUSE THEN THE</text>
-    <text x="101" y="155.60" font-size="9.08" fill="#111111">GOVERNMENTS WOULD</text>
-    <text x="101" y="165.48" font-size="10.87" fill="#111111">REGULATE…”</text>
+    <text x="101" y="85.03" font-size="8.41" fill="#111111">“…HE LOOKED AT THIS</text>
+    <text x="101" y="95.82" font-size="10.11" class="accent" fill="#FF9416">CHERNOBYL-SCALE</text>
+    <text x="101" y="106.35" font-size="9.72" fill="#111111">DISASTER AS</text>
+    <text x="101" y="118.97" font-size="12.76" class="accent" fill="#FF9416">THE BEST CASE</text>
+    <text x="101" y="133.59" font-size="17.77" class="accent" fill="#FF9416">SCENARIO,</text>
+    <text x="101" y="144.12" font-size="9.72" fill="#111111">BECAUSE THEN THE</text>
+    <text x="101" y="152.10" font-size="8.12" fill="#111111">GOVERNMENTS WOULD</text>
+    <text x="101" y="165.59" font-size="14.03" class="accent" fill="#FF9416">REGULATE…”</text>
   </g>
 
   <text id="attribution" x="101" y="178.52" font-family="Saira Condensed, Impact, sans-serif" font-weight="700" font-size="8.5" fill="#111111">STUART RUSSELL</text>

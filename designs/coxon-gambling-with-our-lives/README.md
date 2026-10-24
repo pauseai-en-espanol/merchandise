@@ -14,7 +14,7 @@
 
 ## Status
 
-`draft`: ES + EN on orange, white and black tees. The fronts are generated
+`ready`: ES + EN on orange, white and black tees. The fronts are generated
 by `scripts/draw-portrait-quotes.py`; the white/black variants by
 `scripts/build-coxon-gambling-with-our-lives.py` (standard rule,
 `scripts/tee_variants.py`).
