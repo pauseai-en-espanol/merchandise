@@ -170,14 +170,14 @@ importers:
         specifier: 3.0.3
         version: 3.0.3
       '@slango.configs/lint-staged':
-        specifier: 2.0.9
-        version: 2.0.9(lint-staged@17.6.0)
+        specifier: 2.0.11
+        version: 2.0.11(lint-staged@17.6.0)
       '@slango.configs/oxlint':
-        specifier: 0.1.14
-        version: 0.1.14(eslint@10.13.0)(oxlint-tsgolint@7.0.2004)(oxlint@1.88.0(oxlint-tsgolint@7.0.2004))(typescript@7.0.2)
+        specifier: 0.1.16
+        version: 0.1.16(eslint@10.13.0)(oxlint-tsgolint@7.0.2004)(oxlint@1.88.0(oxlint-tsgolint@7.0.2004))(typescript@7.0.2)
       '@slango.configs/prettier':
-        specifier: 1.0.37
-        version: 1.0.37(prettier@3.9.10)
+        specifier: 1.0.38
+        version: 1.0.38(prettier@3.9.10)
       '@slango.configs/typescript':
         specifier: 3.0.1
         version: 3.0.1(typescript@7.0.2)
@@ -752,19 +752,19 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@slango.configs/lint-staged@2.0.9':
-    resolution: {integrity: sha512-2ft0e5Tnq0yRxWcFpJLRd5IY55SlF+XYhyZg5osL+xm8RiEBN+y3QbxwqWDBA+sE3DZzqLH8T94furoiT8mIFQ==}
+  '@slango.configs/lint-staged@2.0.11':
+    resolution: {integrity: sha512-LPTU3gcI0DMx9Z3IH136LnVXQYa1mDI83Q8ZaCcWtkWzTpFDEzvAaGrYNHHrwAq5Daso+r63Cq8aAtWUMnk7Mw==}
     peerDependencies:
       lint-staged: ^17.6.0
 
-  '@slango.configs/oxlint@0.1.14':
-    resolution: {integrity: sha512-8c/jXPfPXxagSFr4ldnb6n7EdnhI9pxqNE65NPiqHnw6a2ajbiOrY0jdjRbnSDVzoexHhOscWKEJHCKHeyQ+0g==}
+  '@slango.configs/oxlint@0.1.16':
+    resolution: {integrity: sha512-gB/yAc/eUyfSa1SL4qSji6F/Sz+FmO41COPJhY/+k3jMWXo+2YOpUtDgGJrlqTOOAOC9t89pnP3wbuj+RKq7KQ==}
     peerDependencies:
       oxlint: ^1.88.0
       oxlint-tsgolint: ^7.0.2004
 
-  '@slango.configs/prettier@1.0.37':
-    resolution: {integrity: sha512-ccImGNsYfgufkV7gft5wOC3SGAFQ9PKy5YTG0gg64216E/mYVUvq4VGVl8fB5CGdWiQQ1JqoisTA790uSvnNbw==}
+  '@slango.configs/prettier@1.0.38':
+    resolution: {integrity: sha512-l5jYSloNCXsGjiKsB3h8MfJMmoLpQzSBhQ3oBDXB0vWk9PFVJUztCMZk3eXMDfjoz6V7g3ckE6AC5wLkQqX5lg==}
     peerDependencies:
       prettier: ^3.9.10
 
@@ -1067,8 +1067,8 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
-  eslint-plugin-perfectionist@5.12.1:
-    resolution: {integrity: sha512-krdSE7Dz+TCtcVr2+rfNhlOIFFBJcUdoRvjaN7JQnsaVnxJw+BZh9wMkY3MSLCJat+yW+UPTQLKS82Epc7MGZA==}
+  eslint-plugin-perfectionist@5.13.0:
+    resolution: {integrity: sha512-kPlqE2Kdh0njsad9S9xL/xnq+NNVUsga/uS3yf6axE0RddACM3Q+idJyethC7R+C9b73+NRhAWvKyXPrkl0nFA==}
     engines: {node: ^20.0.0 || >=22.0.0}
     peerDependencies:
       eslint: ^8.45.0 || ^9.0.0 || ^10.0.0
@@ -2019,14 +2019,14 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@slango.configs/lint-staged@2.0.9(lint-staged@17.6.0)':
+  '@slango.configs/lint-staged@2.0.11(lint-staged@17.6.0)':
     dependencies:
       deepmerge: 4.3.1
       lint-staged: 17.6.0
 
-  '@slango.configs/oxlint@0.1.14(eslint@10.13.0)(oxlint-tsgolint@7.0.2004)(oxlint@1.88.0(oxlint-tsgolint@7.0.2004))(typescript@7.0.2)':
+  '@slango.configs/oxlint@0.1.16(eslint@10.13.0)(oxlint-tsgolint@7.0.2004)(oxlint@1.88.0(oxlint-tsgolint@7.0.2004))(typescript@7.0.2)':
     dependencies:
-      eslint-plugin-perfectionist: 5.12.1(eslint@10.13.0)(typescript@7.0.2)
+      eslint-plugin-perfectionist: 5.13.0(eslint@10.13.0)(typescript@7.0.2)
       eslint-plugin-regexp: 3.3.1(eslint@10.13.0)
       oxlint: 1.88.0(oxlint-tsgolint@7.0.2004)
       oxlint-tsgolint: 7.0.2004
@@ -2035,7 +2035,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@slango.configs/prettier@1.0.37(prettier@3.9.10)':
+  '@slango.configs/prettier@1.0.38(prettier@3.9.10)':
     dependencies:
       prettier: 3.9.10
 
@@ -2256,7 +2256,7 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-plugin-perfectionist@5.12.1(eslint@10.13.0)(typescript@7.0.2):
+  eslint-plugin-perfectionist@5.13.0(eslint@10.13.0)(typescript@7.0.2):
     dependencies:
       '@typescript-eslint/types': 8.71.2
       '@typescript-eslint/utils': 8.71.2(eslint@10.13.0)(typescript@7.0.2)
