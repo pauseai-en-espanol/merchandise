@@ -9,7 +9,7 @@
 #
 #   The site is served from the root of its own subdomain.
 
-ARG NODE_IMAGE=node:26.12.1-alpine
+ARG NODE_IMAGE=node:26.12.1-alpine@sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797
 # Pin pnpm here to match the root package.json `packageManager` field.
 # Node 26 dropped the bundled corepack shim, so install pnpm directly via npm.
 ARG PNPM_VERSION=12.14.0
@@ -40,7 +40,7 @@ RUN cd packages/web && VITE_SITE_URL="${VITE_SITE_URL}" pnpm build
 RUN cp -r packages/web/dist /output && chmod -R a+rX /output
 
 # ------ serve ------
-FROM nginx:alpine
+FROM nginx:alpine@sha256:a3554c0d0b48177b1413c26e01f695334428020d9df01243fbae3e11cfd17417
 
 COPY --from=build /output /usr/share/nginx/html
 

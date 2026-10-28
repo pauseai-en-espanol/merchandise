@@ -74,7 +74,7 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
-          version: v4.3.0
+          version: v4.3.1
 
       - name: Lint the Helm chart
         run: helm lint --strict charts/static
@@ -84,7 +84,7 @@ jobs:
     if: github.event.pull_request.draft != true
     # Always GitHub-hosted, unlike the other jobs: it needs no secrets and only Python, which the hosted image ships
     # (the self-hosted one may not), and it is the amd64 Linux the pipeline was checked to reproduce byte for byte.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
       - name: Checkout
@@ -123,7 +123,7 @@ jobs:
       github.event.pull_request.user.login == 'renovate[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository
     # A pull_request job only.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     permissions:
       contents: write
