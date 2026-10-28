@@ -1,5 +1,11 @@
 # @pauseai-es/merch-web
 
+## 1.2.3
+
+### Patch Changes
+
+- a12d13b: Dependencies bump
+
 ## 1.2.2
 
 ### Patch Changes
