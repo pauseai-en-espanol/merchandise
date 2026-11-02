@@ -55,9 +55,15 @@ const setMeta = (html: string, attr: 'name' | 'property', key: string, value: st
 const quoteOf = (svg: string) =>
   /<title>([^<]*)<\/title>/.exec(svg)?.[1]?.replaceAll('&amp;', '&').trim() ?? '';
 
-/** The site's public address, from a built page's og:url (VITE_SITE_URL at build time). */
+/**
+ * The site's public address, from a built page's og:url (VITE_SITE_URL at
+ * build time): the English page's is …/en/, so that part goes too.
+ */
 export const siteOf = (html: string): string =>
-  (/<meta\s+property="og:url"\s+content="([^"]*)"/.exec(html)?.[1] ?? '').replace(/\/$/, '');
+  (/<meta\s+property="og:url"\s+content="([^"]*)"/.exec(html)?.[1] ?? '').replace(
+    /\/(?:en\/?)?$/,
+    '',
+  );
 
 /** The image URL for a tee: the path names it, the query carries the rest (as the link's). */
 export const imagePath = (s: TeeState, search: string): string =>

@@ -92,4 +92,17 @@ describe('sharePage', () => {
     expect(html).toContain('<meta property="og:image:width" content="1200"');
     expect(html).toContain('<meta name="robots" content="noindex" />');
   });
+
+  it("points the English page's preview at the site's root, not /en/", () => {
+    const english = base.replace('https://merch.example/', 'https://merch.example/en/');
+    const path = '/en/d/coxon-kill-us-all/es-white-short/';
+    const s = state(path, '?plain=1');
+    const html = sharePage(english, repo, s, parseShareLink(path, '?plain=1')!, path, '?plain=1');
+    expect(html).toContain(
+      'content="https://merch.example/preview/coxon-kill-us-all/es-white-short.jpg?plain=1"',
+    );
+    expect(html).toContain(
+      'content="https://merch.example/en/d/coxon-kill-us-all/es-white-short/?plain=1"',
+    );
+  });
 });
