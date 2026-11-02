@@ -6,12 +6,11 @@ import { fill, type Strings } from '../i18n';
 import { logoPng } from '../raster';
 
 interface Props {
-  onBack: () => void;
   t: Strings;
 }
 
 /** Every brand logo, both families, as SVG and PNG, one by one or per family in a ZIP. */
-export const LogosPage = ({ onBack, t }: Props) => {
+export const LogosPage = ({ t }: Props) => {
   const [busy, setBusy] = useState<null | string>(null);
   const [error, setError] = useState<null | string>(null);
 
@@ -77,10 +76,6 @@ export const LogosPage = ({ onBack, t }: Props) => {
 
   return (
     <main id="logos" className="logos-page">
-      <button type="button" className="link back-link" onClick={onBack}>
-        ← {t.logos.back}
-      </button>
-
       <section className="logos-intro">
         <h2>{t.logos.title}</h2>
         <p className="intro">{t.logos.intro}</p>

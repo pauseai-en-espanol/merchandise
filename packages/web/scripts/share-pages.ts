@@ -43,18 +43,22 @@ const PAGES: Record<
   { alt: string; html: string; prefix: string; short: string; tees: Record<Tee, string> }
 > = {
   en: {
-    alt: '{title}, on a {tee} tee.',
+    alt: '{title}, on {tee}.',
     html: 'en/index.html',
     prefix: 'en/',
     short: 'short line',
-    tees: { black: 'black', orange: 'orange', white: 'white' },
+    tees: { black: 'a black tee', orange: 'an orange tee', white: 'a white tee' },
   },
   es: {
-    alt: '{title}, en una camiseta {tee}.',
+    alt: '{title}, en {tee}.',
     html: 'index.html',
     prefix: '',
     short: 'frase corta',
-    tees: { black: 'negra', orange: 'naranja', white: 'blanca' },
+    tees: {
+      black: 'una camiseta negra',
+      orange: 'una camiseta naranja',
+      white: 'una camiseta blanca',
+    },
   },
 };
 

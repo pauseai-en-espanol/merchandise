@@ -42,9 +42,30 @@ RUN cd packages/web && VITE_SITE_URL="${VITE_SITE_URL}" pnpm build
 # Everything world-readable: the nginx worker runs as non-root.
 RUN cp -r packages/web/dist /output && chmod -R a+rX /output
 
+# The preview server (packages/preview), which charts/static runs as its own
+# Deployment from this same image: one bundled file, resvg's native module for
+# this platform, and the repo files it draws from.
+RUN pnpm --filter @pauseai-es/merch-preview build \
+ && mkdir -p /preview/node_modules/@resvg /preview/repo/mockups \
+ && cp packages/preview/dist/server.mjs /preview/ \
+ && cp -rL node_modules/.pnpm/@resvg+resvg-js@*/node_modules/@resvg/resvg-js /preview/node_modules/@resvg/ \
+ && for d in node_modules/.pnpm/@resvg+resvg-js-linux-*@*/node_modules/@resvg/*; do cp -rL "$d" /preview/node_modules/@resvg/; done \
+ && tar -cf - designs/*/design.json designs/*/*.orange.front.svg designs/*/*.orange.front.short.svg \
+      brand/logos brand/fonts/files \
+      illustrations/portraits/*/lines.svg illustrations/portraits/*/halftone.svg illustrations/portraits/*/tone.svg \
+    | tar -xf - -C /preview/repo \
+ && cp mockups/tshirt-*-front.jpg /preview/repo/mockups/ \
+ && chmod -R a+rX /preview
+
 # ------ serve ------
 FROM nginx:alpine@sha256:a3554c0d0b48177b1413c26e01f695334428020d9df01243fbae3e11cfd17417
 
 COPY --from=build /output /usr/share/nginx/html
+
+# The preview server's runtime: the build stage's Node (C++ runtime from apk).
+RUN apk add --no-cache libstdc++
+COPY --from=build /usr/local/bin/node /usr/local/bin/node
+COPY --from=build /preview /preview
+ENV REPO_ROOT=/preview/repo STATIC_ROOT=/usr/share/nginx/html
 
 EXPOSE 80

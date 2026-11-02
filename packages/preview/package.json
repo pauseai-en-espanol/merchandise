@@ -1,0 +1,25 @@
+{
+  "name": "@pauseai-es/merch-preview",
+  "type": "module",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Link previews for share links: a small server that draws the exact tee a link describes, next to the site's nginx",
+  "scripts": {
+    "build": "vite build",
+    "start": "node dist/server.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint --type-aware --max-warnings 0 .",
+    "lint:fix": "oxlint --type-aware --fix --max-warnings 0 .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@pauseai-es/merch-core": "workspace:*",
+    "@resvg/resvg-js": "2.6.2",
+    "jpeg-js": "0.4.4"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

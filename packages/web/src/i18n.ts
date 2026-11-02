@@ -3,6 +3,7 @@ import type { Lang } from './assets';
 const es = {
   app: {
     footer: 'Diseños CC BY-SA 4.0 · Código MIT',
+    home: 'inicio',
     intro: 'Crea tu camiseta de PauseAI y descarga los archivos para imprimirla.',
     loading: 'Cargando…',
     reset: 'Empezar de nuevo',
@@ -104,7 +105,6 @@ const es = {
     tee: 'Camiseta',
   },
   logos: {
-    back: 'Volver al generador de camisetas',
     busy: 'Preparando…',
     downloadAs: 'Descargar {format}: {name}',
     failed: 'No se pudo preparar la descarga: {error}',
@@ -163,6 +163,7 @@ type Strings = typeof es;
 const en: Strings = {
   app: {
     footer: 'Designs CC BY-SA 4.0 · Code MIT',
+    home: 'home',
     intro: 'Make your PauseAI t-shirt and download the files to print it.',
     loading: 'Loading…',
     reset: 'Start over',
@@ -264,7 +265,6 @@ const en: Strings = {
     tee: 'Tee',
   },
   logos: {
-    back: 'Back to the t-shirt generator',
     busy: 'Preparing…',
     downloadAs: 'Download {format}: {name}',
     failed: "Couldn't prepare the download: {error}",

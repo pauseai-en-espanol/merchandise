@@ -195,14 +195,25 @@ the generator's bundle carries only the logos it prints.
 The address bar is always a share link to the exact tee being designed
 (*Copy a link to this tee*, under the preview, copies it):
 `/d/<slug>/<lang>-<tee>[-short]/?<the rest>`, under `/en/` for the English
-page (`packages/web/src/share.ts`). What a link preview can show is in the
-path: the design, its text language, the tee colour (for a custom colour,
-the preset printed with the same inks) and the short variant. Link
-previews don't run the app, so the build writes a page for each of those
-with its title, its quote and the matching tee render from `renders/` as
-the preview image (`packages/web/scripts/share-pages.ts`; the Docker build
-copies the front renders). The custom colour, one-colour text, edited
-text and portrait finish travel in the query and show once the page opens.
+page. The format is read in `packages/core/src/share.ts` (by the site and
+the preview server) and written in `packages/web/src/share.ts`.
+
+Link previews show the exact tee: every option, custom colours and edited
+text included. Chat apps read a page's tags without running the app, so
+`packages/preview` is a small Node server that answers share links
+(`/d/…`) with the site's page, retitled for that tee, and draws its
+preview (`/preview/<slug>/<key>.jpg`, 1200 × 630 JPEG: the tee photo
+around the chest, the print on it, through the same `render()` the site
+uses; cached, and new drawings rate-limited). It ships in the site's
+image and `charts/static` runs it as a second Deployment
+(`templates/preview.yaml`, `preview.enabled`); nginx proxies those paths
+to it. If it can't answer, nginx serves the build's static share pages
+(`packages/web/scripts/share-pages.ts`: one per design × text language ×
+preset tee × length, with its render from `renders/`), so links keep
+working with a simpler preview.
+
+The logo and the site's name in the header go home: the generator, from
+step 1, with the choices kept.
 
 The site has one page per language: Spanish at `/`, English at `/en/`
 (`packages/web/index.html`, `packages/web/en/index.html`), each with its own
@@ -216,6 +227,7 @@ address used in those tags is `VITE_SITE_URL` (default in
 ```sh
 pnpm install
 pnpm dev     # http://localhost:5173 (English: /en/)
+pnpm build   # the site (packages/web/dist) and the preview server (packages/preview/dist)
 pnpm check   # lint, typecheck, tests, prettier
 ```
 

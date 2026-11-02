@@ -6,7 +6,7 @@
   "description": "Open-source merchandise designs for PauseAI en Español, plus the web generator that turns them into print-ready files",
   "scripts": {
     "dev": "pnpm --filter @pauseai-es/merch-web dev",
-    "build": "pnpm --filter @pauseai-es/merch-web build",
+    "build": "pnpm --filter @pauseai-es/merch-web build && pnpm --filter @pauseai-es/merch-preview build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "lint": "oxlint --max-warnings 0 . && pnpm -r lint",

@@ -27,6 +27,33 @@ data:
         {{- end }}
         {{- end }}
 
+        {{- if .Values.preview.enabled }}
+
+        # Share links' pages and their link previews come from the preview
+        # server (templates/preview.yaml). If it can't answer, the build's
+        # static share pages do.
+        location ~ ^/(en/)?d/ {
+            proxy_pass http://{{ include "pauseai-es-merchandise-static.previewName" . }}:8080;
+            proxy_set_header Host $host;
+            proxy_connect_timeout 2s;
+            proxy_read_timeout 10s;
+            proxy_intercept_errors on;
+            error_page 404 500 502 503 504 = @static;
+        }
+
+        location ^~ /preview/ {
+            proxy_pass http://{{ include "pauseai-es-merchandise-static.previewName" . }}:8080;
+            proxy_set_header Host $host;
+            proxy_connect_timeout 2s;
+            proxy_read_timeout 15s;
+        }
+
+        # The file itself: an index redirect would land back in the proxy.
+        location @static {
+            try_files $uri/index.html $uri =404;
+        }
+        {{- end }}
+
         # Vite fingerprints everything under assets/: cache it for good.
         location ~ "/assets/" {
             add_header Cache-Control "public, max-age=31536000, immutable";

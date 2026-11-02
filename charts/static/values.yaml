@@ -18,3 +18,13 @@ headSnippet: ''
 # Each entry generates a `location = <from> { return 301 <to>; }` block.
 # Set `prefix: true` to also redirect subpaths.
 redirects: []
+# The preview server for share links (packages/preview, templates/preview.yaml): draws each link's preview on request.
+# Same image as the site; turn it off and share links fall back to the static pages the build writes.
+preview:
+  enabled: true
+  resources:
+    requests:
+      cpu: 20m
+      memory: 96Mi
+    limits:
+      memory: 384Mi

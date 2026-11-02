@@ -144,9 +144,14 @@ export const App = () => {
     };
   }, []);
 
-  const closeLogos = () => {
-    history.pushState(null, '', location.pathname + location.search);
+  /** Home (the logo and the site's name): the generator from its first step, choices kept. */
+  const goHome = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // A new tab or window opens the link itself.
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    if (view === 'logos') history.pushState(null, '', location.pathname + location.search);
     setView('generator');
+    setStep(0);
     window.scrollTo({ top: 0 });
   };
   const [theme, setTheme] = useState<Theme>(() =>
@@ -291,13 +296,18 @@ export const App = () => {
   return (
     <div className="page">
       <header className="masthead">
-        <div className="brand">
+        <a
+          className="brand"
+          href={sharePath(settings, ui)}
+          aria-label={`${t.app.title} · ${t.app.home}`}
+          onClick={goHome}
+        >
           <img src={markUrl()} alt="" width="40" height="40" />
           <div>
             <h1>{t.app.title}</h1>
             <p className="intro">{t.app.intro}</p>
           </div>
-        </div>
+        </a>
         <div className="masthead-tools">
           <a
             className="chip small"
@@ -325,7 +335,7 @@ export const App = () => {
 
       {view === 'logos' ? (
         <Suspense fallback={<p className="muted">{t.app.loading}</p>}>
-          <LogosPage onBack={closeLogos} t={t} />
+          <LogosPage t={t} />
         </Suspense>
       ) : (
         <>

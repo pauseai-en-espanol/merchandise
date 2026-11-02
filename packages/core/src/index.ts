@@ -5,5 +5,6 @@ export * from './logos';
 export * from './portrait';
 export * from './print';
 export * from './render';
+export * from './share';
 export * from './text';
 export * from './variant';

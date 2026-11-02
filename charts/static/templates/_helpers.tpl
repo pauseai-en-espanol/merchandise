@@ -47,3 +47,26 @@ Selector labels
 app.kubernetes.io/name: {{ include "pauseai-es-merchandise-static.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+The preview server (packages/preview): its own name, so the site's Service
+(selectorLabels) never selects its pods.
+*/}}
+{{- define "pauseai-es-merchandise-static.previewName" -}}
+{{- printf "%s-preview" (include "pauseai-es-merchandise-static.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{- define "pauseai-es-merchandise-static.previewSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "pauseai-es-merchandise-static.name" . }}-preview
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "pauseai-es-merchandise-static.previewLabels" -}}
+helm.sh/chart: {{ include "pauseai-es-merchandise-static.chart" . }}
+{{ include "pauseai-es-merchandise-static.previewSelectorLabels" . }}
+app.kubernetes.io/component: preview
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
