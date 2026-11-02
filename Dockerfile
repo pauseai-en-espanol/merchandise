@@ -62,8 +62,9 @@ FROM nginx:alpine@sha256:a3554c0d0b48177b1413c26e01f695334428020d9df01243fbae3e1
 
 COPY --from=build /output /usr/share/nginx/html
 
-# The preview server's runtime: the build stage's Node (C++ runtime from apk).
-RUN apk add --no-cache libstdc++
+# The preview server's runtime: the build stage's Node, and the shared
+# libraries it links (x86-64 builds need libatomic too, arm64 ones don't).
+RUN apk add --no-cache libstdc++ libatomic
 COPY --from=build /usr/local/bin/node /usr/local/bin/node
 COPY --from=build /preview /preview
 ENV REPO_ROOT=/preview/repo STATIC_ROOT=/usr/share/nginx/html
