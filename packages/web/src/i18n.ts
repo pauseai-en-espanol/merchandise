@@ -83,6 +83,12 @@ const es = {
     notes: 'Notas y fuentes del diseño',
     reset: 'Restaurar el original',
     shrunk: 'Reducido al {pct} % para que quepa en el mismo ancho.',
+    emptied:
+      'Vaciar líneas no agranda las demás: cada línea conserva su tamaño, así que quedan huecos.',
+    shortEmptied:
+      'Vaciar líneas no agranda las demás: el texto se queda del mismo tamaño, con huecos. Para una frase corta en letra grande, usa la versión corta de esta cita.',
+    shortHint: 'Esta cita tiene también una versión corta, en letra grande para leerse de lejos.',
+    useShort: 'Usar la frase corta',
     sourced:
       'Este diseño cita a personas reales o datos. Traduce con fidelidad: sin parafrasear y sin cambiar ninguna cifra.',
     tooSmall: 'Reducido al {pct} %: puede leerse mal. Prueba un texto más corto.',
@@ -243,6 +249,12 @@ const en: Strings = {
     notes: 'Design notes and sources',
     reset: 'Restore the original',
     shrunk: 'Shrunk to {pct}% to fit the same width.',
+    emptied:
+      "Emptying lines doesn't make the others bigger: each line keeps its size, so gaps are left.",
+    shortEmptied:
+      "Emptying lines doesn't make the others bigger: the text keeps its size, with gaps. For a short line set large, use this quote's short version.",
+    shortHint: 'This quote also has a short version, set large to read from a distance.',
+    useShort: 'Use the short line',
     sourced:
       'This design quotes real people or cites data. Translate faithfully: no paraphrasing, and keep every number.',
     tooSmall: 'Shrunk to {pct}%: it may be hard to read. Try shorter text.',

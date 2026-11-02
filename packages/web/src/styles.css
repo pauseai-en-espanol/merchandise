@@ -333,6 +333,17 @@ legend {
   font-size: 0.92rem;
 }
 
+/* The Text step's pointer to a design's short version. */
+.short-offer {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.short-offer p {
+  margin: 0;
+}
+
 .rule-note {
   margin: 0;
   font-size: 0.92rem;

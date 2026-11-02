@@ -2,10 +2,10 @@ import { readTextSlots, type Rendered, SHRINK_WARNING } from '@pauseai-es/merch-
 import { useMemo } from 'react';
 
 import type { Update } from '../App';
-import type { Settings } from '../settings';
 
-import { type Design, designNotesUrl } from '../assets';
+import { type Design, designNotesUrl, hasShort } from '../assets';
 import { fill, type Strings } from '../i18n';
+import { isShort, type Settings } from '../settings';
 
 interface Props {
   canonical: string;
@@ -19,6 +19,10 @@ interface Props {
 export const TextStep = ({ canonical, design, rendered, settings, t, update }: Props) => {
   const slots = useMemo(() => readTextSlots(canonical), [canonical]);
   const edited = Object.keys(settings.edits).length > 0;
+  // Lines emptied to make the quote shorter: the others keep their size, so
+  // a design with a short version points there instead.
+  const emptied = Object.values(settings.edits).some((markup) => markup.trim() === '');
+  const offerShort = hasShort(design, settings.lang) && !isShort(settings);
 
   const setSlot = (index: number, markup: string) => {
     const edits = { ...settings.edits, [index]: markup };
@@ -33,6 +37,21 @@ export const TextStep = ({ canonical, design, rendered, settings, t, update }: P
         <p className="notice">
           {t.text.sourced} <a href={designNotesUrl(design.slug)}>{t.text.notes}</a>
         </p>
+      )}
+
+      {offerShort ? (
+        <div className={emptied ? 'warning short-offer' : 'notice short-offer'}>
+          <p>{emptied ? t.text.shortEmptied : t.text.shortHint}</p>
+          <button
+            type="button"
+            className="button secondary small"
+            onClick={() => update({ edits: {}, short: true })}
+          >
+            {t.text.useShort}
+          </button>
+        </div>
+      ) : (
+        emptied && <p className="warning">{t.text.emptied}</p>
       )}
 
       <ol className="slots">
