@@ -90,3 +90,25 @@ export const thumbnail = (
   });
   return finish ? paintTone(front, look.rule, look.teeHex) : front;
 };
+
+/** Thumbnails kept: enough for every option card and a few looks back. */
+const KEPT = 48;
+const kept = new Map<string, string>();
+
+/**
+ * make(), remembered under `key` (least recently used goes first). Recolouring
+ * a front is the costly part of a thumbnail; `key` must name everything that
+ * changes the result.
+ */
+export const remembered = (key: string, make: () => string): string => {
+  const hit = kept.get(key);
+  if (hit !== undefined) {
+    kept.delete(key);
+    kept.set(key, hit);
+    return hit;
+  }
+  const value = make();
+  kept.set(key, value);
+  if (kept.size > KEPT) kept.delete(kept.keys().next().value ?? key);
+  return value;
+};

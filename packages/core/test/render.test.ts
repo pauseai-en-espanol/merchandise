@@ -24,6 +24,20 @@ describe('render', () => {
     expect(out.missing).toEqual([]);
   });
 
+  it('prints the text in one colour, leaving the brand colour to the logo', () => {
+    const canonical = read('designs/coxon-kill-us-all/es.orange.front.svg');
+    const tee = { hex: WHITE, preset: 'white' } as const;
+    const highlighted = render({ ...base, canonical, tee });
+    const plain = render({ ...base, canonical, plain: true, tee });
+    expect(plain.rule.accent).toBe(INK);
+    // The highlighted words are orange paths outside the logo; the plain print has none.
+    const quote = (svg: string) => svg.slice(svg.indexOf('id="quote"'));
+    expect(quote(highlighted.front)).toContain(`fill="${ORANGE}"`);
+    expect(quote(plain.front)).not.toContain(`fill="${ORANGE}"`);
+    // The logo keeps its orange.
+    expect(plain.inks).toContain(ORANGE);
+  });
+
   it('prints pale tees all in ink with the single-ink logo', () => {
     const out = render({ ...base, tee: { hex: '#FFD100', preset: null } });
     expect(out.rule.key).toBe('ink');

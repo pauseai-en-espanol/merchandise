@@ -51,6 +51,15 @@ const es = {
     quoteHint: 'Cada frase es una camiseta distinta.',
     shortAvailable: 'versión corta',
     textLanguage: 'Idioma del texto',
+    textColour: 'Color del texto',
+    textColours: {
+      highlight: { name: 'Palabras clave en {colour}', note: 'Como está dibujado el diseño' },
+      plain: {
+        name: 'Todo en {colour}',
+        note: 'El color queda solo en el logo: se lee mejor con luz fuerte o ante una cámara',
+      },
+    },
+    colourNames: { ink: 'negro', orange: 'naranja', white: 'blanco' },
   },
   chapter: {
     logo: 'Logo',
@@ -202,6 +211,15 @@ const en: Strings = {
     quoteHint: 'Each quote is a different tee.',
     shortAvailable: 'short version',
     textLanguage: 'Text language',
+    textColour: 'Text colour',
+    textColours: {
+      highlight: { name: 'Key words in {colour}', note: 'As the design is drawn' },
+      plain: {
+        name: 'All in {colour}',
+        note: 'Colour only in the logo: reads better under strong light or on camera',
+      },
+    },
+    colourNames: { ink: 'black', orange: 'orange', white: 'white' },
   },
   chapter: {
     logo: 'Logo',

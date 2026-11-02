@@ -138,6 +138,12 @@ One exception: a portrait printed in the two-ink **tone** style (see
 58 % toward the tee. On the three preset tees that's a token
 (`portraitTone*`); on a custom tee it's derived from that tee's colour.
 
+On any tee, the generator can also print the text in one colour (*Text
+colour → all in black/white* in step 2): highlights take the body colour
+(`plainText` in `packages/core/src/colours.ts`), so the brand colour stays
+only in the logo. It's for bright light and cameras, where a highlight in
+orange, or white on orange, may not read (asked for TV appearances).
+
 ## Web generator
 
 `packages/web` is a static site (Vite + React + TypeScript) where anyone
@@ -195,8 +201,8 @@ the preset printed with the same inks) and the short variant. Link
 previews don't run the app, so the build writes a page for each of those
 with its title, its quote and the matching tee render from `renders/` as
 the preview image (`packages/web/scripts/share-pages.ts`; the Docker build
-copies the front renders). The custom colour, edited text and portrait
-finish travel in the query and show once the page opens.
+copies the front renders). The custom colour, one-colour text, edited
+text and portrait finish travel in the query and show once the page opens.
 
 The site has one page per language: Spanish at `/`, English at `/en/`
 (`packages/web/index.html`, `packages/web/en/index.html`), each with its own

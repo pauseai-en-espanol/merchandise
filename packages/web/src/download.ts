@@ -150,7 +150,8 @@ export const zipName = (settings: Settings): string => {
   const tee = teeOf(settings);
   const short = isShort(settings) ? '-short' : '';
   const style = designBySlug(settings.slug).portrait ? `-${settings.portraitStyle}` : '';
-  return `pauseai-${settings.slug}${short}-${settings.lang}-${tee.preset ?? tee.hex.slice(1).toLowerCase()}${style}`;
+  const plain = settings.plain ? '-plain' : '';
+  return `pauseai-${settings.slug}${short}-${settings.lang}-${tee.preset ?? tee.hex.slice(1).toLowerCase()}${style}${plain}`;
 };
 
 /** Build the ZIP with print files, PNGs, mockups and the print sheet. */

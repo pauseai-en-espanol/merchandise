@@ -1,7 +1,7 @@
 import type { LogoFamily } from './logos';
 
 import { backSvg, trackedUrl, WORDMARK_MAX_WIDTH, WORDMARK_SIZE } from './back';
-import { type ColourRule, contrast, ruleFor, type Tee } from './colours';
+import { type ColourRule, contrast, plainText, ruleFor, type Tee } from './colours';
 import { advance, type FontBook } from './fonts';
 import { paintTone, swapPortrait } from './portrait';
 import { paintColours, printBack, printFront } from './print';
@@ -18,6 +18,8 @@ export interface RenderInput {
   /** All known families, to find the design's logo slot. */
   families: LogoFamily[];
   fonts: FontBook;
+  /** Print the highlighted words in the body colour too (see plainText). */
+  plain?: boolean;
   /**
    * Another version of the design's portrait to print instead of the authored
    * one (`illustrations/portraits/<person>/<style>.svg` source, see portrait.ts).
@@ -50,7 +52,7 @@ export interface Rendered {
 const WORDMARK_FAMILY = 'Saira Condensed';
 
 export const render = (input: RenderInput): Rendered => {
-  const rule = ruleFor(input.tee);
+  const rule = input.plain ? plainText(ruleFor(input.tee)) : ruleFor(input.tee);
   const canonical = input.portrait
     ? swapPortrait(input.canonical, input.portrait)
     : input.canonical;

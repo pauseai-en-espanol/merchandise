@@ -1,4 +1,4 @@
-import { AUTHORED_STYLE, type FontBook, ruleFor } from '@pauseai-es/merch-core';
+import { AUTHORED_STYLE, type FontBook, plainText, ruleFor } from '@pauseai-es/merch-core';
 import { useMemo } from 'react';
 
 import {
@@ -37,7 +37,9 @@ interface Props {
  */
 export const DesignStep = ({ chooseDesign, fonts, settings, t, ui }: Props) => {
   const tee = teeOf(settings);
-  const rule = ruleFor(tee);
+  const tint = ruleFor(tee);
+  const { plain } = settings;
+  const rule = useMemo(() => (plain ? plainText(tint) : tint), [tint, plain]);
   const family = familyById(settings.familyId);
   const style = settings.portraitStyle;
   const textLang = (d: Design) =>

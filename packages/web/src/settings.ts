@@ -28,6 +28,8 @@ export interface Settings {
   familyId: string;
   /** Language of the design's text (the canonical it starts from). */
   lang: Lang;
+  /** Print the highlighted words in the body colour too: the text in one colour (see plainText). */
+  plain: boolean;
   /** How portrait designs print their drawing (the other designs ignore it). */
   portraitStyle: PortraitStyle;
   /** Print the design's short variant, if it has one; picking another design resets it. */
@@ -56,6 +58,7 @@ export const defaultSettings = (lang: Lang): Settings => {
     edits: {},
     familyId: family.id,
     lang,
+    plain: false,
     portraitStyle: 'lines',
     short: false,
     slug: DESIGNS.find((d) => d.slug === 'ask-me')?.slug ?? DESIGNS[0]?.slug ?? '',
@@ -104,6 +107,7 @@ export const restoreSettings = (saved: unknown, fallback: Settings): Settings =>
       ? (s.familyId as string)
       : fallback.familyId,
     lang,
+    plain: typeof s.plain === 'boolean' ? s.plain : fallback.plain,
     portraitStyle: PORTRAIT_STYLES.includes(s.portraitStyle as PortraitStyle)
       ? (s.portraitStyle as PortraitStyle)
       : fallback.portraitStyle,

@@ -97,6 +97,14 @@ export const ruleFor = (tee: Tee): ColourRule => {
   return RULES[ruleScore(tee.hex, best) < WEAK_CONTRAST ? 'ink' : best];
 };
 
+/**
+ * A rule whose highlights print in the body colour: all the text in one
+ * colour (ink, or white on dark tees), the brand colour left to the logo.
+ * For bright light or cameras, where a highlight in orange or white on
+ * orange may not read.
+ */
+export const plainText = (rule: ColourRule): ColourRule => ({ ...rule, accent: rule.body });
+
 /** Distinct ink colours a front + back print needs on this tee (for the print sheet). */
 export const inksFor = (rule: ColourRule, extra: string[] = []): string[] => [
   ...new Set([rule.body, rule.accent, rule.qr, ...extra].map((c) => c.toUpperCase())),

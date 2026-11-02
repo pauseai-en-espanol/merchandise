@@ -26,6 +26,7 @@ import { isShort, type Settings, teeOf } from './settings';
  *
  *   tee       a custom colour, as six hex digits
  *   finish    portrait finish (halftone, tone)
+ *   plain=1   all the text in one colour (no highlights)
  *   logo      logo family, when it isn't the text language's own
  *   url       the address the QR opens, when it isn't the logo family's site
  *   wordmark  the text under the QR, when edited by hand
@@ -66,6 +67,7 @@ export const sharePath = (s: Settings, ui: Lang): string => {
   if (s.familyId !== NATIVE_FAMILY[s.lang]) q.set('logo', s.familyId);
   if (s.url !== familyById(s.familyId).url) q.set('url', s.url);
   if (s.wordmarkEdited) q.set('wordmark', s.wordmark);
+  if (s.plain) q.set('plain', '1');
   if (!s.tracking) q.set('utm', '0');
   for (const [index, markup] of Object.entries(s.edits).toSorted(
     ([a], [b]) => Number(a) - Number(b),
@@ -105,6 +107,7 @@ export const readShareLink = (pathname: string, search: string): null | Record<s
     edits,
     familyId,
     lang,
+    plain: q.get('plain') === '1',
     portraitStyle: q.get('finish') ?? 'lines',
     short: oldShort !== undefined || pathShort !== undefined,
     slug,

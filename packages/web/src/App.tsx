@@ -77,6 +77,7 @@ const safeRender = (
       families: FAMILIES,
       family: familyById(settings.familyId),
       fonts,
+      plain: settings.plain,
       portrait,
       tee: teeOf(settings),
       tracking: settings.tracking ? { source: design.utmSource } : false,

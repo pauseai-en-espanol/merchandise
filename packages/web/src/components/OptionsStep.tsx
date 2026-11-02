@@ -1,6 +1,9 @@
 import {
   AUTHORED_STYLE,
+  INK,
   normaliseHex,
+  ORANGE,
+  plainText,
   PORTRAIT_STYLES,
   portraitPreview,
   type PortraitStyle,
@@ -16,7 +19,7 @@ import type { Update } from '../App';
 import { CARDS, designBySlug, familyById, hasShort, type Lang } from '../assets';
 import { fill, type Strings } from '../i18n';
 import { isShort, type Settings, teeOf } from '../settings';
-import { frontKey, type FrontRef, thumbnail, useFronts, usePortraits } from '../thumbs';
+import { frontKey, type FrontRef, remembered, thumbnail, useFronts, usePortraits } from '../thumbs';
 
 /**
  * Suggestions inside "Custom". The main choices are orange (the brand colour,
@@ -153,10 +156,11 @@ interface Props {
 }
 
 /**
- * Step 2: the tee colour, then the chosen design's own options, all in view,
- * each group only where it applies: which quote (a person with several), the
- * short version (only a quote that has one), the portrait finish, and the
- * text language. Every choice shows at once in the preview.
+ * Step 2: the tee colour and the text colour (highlighted words, or all in
+ * one colour), then the chosen design's own options, all in view, each group
+ * only where it applies: which quote (a person with several), the short
+ * version (only a quote that has one), the portrait finish, and the text
+ * language. Every choice shows at once in the preview.
  */
 export const OptionsStep = ({ chooseDesign, settings, t, ui, update }: Props) => {
   const tee = teeOf(settings);
@@ -206,17 +210,39 @@ export const OptionsStep = ({ chooseDesign, settings, t, ui, update }: Props) =>
   ]);
   const drawings = usePortraits(person ? [person] : [], PORTRAIT_STYLES);
   const finish = person && style !== AUTHORED_STYLE ? drawings[`${person}/${style}`] : undefined;
-  // Recolouring is the costly part: redone only when the look changes.
-  const { familyId } = settings;
+  const { familyId, plain } = settings;
   const ruleKey = rule.key;
   const teeHex = tee.hex;
-  const arts = useMemo(() => {
-    const look = { family: familyById(familyId), rule: RULES[ruleKey], teeHex };
-    return Object.fromEntries(
-      Object.entries(sources).map(([key, svg]) => [key, thumbnail(svg, look, finish)]),
+  /** A front as it prints on this tee, with the text highlighted or plain. */
+  const picture = (ref: FrontRef, asPlain: boolean) => {
+    const svg = sources[frontKey(ref)];
+    if (!svg) return '';
+    const key = [
+      frontKey(ref),
+      familyId,
+      ruleKey,
+      asPlain,
+      teeHex,
+      finish ? style : AUTHORED_STYLE,
+    ];
+    return remembered(key.join('|'), () =>
+      thumbnail(
+        svg,
+        {
+          family: familyById(familyId),
+          rule: asPlain ? plainText(RULES[ruleKey]) : RULES[ruleKey],
+          teeHex,
+        },
+        finish,
+      ),
     );
-  }, [sources, familyId, ruleKey, teeHex, finish]);
-  const art = (ref: FrontRef) => arts[frontKey(ref)] ?? '';
+  };
+  const art = (ref: FrontRef) => picture(ref, plain);
+  // The text colour options show this tee both ways.
+  const current = short ? shortRef : quoteRef(design.slug);
+  const textArts = { highlight: picture(current, false), plain: picture(current, true) };
+  const colourName = (hex: string) =>
+    t.tee.colourNames[hex === INK ? 'ink' : hex === ORANGE ? 'orange' : 'white'];
 
   return (
     <div className="step">
@@ -290,6 +316,31 @@ export const OptionsStep = ({ chooseDesign, settings, t, ui, update }: Props) =>
         {rule.key === 'ink' && <p className="rule-note">{t.tee.paleNote}</p>}
         {rule.key === 'dark' && person && <p className="rule-note">{t.tee.portraitDark}</p>}
       </fieldset>
+
+      {rule.accent !== rule.body && (
+        <fieldset className="group">
+          <legend>{t.tee.textColour}</legend>
+          <div className="options tiles">
+            {(['highlight', 'plain'] as const).map((v) => (
+              <Option
+                key={v}
+                name="text-colour"
+                art={textArts[v]}
+                checked={(v === 'plain') === plain}
+                teeHex={tee.hex}
+                onPick={() => update({ plain: v === 'plain' })}
+              >
+                <span className="option-name">
+                  {fill(t.tee.textColours[v].name, {
+                    colour: colourName(v === 'plain' ? rule.body : rule.accent),
+                  })}
+                </span>
+                <span className="option-note">{t.tee.textColours[v].note}</span>
+              </Option>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       {quotes.length > 1 && (
         <fieldset className="group">
