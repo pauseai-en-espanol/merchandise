@@ -6,6 +6,7 @@ Export print-ready SVGs with all text converted to outline paths
 Output per design → prints/<slug>/ , for each lang ∈ {es,en} and
 tee ∈ {orange,white,black} that exists:
   {lang}.{tee}.front.svg          240 × 240 mm  (chest print 24 × 24 cm)
+  {lang}.{tee}.front.short.svg    240 × 240 mm  (short variant, when the design has one)
   {lang}.{tee}.back.svg           200 × 220 mm  (back print  20 × 22 cm)
   {lang}.{tee}.back.sourced.svg   200 × 220 mm  (utm_source flavour)
 All <text> is converted to outline paths (zero font dependency at print).
@@ -380,9 +381,9 @@ def export_back(slug: str, src_svg: Path, dst: Path) -> None:
 
 def main():
     """Outline every design SVG under designs/<slug>/ into prints/<slug>/.
-    Per lang × tee: front, back (campaign-only) and back.sourced (the
-    utm_source flavour) — up to 18 files per design; only those that
-    exist are emitted."""
+    Per lang × tee: front, front.short (the short variant, a few portrait
+    designs), back (campaign-only) and back.sourced (the utm_source
+    flavour); only those that exist are emitted."""
     designs = sorted(d.name for d in (ROOT / 'designs').iterdir()
                      if d.is_dir() and not d.name.startswith('_'))
     total = 0
@@ -391,11 +392,14 @@ def main():
         out_dir.mkdir(parents=True, exist_ok=True)
         for lang in ('es', 'en'):
             for tee in ('orange', 'white', 'black'):
-                # Front — varies per tee colour.
-                f_src = ROOT / f'designs/{slug}/{lang}.{tee}.front.svg'
-                if f_src.exists():
-                    export_front(slug, f_src, out_dir / f'{lang}.{tee}.front.svg')
-                    total += 1
+                # Front — varies per tee colour; plus the short variant
+                # (a few portrait designs) when present.
+                for variant in ('front', 'front.short'):
+                    f_src = ROOT / f'designs/{slug}/{lang}.{tee}.{variant}.svg'
+                    if f_src.exists():
+                        export_front(slug, f_src,
+                                     out_dir / f'{lang}.{tee}.{variant}.svg')
+                        total += 1
                 # Backs — campaign-only default, plus the per-design
                 # sourced (utm_source) flavour when present.
                 for variant in ('back', 'back.sourced'):

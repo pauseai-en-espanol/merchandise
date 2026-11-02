@@ -32,11 +32,20 @@ import {
 import { ChapterStep } from './components/ChapterStep';
 import { DownloadStep } from './components/DownloadStep';
 import { Preview } from './components/Preview';
+import { ShareLink } from './components/ShareLink';
 import { TeeStep } from './components/TeeStep';
 import { TextStep } from './components/TextStep';
 import { ThemeToggle } from './components/ThemeToggle';
 import { browserLang, initialUiLang, LANG_PATH, pathLang, STRINGS } from './i18n';
-import { defaultSettings, isValidUrl, restoreSettings, type Settings, teeOf } from './settings';
+import {
+  defaultSettings,
+  isShort,
+  isValidUrl,
+  restoreSettings,
+  type Settings,
+  teeOf,
+} from './settings';
+import { isShareLink, readShareLink } from './share';
 import { clearSaved, loadSaved, save, type Theme, THEMES } from './storage';
 
 export type Update = (patch: Partial<Settings>) => void;
@@ -45,6 +54,9 @@ export type Update = (patch: Partial<Settings>) => void;
 const LogosPage = lazy(() =>
   import('./components/LogosPage').then((m) => ({ default: m.LogosPage })),
 );
+
+/** Which canonical a design's settings print: the design, its language and length. */
+const frontKey = (s: Settings) => `${s.slug}/${s.lang}${isShort(s) ? '/short' : ''}`;
 
 /** The generator, or the logos page at #logos (linkable, and Back returns). */
 type View = 'generator' | 'logos';
@@ -78,13 +90,23 @@ const safeRender = (
 
 export const App = () => {
   // The page (/ or /en/) sets the interface language; a first visit at / follows
-  // the browser. Everything else the visitor chose is restored from storage.
+  // the browser. Everything else the visitor chose is restored from storage,
+  // unless they opened a share link (read before anything moves the address).
   const [saved] = useState(loadSaved);
+  const [shared] = useState(() => readShareLink(location.pathname, location.search));
   const [ui, setUiState] = useState<Lang>(() => initialUiLang(saved.ui));
   const t = STRINGS[ui];
-  const [settings, setSettings] = useState<Settings>(() =>
-    restoreSettings(saved.settings, defaultSettings(ui)),
-  );
+  const [settings, setSettings] = useState<Settings>(() => {
+    const own = restoreSettings(saved.settings, defaultSettings(ui));
+    return shared ? restoreSettings(shared, own) : own;
+  });
+
+  // A share link has done its job once applied: back to the plain page.
+  useEffect(() => {
+    if (isShareLink(location.pathname)) {
+      history.replaceState(null, '', LANG_PATH[pathLang()] + location.hash);
+    }
+  }, []);
 
   /** Switch language and move to that language's page (no reload). */
   const setUi = useCallback((lang: Lang) => {
@@ -116,7 +138,10 @@ export const App = () => {
     THEMES.includes(saved.theme as Theme) ? (saved.theme as Theme) : 'auto',
   );
   const [step, setStep] = useState(() =>
-    typeof saved.step === 'number' && saved.step >= 0 && saved.step < STRINGS.es.steps.length
+    !shared &&
+    typeof saved.step === 'number' &&
+    saved.step >= 0 &&
+    saved.step < STRINGS.es.steps.length
       ? saved.step
       : 0,
   );
@@ -161,16 +186,17 @@ export const App = () => {
     setTheme('auto');
   };
 
-  const key = `${settings.slug}/${settings.lang}`;
+  const key = frontKey(settings);
+  const short = isShort(settings);
   useEffect(() => {
     let alive = true;
-    void loadFront(settings.slug, settings.lang).then((svg) => {
+    void loadFront(settings.slug, settings.lang, short).then((svg) => {
       if (alive) setCanonical({ key, svg });
     });
     return () => {
       alive = false;
     };
-  }, [key, settings.slug, settings.lang]);
+  }, [key, settings.slug, settings.lang, short]);
 
   // Portrait designs print the drawing in the chosen style (loaded on demand).
   // The authored style needs no swap (and no download).
@@ -223,7 +249,7 @@ export const App = () => {
   }, []);
 
   const deferred = useDeferredValue(settings);
-  const current = canonical?.key === `${deferred.slug}/${deferred.lang}` ? canonical.svg : null;
+  const current = canonical?.key === frontKey(deferred) ? canonical.svg : null;
   // undefined: the design has no portrait; null: its chosen style is still loading.
   const deferredPerson =
     deferred.portraitStyle === AUTHORED_STYLE
@@ -362,6 +388,7 @@ export const App = () => {
               ) : (
                 <p className="muted">{t.app.loading}</p>
               )}
+              <ShareLink settings={settings} t={t} ui={ui} />
             </aside>
           </main>
         </>

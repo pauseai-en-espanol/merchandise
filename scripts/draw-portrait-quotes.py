@@ -20,6 +20,11 @@ illustrations/portraits/README.md). The web generator can swap the halftone
 or tone version into the same slot; each design.json names its portrait so
 it knows which (packages/core/src/portrait.ts).
 
+Five designs also get a SHORT variant ({lang}.orange.front.short.svg, see
+SHORT below): the same portrait and column with one short line set as large
+as the column allows, to read from a distance. The colour builders, prints,
+mockups, renders and the web generator pick it up as `.front.short`.
+
 Quotes, sources and our Spanish translations are documented in each
 design's README; edit the text here, then re-run. Stdlib + fontTools:
     python3 scripts/draw-portrait-quotes.py [slug ...]
@@ -64,6 +69,12 @@ LEAD_SIZE = 4.6                # italic lead-in above the quote
 NAME_SIZE = 8.5
 SUB_SIZE = 3.8                 # italic credential / source lines
 ATTR_GAP = 7                   # quote → attribution
+
+# The short variant: fewer words, so the lines can grow much larger.
+SHORT_SETUP_MAX = 22           # setup lines never grow past this size
+SHORT_PAYOFF_MAX = 30          # nor payoff lines (a four-letter word would fill the column)
+SHORT_NAME_SIZE = 10
+SHORT_LINE_GAP = 3.6           # between lines (the full layout uses 2.4)
 
 
 # --- the series -------------------------------------------------------------
@@ -303,6 +314,101 @@ DESIGNS = {
 }
 
 
+# --- the short variant ----------------------------------------------------------
+#
+# One short line per person, set large to read from a distance, in the same
+# layout (setup / payoff lines as above; only the name and one credential
+# under it). The wording is the chapter's choice: each design's README says,
+# under "Short variant", how it relates to the sources.
+
+SHORT = {
+    'coxon-kill-us-all': dict(
+        es=dict(
+            title='Podría matarnos a todos antes de 2030. — Jacob Coxon',
+            setup=['«PODRÍA'],
+            payoff=['MATARNOS', 'A TODOS'],
+            setup2=['ANTES DE 2030.»'],
+            name='JACOB COXON',
+            sub=['Ex-investigador de OpenAI y Anthropic']),
+        en=dict(
+            title='It could kill us all before 2030. — Jacob Coxon',
+            setup=['“IT COULD'],
+            payoff=['KILL US ALL'],
+            setup2=['BEFORE 2030.”'],
+            name='JACOB COXON',
+            sub=['Former OpenAI and Anthropic researcher']),
+    ),
+    'hinton-tiger-cub': dict(
+        es=dict(
+            title='Podría extinguir a la humanidad. Quizá solo quede un año. — Geoffrey Hinton',
+            setup=['«PODRÍA'],
+            payoff=['EXTINGUIR', 'A LA HUMANIDAD.'],
+            setup2=['QUIZÁ SOLO', 'QUEDE UN AÑO.»'],
+            name='GEOFFREY HINTON',
+            sub=['Premio Nobel de Física 2024']),
+        en=dict(
+            title='It could wipe out humanity. Maybe there’s only a year left. — Geoffrey Hinton',
+            setup=['“IT COULD'],
+            payoff=['WIPE OUT', 'HUMANITY.'],
+            setup2=['MAYBE THERE’S', 'ONLY A YEAR LEFT.”'],
+            name='GEOFFREY HINTON',
+            sub=['2024 Nobel Prize in Physics']),
+    ),
+    'bengio-losing-control': dict(
+        es=dict(
+            title='Me quita el sueño la posibilidad de la extinción de la raza humana. '
+                  '— Yoshua Bengio',
+            setup=['«ME QUITA EL SUEÑO', 'LA POSIBILIDAD DE'],
+            payoff=['LA EXTINCIÓN', 'DE LA RAZA', 'HUMANA.»'],
+            name='YOSHUA BENGIO',
+            sub=['Premio Turing 2018 · Universidad de Montreal']),
+        en=dict(
+            title='The possibility of human extinction keeps me awake at night. — Yoshua Bengio',
+            setup=['“THE POSSIBILITY OF'],
+            payoff=['HUMAN', 'EXTINCTION'],
+            setup2=['KEEPS ME AWAKE', 'AT NIGHT.”'],
+            name='YOSHUA BENGIO',
+            sub=['2018 Turing Award · Université de Montréal']),
+    ),
+    'hawking-end-of-the-human-race': dict(
+        es=dict(
+            title='El desarrollo de la IA podría suponer el fin de la especie humana. '
+                  '— Stephen Hawking',
+            setup=['«EL DESARROLLO DE', 'LA IA PODRÍA SUPONER'],
+            payoff=['EL FIN DE', 'LA ESPECIE', 'HUMANA.»'],
+            name='STEPHEN HAWKING',
+            sub=['Físico teórico, Universidad de Cambridge']),
+        en=dict(
+            title='The development of AI could spell the end of the human race. '
+                  '— Stephen Hawking',
+            setup=['“THE DEVELOPMENT', 'OF AI COULD SPELL'],
+            payoff=['THE END OF', 'THE HUMAN', 'RACE.”'],
+            name='STEPHEN HAWKING',
+            sub=['Theoretical physicist, University of Cambridge']),
+    ),
+    'russell-russian-roulette': dict(
+        es=dict(
+            title='Están jugando a la ruleta rusa con cada ser humano de la Tierra. '
+                  '— Stuart Russell',
+            lead='Sobre los líderes de las empresas de IA:',
+            setup=['«ESTÁN JUGANDO A LA'],
+            payoff=['RULETA', 'RUSA'],
+            setup2=['CON CADA SER HUMANO', 'DE LA TIERRA.»'],
+            name='STUART RUSSELL',
+            sub=['Catedrático de Informática, UC Berkeley']),
+        en=dict(
+            title='They are playing Russian roulette with every human being on Earth. '
+                  '— Stuart Russell',
+            lead='On the heads of the AI companies:',
+            setup=['“THEY ARE PLAYING'],
+            payoff=['RUSSIAN', 'ROULETTE'],
+            setup2=['WITH EVERY HUMAN', 'BEING ON EARTH.”'],
+            name='STUART RUSSELL',
+            sub=['Professor of Computer Science, UC Berkeley']),
+    ),
+}
+
+
 # --- portrait -----------------------------------------------------------------
 
 def portrait(person):
@@ -333,7 +439,7 @@ def wrap(text, size, width):
     return lines + [cur]
 
 
-def attribution(t):
+def attribution(t, name_size=NAME_SIZE):
     """(text, size, italic, baseline) rows, bottom-aligned at BOTTOM; returns
     the rows and the top of the name's capitals."""
     subs = [ln for s in t['sub'] for ln in wrap(s, SUB_SIZE, COL_W)]
@@ -342,11 +448,11 @@ def attribution(t):
         rows.append((s, SUB_SIZE, True, y))
         y -= SUB_SIZE * 1.3
     y -= 1.6
-    rows.append((t['name'], NAME_SIZE, False, y))
-    return rows[::-1], y - NAME_SIZE * CAP
+    rows.append((t['name'], name_size, False, y))
+    return rows[::-1], y - name_size * CAP
 
 
-def stack(t, top, bottom):
+def stack(t, top, bottom, setup_max=SETUP_MAX, line_gap=2.4, payoff_max=None):
     """Justified column, as in ask-a-chicken: payoff lines always fill COL_W;
     setup lines fill it unless that would make them larger than SETUP_MAX
     (then left-aligned). Shrinks to fit, centres if there is room to spare."""
@@ -359,15 +465,17 @@ def stack(t, top, bottom):
         for i, (s, acc, gi) in enumerate(rows):
             sz = COL_W / adv(s) * k
             if not acc:
-                sz = min(sz, SETUP_MAX * k)
+                sz = min(sz, setup_max * k)
+            elif payoff_max:
+                sz = min(sz, payoff_max * k)
             if i and any(c in s for c in 'ÁÉÍÓÚÑ'):
                 y += sz * 0.16
             if i and gi != rows[i - 1][2]:
                 y += 2.0 * k
             y += sz * CAP
             out.append((s, acc, sz, y))
-            y += 2.4
-        return out, y - 2.4
+            y += line_gap
+        return out, y - line_gap
 
     k = 1.0
     while layout(k)[1] > bottom:
@@ -377,10 +485,10 @@ def stack(t, top, bottom):
     return [(s, acc, sz, y + slack) for s, acc, sz, y in out]
 
 
-def front(slug, d, lang, logo):
-    t = d[lang]
+def front(slug, d, lang, logo, short=False):
+    t = SHORT[slug][lang] if short else d[lang]
     art, (px, py, pw, ph) = portrait(d['person'])
-    attr, attr_top = attribution(t)
+    attr, attr_top = attribution(t, SHORT_NAME_SIZE if short else NAME_SIZE)
     top = TOP
     lead = ''
     if t.get('lead'):
@@ -388,7 +496,9 @@ def front(slug, d, lang, logo):
                 f'font-style="italic" font-size="{LEAD_SIZE}" fill="{INK}">{t["lead"]}</text>')
         top = TOP + LEAD_SIZE * CAP + 4
     lines = []
-    for s, acc, sz, y in stack(t, top, attr_top - ATTR_GAP):
+    layout = dict(setup_max=SHORT_SETUP_MAX, payoff_max=SHORT_PAYOFF_MAX,
+                  line_gap=SHORT_LINE_GAP) if short else {}
+    for s, acc, sz, y in stack(t, top, attr_top - ATTR_GAP, **layout):
         fill = 'class="accent" fill="#FFFFFF"' if acc else f'fill="{INK}"'
         lines.append(f'    <text x="{COL_X}" y="{y:.2f}" font-size="{sz:.2f}" {fill}>{runs(s)}</text>')
     attr_svg = []
@@ -398,9 +508,10 @@ def front(slug, d, lang, logo):
         attr_svg.append(f'  <text id="{gid}" x="{COL_X}" y="{y:.2f}" {F}{style} '
                         f'font-size="{sz}" fill="{INK}">{s}</text>')
     language = 'Spanish' if lang == 'es' else 'English'
+    variant = ', short variant: reads from a distance' if short else ''
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Design: {slug} (chest, {language})
+  Design: {slug} (chest, {language}{variant})
   Voice lane: {d['lane']}
   GENERATED by scripts/draw-portrait-quotes.py — edit there, not here.
   Portrait: illustrations/portraits/{d['person']}/lines.svg by LOB LAN
@@ -443,6 +554,10 @@ def main(slugs):
             logo = logo_src[a:logo_src.index('</svg>', a) + 6]
             (out / f'{lang}.orange.front.svg').write_text(front(slug, d, lang, logo))
             print(f'  wrote designs/{slug}/{lang}.orange.front.svg')
+            if slug in SHORT:
+                (out / f'{lang}.orange.front.short.svg').write_text(
+                    front(slug, d, lang, logo, short=True))
+                print(f'  wrote designs/{slug}/{lang}.orange.front.short.svg')
 
 
 if __name__ == '__main__':

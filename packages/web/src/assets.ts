@@ -82,6 +82,8 @@ export interface DesignMeta {
 
 export interface Design extends DesignMeta {
   langs: Lang[];
+  /** Languages with a short variant ({lang}.orange.front.short.svg): one big line that reads from a distance. */
+  shortLangs: Lang[];
   slug: string;
 }
 
@@ -90,17 +92,23 @@ const metas = import.meta.glob<DesignMeta>('../../../designs/*/design.json', {
   import: 'default',
 });
 
-const fronts = import.meta.glob<string>('../../../designs/*/*.orange.front.svg', {
-  import: 'default',
-  query: '?raw',
-});
+const fronts = import.meta.glob<string>(
+  ['../../../designs/*/*.orange.front.svg', '../../../designs/*/*.orange.front.short.svg'],
+  { import: 'default', query: '?raw' },
+);
 
-const frontPath = (slug: string, lang: Lang) => `../../../designs/${slug}/${lang}.orange.front.svg`;
+const frontPath = (slug: string, lang: Lang, short = false) =>
+  `../../../designs/${slug}/${lang}.orange.front${short ? '.short' : ''}.svg`;
 
 export const DESIGNS: Design[] = Object.entries(metas)
   .map(([path, meta]) => {
     const slug = path.split('/').at(-2) ?? '';
-    return { ...meta, langs: LANGS.filter((lang) => frontPath(slug, lang) in fronts), slug };
+    return {
+      ...meta,
+      langs: LANGS.filter((lang) => frontPath(slug, lang) in fronts),
+      shortLangs: LANGS.filter((lang) => frontPath(slug, lang, true) in fronts),
+      slug,
+    };
   })
   .filter((d) => !d.slug.startsWith('_') && d.langs.length > 0)
   .toSorted((a, b) => a.title.es.localeCompare(b.title.es, 'es'));
@@ -126,9 +134,12 @@ export const designBySlug = (slug: string): Design =>
 
 const frontCache = new Map<string, Promise<string>>();
 
-/** The hand-authored orange-tee front of a design, as SVG source. */
-export const loadFront = (slug: string, lang: Lang): Promise<string> => {
-  const key = frontPath(slug, lang);
+/** Whether a design has a short variant in this language. */
+export const hasShort = (design: Design, lang: Lang): boolean => design.shortLangs.includes(lang);
+
+/** The canonical orange-tee front of a design (or its short variant), as SVG source. */
+export const loadFront = (slug: string, lang: Lang, short = false): Promise<string> => {
+  const key = frontPath(slug, lang, short);
   let cached = frontCache.get(key);
   if (!cached) {
     const load = fronts[key];

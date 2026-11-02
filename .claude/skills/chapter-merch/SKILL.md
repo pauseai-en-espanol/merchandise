@@ -138,7 +138,10 @@ Onboard a new design from a brief.
 4. Author the canonical `designs/<slug>/es.orange.front.svg`.
 
    Filenames follow `{lang}.{tee}.{side}.svg` (e.g. `es.orange.front.svg`,
-   `en.black.back.svg`). The **orange-tee ES front is the only
+   `en.black.back.svg`). A design may also have a short variant,
+   `{lang}.orange.front.short.svg` (the portrait designs, from
+   `scripts/draw-portrait-quotes.py`), which every stage handles as
+   `*.front.short.*`. The **orange-tee ES front is the only
    hand-authored source**; EN, white/black fronts, and all backs are
    generated next to it. Composited mockups live in
    `mockups/<slug>/{lang}.{tee}.{side}.svg` (out of `designs/`). (The

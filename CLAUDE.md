@@ -151,6 +151,13 @@ Docker → nginx, Helm chart in `charts/static`.
 
 What the site reads, straight from the repo at build time:
 - `designs/<slug>/{es,en}.orange.front.svg`: the canonical fronts;
+- `designs/<slug>/{es,en}.orange.front.short.svg`, optional: the design's
+  **short variant**, one short line set large to read from a distance
+  (five portrait designs have one, from `scripts/draw-portrait-quotes.py`).
+  The pipeline treats it as one more front (`*.front.short.*` in designs/,
+  prints/, mockups/ and renders/; the parity test covers it), and the
+  site offers it on the card as *Version: full quote / short line*. Its
+  README section says how the short line relates to the sources;
 - `designs/<slug>/design.json`: title per language, voice lane, whether the
   text is sourced (quotes or data; the site warns translators), the
   `utmSource` (also read by `build-qr.py`), and optionally a `portrait`
@@ -177,6 +184,16 @@ header and footer) where anyone downloads every lockup and mark of both
 families as SVG or 2400 px PNG, one by one or as a ZIP per family with a
 short usage note (`packages/web/src/brandLogos.ts`). It loads on demand, so
 the generator's bundle carries only the logos it prints.
+
+Under the preview, *Copy a link to this tee* shares the exact tee: the
+design in the path (`/d/<slug>/`, `/d/<slug>/short/`; under `/en/` for the
+English page) and everything else in the query (`packages/web/src/share.ts`;
+opening one applies it and returns to the plain page). Link previews don't
+run the app, so the build writes one page per design with its title, its
+quote and its orange-tee render (from `renders/`) as the preview image
+(`packages/web/scripts/share-pages.ts`; the Docker build copies those
+renders). A custom colour, edited text or the portrait finish show on the
+page, not in the preview.
 
 The site has one page per language: Spanish at `/`, English at `/en/`
 (`packages/web/index.html`, `packages/web/en/index.html`), each with its own

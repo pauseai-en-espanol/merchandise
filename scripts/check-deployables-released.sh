@@ -22,11 +22,12 @@ deployable=@pauseai-es/merch-web
 IMAGE_INPUTS=(
   Dockerfile .dockerignore package.json pnpm-lock.yaml pnpm-workspace.yaml
   packages
-  ':(glob)designs/*/design.json' ':(glob)designs/*/*.orange.front.svg'
+  ':(glob)designs/*/design.json' ':(glob)designs/*/*.orange.front.svg' ':(glob)designs/*/*.orange.front.short.svg'
   brand/logos brand/fonts/files
   ':(glob)illustrations/portraits/*/lines.svg' ':(glob)illustrations/portraits/*/halftone.svg'
   ':(glob)illustrations/portraits/*/tone.svg'
   ':(glob)mockups/tshirt-*.jpg'
+  ':(glob)renders/*/*.orange.front.jpg' ':(glob)renders/*/*.orange.front.short.jpg'
 )
 
 # After a force push the previous tip is on no branch, so the clone lacks it; GitHub still serves it by SHA.

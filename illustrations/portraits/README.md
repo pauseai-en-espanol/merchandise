@@ -50,10 +50,12 @@ The repo's own prints and mockups use that line version.
 On the web generator, all the designs of one person share a card, which
 shows the one with the lowest `order` (0 when omitted) first. Next to the
 title, a fanned stack of finish swatches (with the number of quotes, when
-there are several) opens a menu with two sections:
+there are several) opens a menu with up to three sections:
 
 - **Quote**: each design of that person, with a thumbnail and the start of
   the quote;
+- **Version**, where the design has a short variant: the full quote, or one
+  short line set large to read from a distance (`{lang}.orange.front.short.svg`);
 - **Finish**: the face in **lines**, **halftone** and **tone**, on the
   chosen tee.
 

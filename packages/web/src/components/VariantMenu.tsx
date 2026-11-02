@@ -45,6 +45,7 @@ const Check = () => (
 
 /** What the card shows while the pointer or focus is on an option. */
 export interface VariantPreview {
+  short?: boolean;
   slug?: string;
   style?: PortraitStyle;
 }
@@ -60,13 +61,18 @@ export interface QuoteVariant {
 
 interface Props {
   by: string;
+  /** The design in both versions (fronts recoloured for the tee), when it has a short one. */
+  lengths?: { full: string; short: string };
   onPickQuote: (slug: string) => void;
+  onPickShort: (short: boolean) => void;
   onPickStyle: (style: PortraitStyle) => void;
   onPreview: (preview: VariantPreview | null) => void;
   person: string;
   /** Every design of this person; the Quote section shows when there is more than one. */
   quotes: QuoteVariant[];
   rule: ColourRule;
+  /** Whether the card shows the short version. */
+  short: boolean;
   /** The variant the card shows. */
   slug: string;
   /** The finish portrait designs print with. */
@@ -78,17 +84,21 @@ interface Props {
 /**
  * The variants of a portrait card, from one control: a fanned stack of the
  * finish swatches (the chosen one in front) opens a menu with the person's
- * quotes and the face in each finish. Moving through it previews the option
+ * quotes, the full or short version where there is one, and the face in each
+ * finish. Moving through it previews the option
  * on the card; choosing one picks it.
  */
 export const VariantMenu = ({
   by,
+  lengths,
   onPickQuote,
+  onPickShort,
   onPickStyle,
   onPreview,
   person,
   quotes,
   rule,
+  short,
   slug,
   style,
   t,
@@ -103,9 +113,11 @@ export const VariantMenu = ({
   const tone = toneFor(rule, teeHex);
   const styleName = (s: PortraitStyle) => t.tee.styles[s].name;
   const several = quotes.length > 1;
-  const tip = several
-    ? fill(t.tee.variantsTip, { n: quotes.length, finish: styleName(style) })
-    : `${t.tee.finish}: ${styleName(style)}`;
+  const length = lengths ? ` · ${t.tee.lengths[short ? 'short' : 'full'].name}` : '';
+  const tip =
+    (several
+      ? fill(t.tee.variantsTip, { n: quotes.length, finish: styleName(style) })
+      : `${t.tee.finish}: ${styleName(style)}`) + length;
 
   useEffect(() => {
     if (!open || sources?.person === person) return;
@@ -233,6 +245,39 @@ export const VariantMenu = ({
                   <span className="variant-text">
                     <span className="variant-name">{q.title}</span>
                     <span className="variant-note">{q.excerpt}</span>
+                  </span>
+                  <Check />
+                </button>
+              ))}
+            </div>
+          )}
+          {lengths && (
+            <div role="group" aria-label={t.tee.length} className="variant-group">
+              <p className="variant-heading">{t.tee.length}</p>
+              {(['full', 'short'] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={(v === 'short') === short}
+                  className="variant-option"
+                  tabIndex={-1}
+                  onMouseEnter={() => onPreview({ short: v === 'short', slug })}
+                  onFocus={() => onPreview({ short: v === 'short', slug })}
+                  onClick={() => {
+                    onPickShort(v === 'short');
+                    close(true);
+                  }}
+                >
+                  <span
+                    className="variant-art quote-art"
+                    style={{ background: teeHex }}
+                    // Design SVGs come from this repo (no scripts, see CLAUDE.md).
+                    dangerouslySetInnerHTML={{ __html: lengths[v] }}
+                  />
+                  <span className="variant-text">
+                    <span className="variant-name">{t.tee.lengths[v].name}</span>
+                    <span className="variant-note">{t.tee.lengths[v].note}</span>
                   </span>
                   <Check />
                 </button>

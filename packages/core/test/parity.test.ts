@@ -8,7 +8,8 @@ import { designSlugs, FAMILIES, read, ROOT } from './repo';
 /**
  * The generator must print the preset tees exactly as the Python pipeline
  * does: recolouring each canonical front for the white and black tees has to
- * reproduce the committed `{lang}.{white,black}.front.svg`. Comments, titles
+ * reproduce the committed `{lang}.{white,black}.front.svg` (and, for a design
+ * with a short variant, `{lang}.{white,black}.front.short.svg`). Comments, titles
  * and whitespace are ignored (altman-end-of-the-world's own builder words them
  * per tee); every element, attribute and colour must match.
  */
@@ -21,21 +22,23 @@ const normalise = (svg: string) =>
     .trim();
 const cases = designSlugs().flatMap((slug) =>
   (['es', 'en'] as const).flatMap((lang) =>
-    (['white', 'black'] as const)
-      .filter((tee) => existsSync(join(ROOT, `designs/${slug}/${lang}.${tee}.front.svg`)))
-      .map((tee) => ({ lang, slug, tee })),
+    (['front', 'front.short'] as const).flatMap((side) =>
+      (['white', 'black'] as const)
+        .filter((tee) => existsSync(join(ROOT, `designs/${slug}/${lang}.${tee}.${side}.svg`)))
+        .map((tee) => ({ lang, side, slug, tee })),
+    ),
   ),
 );
 
 describe('preset tees match the Python pipeline', () => {
-  it.each(cases)('$slug $lang $tee', ({ lang, slug, tee }) => {
-    const canonical = read(`designs/${slug}/${lang}.orange.front.svg`);
+  it.each(cases)('$slug $lang $side $tee', ({ lang, side, slug, tee }) => {
+    const canonical = read(`designs/${slug}/${lang}.orange.${side}.svg`);
     const family = lang === 'es' ? FAMILIES.es : FAMILIES.global;
     const out = recolourFront(canonical, tee === 'white' ? RULES.light : RULES.dark, {
       known: Object.values(FAMILIES),
       use: family,
     });
-    expect(normalise(out)).toBe(normalise(read(`designs/${slug}/${lang}.${tee}.front.svg`)));
+    expect(normalise(out)).toBe(normalise(read(`designs/${slug}/${lang}.${tee}.${side}.svg`)));
   });
 
   it('leaves the orange tee untouched', () => {

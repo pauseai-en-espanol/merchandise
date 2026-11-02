@@ -21,7 +21,9 @@ variants:
   on-light / on-dark brand files carry no #111111 (on-dark) and no
   class="accent", so the global swaps never corrupt them.
 
-Per-design builders call build(slug); see scripts/build-<slug>.py.
+Per-design builders call build(slug); see scripts/build-<slug>.py. A design's
+short variant ({lang}.orange.front.short.svg, scripts/draw-portrait-quotes.py)
+gets its {lang}.{white,black}.front.short.svg the same way.
 """
 import re
 from pathlib import Path
@@ -77,14 +79,18 @@ def variant(canonical, tee, lang):
 
 
 def build(slug):
+    """White and black fronts from each canonical: {lang}.orange.front.svg and,
+    when the design has one, the short variant {lang}.orange.front.short.svg."""
     design = ROOT / 'designs' / slug
     for lang in ('es', 'en'):
-        canon = design / f'{lang}.orange.front.svg'
-        if not canon.exists():
-            print(f'  (skip {lang}: {canon.name} not present)')
-            continue
-        src = canon.read_text()
-        for tee in ('white', 'black'):
-            out = design / f'{lang}.{tee}.front.svg'
-            out.write_text(variant(src, tee, lang))
-            print(f'  wrote {out.relative_to(ROOT)}')
+        for side in ('front', 'front.short'):
+            canon = design / f'{lang}.orange.{side}.svg'
+            if not canon.exists():
+                if side == 'front':
+                    print(f'  (skip {lang}: {canon.name} not present)')
+                continue
+            src = canon.read_text()
+            for tee in ('white', 'black'):
+                out = design / f'{lang}.{tee}.{side}.svg'
+                out.write_text(variant(src, tee, lang))
+                print(f'  wrote {out.relative_to(ROOT)}')

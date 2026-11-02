@@ -7,6 +7,9 @@ For each prints/<slug>/<lang>.<tee>.<side>.svg that exists, writes:
 
     mockups/<slug>/<lang>.<tee>.<side>.svg
 
+(<side> is front, back, or front.short for a design's short variant, which
+goes on the chest like the front.)
+
 …with the matching tee photo base64-embedded and the print inlined at the
 chest / back position. The print is already text-outlined by
 scripts/print-export.py, so the mockup shows *exactly* what goes to the
@@ -94,18 +97,19 @@ def main():
         for lang in ("es", "en"):
             lang_built = False
             for color in COLORS:
-                for side in ("front", "back"):
+                for side in ("front", "front.short", "back"):
                     src = print_dir / f"{lang}.{color}.{side}.svg"
                     if not src.exists():
                         continue
-                    tee = tee_path(color, side)
+                    photo_side = "back" if side == "back" else "front"
+                    tee = tee_path(color, photo_side)
                     if not tee.exists():
                         print(f"  skip {slug}/{lang}/{color}/{side}: "
                               f"{tee} missing", file=sys.stderr)
                         continue
                     out_dir.mkdir(parents=True, exist_ok=True)
                     vb, inner = print_inner(src.read_text())
-                    pos = CHEST if side == "front" else BACK
+                    pos = BACK if side == "back" else CHEST
                     tee_uri = data_uri(tee, "image/jpeg")
                     out = out_dir / f"{lang}.{color}.{side}.svg"
                     out.write_text(build_mockup(tee_uri, vb, inner, pos))

@@ -28,6 +28,11 @@ const es = {
       'En un color tan claro ni el naranja ni el blanco destacarían, así que todo se imprime en negro.',
     extraInk: '+1 tinta',
     finish: 'Acabado del retrato',
+    length: 'Versión',
+    lengths: {
+      full: { name: 'Cita completa', note: 'Para leer de cerca' },
+      short: { name: 'Frase corta', note: 'En grande: se lee de lejos' },
+    },
     portraitBy: 'dibujo de {by}',
     portraitDark:
       'En una camiseta oscura el retrato se imprime en negativo: las líneas salen claras y las sombras se leen como luces.',
@@ -122,6 +127,12 @@ const es = {
     },
     zip: 'Descargar todo (ZIP)',
   },
+  share: {
+    button: 'Copiar enlace a esta camiseta',
+    copied: 'Enlace copiado',
+    hint: 'Quien lo abra verá esta misma camiseta: diseño, color, logo, web y textos.',
+    manual: 'No se pudo copiar automáticamente. Copia el enlace:',
+  },
   preview: {
     back: 'Espalda',
     front: 'Pecho',
@@ -163,6 +174,11 @@ const en: Strings = {
       'On a colour this pale neither orange nor white would stand out, so everything prints black.',
     extraInk: '+1 ink',
     finish: 'Portrait finish',
+    length: 'Version',
+    lengths: {
+      full: { name: 'Full quote', note: 'To read up close' },
+      short: { name: 'Short line', note: 'Set large: reads from a distance' },
+    },
     portraitBy: 'drawn by {by}',
     portraitDark:
       'On a dark tee the portrait prints as a negative: the lines come out light and the shadows read as highlights.',
@@ -256,6 +272,12 @@ const en: Strings = {
       white: { name: 'White', use: 'One ink, on dark or coloured backgrounds and photos.' },
     },
     zip: 'Download all (ZIP)',
+  },
+  share: {
+    button: 'Copy a link to this tee',
+    copied: 'Link copied',
+    hint: 'Whoever opens it sees this same tee: design, colour, logo, website and text.',
+    manual: "Couldn't copy it automatically. Copy the link:",
   },
   preview: {
     back: 'Back',

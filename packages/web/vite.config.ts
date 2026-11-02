@@ -2,6 +2,8 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
+import { sharePages } from './scripts/share-pages';
+
 // Served from the root of its own subdomain. The designs, logos, fonts and tee
 // photos are read straight from the repo (../../designs, ../../brand,
 // ../../mockups), so the site always ships exactly what is committed.
@@ -23,5 +25,6 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react()],
+  // Share links (src/share.ts) get one page per design, with its own link preview.
+  plugins: [react(), sharePages(process.env.VITE_SITE_URL)],
 });

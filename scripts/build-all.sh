@@ -89,7 +89,7 @@ else
         mkdir -p "$out_dir"
         for lang in es en; do
             for color in orange white black; do
-                for side in front back; do
+                for side in front front.short back; do
                     svg="${mockup_dir}/${lang}.${color}.${side}.svg"
                     if [[ -f "$svg" ]]; then
                         qlmanage -t -s 1500 -o "$out_dir" "$svg" \

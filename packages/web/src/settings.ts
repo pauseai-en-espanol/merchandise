@@ -8,7 +8,16 @@ import {
   wordmarkFor,
 } from '@pauseai-es/merch-core';
 
-import { DESIGNS, FAMILIES, familyById, type Lang, LANGS, NATIVE_FAMILY } from './assets';
+import {
+  designBySlug,
+  DESIGNS,
+  FAMILIES,
+  familyById,
+  hasShort,
+  type Lang,
+  LANGS,
+  NATIVE_FAMILY,
+} from './assets';
 
 export type TeeChoice = 'custom' | PresetTee;
 
@@ -21,6 +30,8 @@ export interface Settings {
   lang: Lang;
   /** How portrait designs print their drawing (the other designs ignore it). */
   portraitStyle: PortraitStyle;
+  /** Print the short variant, where the design has one (the others ignore it). */
+  short: boolean;
   slug: string;
   teeChoice: TeeChoice;
   tracking: boolean;
@@ -35,6 +46,9 @@ export const teeOf = (s: Settings): Tee =>
     ? { hex: s.customHex, preset: null }
     : { hex: PRESET_TEES[s.teeChoice].hex, preset: s.teeChoice };
 
+/** Whether the tee prints the design's short variant: chosen, and the design has one. */
+export const isShort = (s: Settings): boolean => s.short && hasShort(designBySlug(s.slug), s.lang);
+
 export const defaultSettings = (lang: Lang): Settings => {
   const family = familyById(NATIVE_FAMILY[lang]);
   return {
@@ -43,6 +57,7 @@ export const defaultSettings = (lang: Lang): Settings => {
     familyId: family.id,
     lang,
     portraitStyle: 'lines',
+    short: false,
     slug: DESIGNS.find((d) => d.slug === 'ask-me')?.slug ?? DESIGNS[0]?.slug ?? '',
     teeChoice: 'orange',
     tracking: true,
@@ -92,6 +107,7 @@ export const restoreSettings = (saved: unknown, fallback: Settings): Settings =>
     portraitStyle: PORTRAIT_STYLES.includes(s.portraitStyle as PortraitStyle)
       ? (s.portraitStyle as PortraitStyle)
       : fallback.portraitStyle,
+    short: typeof s.short === 'boolean' ? s.short : fallback.short,
     slug: design.slug,
     teeChoice: TEE_CHOICES.includes(s.teeChoice as TeeChoice)
       ? (s.teeChoice as TeeChoice)

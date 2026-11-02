@@ -21,6 +21,7 @@ import {
   DESIGNS,
   FAMILIES,
   familyById,
+  hasShort,
   type Lang,
   loadFront,
   loadPortrait,
@@ -55,6 +56,9 @@ const excerptOf = (svg: string | undefined, max = 70): string => {
   return `${title.slice(0, title.lastIndexOf(' ', max))}…`;
 };
 
+/** Where a design's front is kept among the thumbnails: its own slug, or its short variant's. */
+const frontKey = (slug: string, short: boolean) => (short ? `${slug}:short` : slug);
+
 /** An open book: the design cites its sources. */
 const BookIcon = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -84,14 +88,17 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
     setHexDraft(settings.customHex);
   }
 
+  // Every design's front (and short variant) in the text language, keyed by frontKey.
   useEffect(() => {
     let alive = true;
     void Promise.all(
-      DESIGNS.map(async (d) => {
+      DESIGNS.flatMap((d) => {
         const lang = d.langs.includes(settings.lang)
           ? settings.lang
           : (d.langs[0] ?? settings.lang);
-        return [d.slug, await loadFront(d.slug, lang)] as const;
+        return [false, ...(hasShort(d, lang) ? [true] : [])].map(
+          async (short) => [frontKey(d.slug, short), await loadFront(d.slug, lang, short)] as const,
+        );
       }),
     ).then((entries) => {
       if (alive) setSources(Object.fromEntries(entries));
@@ -127,20 +134,23 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
     for (const d of DESIGNS) if (d.portrait) wantFinish(d.portrait.person, settings.portraitStyle);
   }, [settings.portraitStyle, wantFinish]);
 
-  /** Each portrait design's thumbnail in every finish loaded so far. */
+  /** Each portrait design's thumbnail (and short variant's) in every finish loaded so far. */
   const finishThumbs = useMemo(() => {
     const out: Record<string, Partial<Record<PortraitStyle, string>>> = {};
     for (const d of DESIGNS) {
-      const svg = sources[d.slug];
-      if (!d.portrait || !svg) continue;
-      for (const style of PORTRAIT_STYLES) {
-        const finish = finishSources[`${d.portrait.person}/${style}`];
-        if (!finish) continue;
-        const front = recolourFront(swapPortrait(svg, finish), rule, {
-          known: FAMILIES,
-          use: family,
-        });
-        (out[d.slug] ??= {})[style] = paintTone(front, rule, tee.hex);
+      if (!d.portrait) continue;
+      for (const key of [frontKey(d.slug, false), frontKey(d.slug, true)]) {
+        const svg = sources[key];
+        if (!svg) continue;
+        for (const style of PORTRAIT_STYLES) {
+          const finish = finishSources[`${d.portrait.person}/${style}`];
+          if (!finish) continue;
+          const front = recolourFront(swapPortrait(svg, finish), rule, {
+            known: FAMILIES,
+            use: family,
+          });
+          (out[key] ??= {})[style] = paintTone(front, rule, tee.hex);
+        }
       }
     }
     return out;
@@ -274,7 +284,11 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
               card.designs.find((v) => v.slug === mine?.slug) ?? chosenHere ?? card.designs[0];
             if (!d) return null;
             const style = d.portrait ? (mine?.style ?? settings.portraitStyle) : null;
-            const finishes = finishThumbs[d.slug] ?? {};
+            // The short variant shows where the design has one: chosen, or previewed.
+            const canShort = (slug: string) => frontKey(slug, true) in thumbs;
+            const shown = frontKey(d.slug, (mine?.short ?? settings.short) && canShort(d.slug));
+            const finishes = finishThumbs[shown] ?? {};
+            const quoteKey = (slug: string) => frontKey(slug, settings.short && canShort(slug));
             return (
               <div key={card.key} className="card" data-selected={!!chosenHere}>
                 <span
@@ -284,20 +298,23 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
                   aria-hidden="true"
                 >
                   <span className="zoom">
-                    {card.designs.map((v) => (
-                      <span
-                        key={v.slug}
-                        className="layer"
-                        data-shown={v.slug === d.slug}
-                        // Design SVGs come from this repo (no scripts, see CLAUDE.md).
-                        dangerouslySetInnerHTML={{ __html: thumbs[v.slug] ?? '' }}
-                      />
-                    ))}
+                    {card.designs
+                      .flatMap((v) => [frontKey(v.slug, false), frontKey(v.slug, true)])
+                      .filter((key) => key in thumbs)
+                      .map((key) => (
+                        <span
+                          key={key}
+                          className="layer"
+                          data-shown={key === shown}
+                          // Design SVGs come from this repo (no scripts, see CLAUDE.md).
+                          dangerouslySetInnerHTML={{ __html: thumbs[key] ?? '' }}
+                        />
+                      ))}
                     {PORTRAIT_STYLES.map(
                       (s) =>
                         finishes[s] && (
                           <span
-                            key={`${d.slug}/${s}`}
+                            key={`${shown}/${s}`}
                             className="layer finish"
                             data-shown={style === s}
                             dangerouslySetInnerHTML={{ __html: finishes[s] }}
@@ -324,14 +341,23 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
                       {d.portrait && (
                         <VariantMenu
                           by={d.portrait.by}
+                          lengths={
+                            canShort(d.slug)
+                              ? {
+                                  full: thumbs[frontKey(d.slug, false)] ?? '',
+                                  short: thumbs[frontKey(d.slug, true)] ?? '',
+                                }
+                              : undefined
+                          }
                           person={d.portrait.person}
                           quotes={card.designs.map((v) => ({
-                            art: thumbs[v.slug] ?? '',
-                            excerpt: excerptOf(sources[v.slug]),
+                            art: thumbs[quoteKey(v.slug)] ?? '',
+                            excerpt: excerptOf(sources[quoteKey(v.slug)]),
                             slug: v.slug,
                             title: v.title[ui],
                           }))}
                           rule={rule}
+                          short={settings.short && canShort(d.slug)}
                           slug={d.slug}
                           style={settings.portraitStyle}
                           t={t}
@@ -341,6 +367,11 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
                             setPreview(p ? { ...p, card: card.key } : null);
                           }}
                           onPickQuote={(slug) => chooseDesign(slug, settings.lang)}
+                          onPickShort={(short) => {
+                            if (d.slug !== settings.slug) chooseDesign(d.slug, settings.lang);
+                            // The two versions have different text lines: start the text over.
+                            if (short !== settings.short) update({ edits: {}, short });
+                          }}
                           onPickStyle={(s) => {
                             if (d.slug !== settings.slug) chooseDesign(d.slug, settings.lang);
                             update({ portraitStyle: s });

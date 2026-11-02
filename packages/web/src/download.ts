@@ -11,7 +11,7 @@ import {
 } from './assets';
 import { STRINGS } from './i18n';
 import { mockupJpeg, printPng } from './raster';
-import { type Settings, teeOf } from './settings';
+import { isShort, type Settings, teeOf } from './settings';
 
 const SHEET = {
   en: {
@@ -148,8 +148,9 @@ const bytes = async (blob: Blob) => new Uint8Array(await blob.arrayBuffer());
 
 export const zipName = (settings: Settings): string => {
   const tee = teeOf(settings);
+  const short = isShort(settings) ? '-short' : '';
   const style = designBySlug(settings.slug).portrait ? `-${settings.portraitStyle}` : '';
-  return `pauseai-${settings.slug}-${settings.lang}-${tee.preset ?? tee.hex.slice(1).toLowerCase()}${style}`;
+  return `pauseai-${settings.slug}${short}-${settings.lang}-${tee.preset ?? tee.hex.slice(1).toLowerCase()}${style}`;
 };
 
 /** Build the ZIP with print files, PNGs, mockups and the print sheet. */
