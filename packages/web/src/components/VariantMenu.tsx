@@ -61,8 +61,11 @@ export interface QuoteVariant {
 
 interface Props {
   by: string;
-  /** The design in both versions (fronts recoloured for the tee), when it has a short one. */
-  lengths?: { full: string; short: string };
+  /**
+   * The full and short versions (fronts recoloured for the tee), when one of
+   * the person's designs has a short variant: `shortSlug`.
+   */
+  lengths?: { full: string; short: string; shortSlug: string };
   onPickQuote: (slug: string) => void;
   onPickShort: (short: boolean) => void;
   onPickStyle: (style: PortraitStyle) => void;
@@ -71,7 +74,7 @@ interface Props {
   /** Every design of this person; the Quote section shows when there is more than one. */
   quotes: QuoteVariant[];
   rule: ColourRule;
-  /** Whether the card shows the short version. */
+  /** Whether the card's design prints its short version. */
   short: boolean;
   /** The variant the card shows. */
   slug: string;
@@ -262,8 +265,20 @@ export const VariantMenu = ({
                   aria-checked={(v === 'short') === short}
                   className="variant-option"
                   tabIndex={-1}
-                  onMouseEnter={() => onPreview({ short: v === 'short', slug })}
-                  onFocus={() => onPreview({ short: v === 'short', slug })}
+                  onMouseEnter={() =>
+                    onPreview(
+                      v === 'short'
+                        ? { short: true, slug: lengths.shortSlug }
+                        : { short: false, slug },
+                    )
+                  }
+                  onFocus={() =>
+                    onPreview(
+                      v === 'short'
+                        ? { short: true, slug: lengths.shortSlug }
+                        : { short: false, slug },
+                    )
+                  }
                   onClick={() => {
                     onPickShort(v === 'short');
                     close(true);

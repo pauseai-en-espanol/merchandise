@@ -27,7 +27,7 @@ IMAGE_INPUTS=(
   ':(glob)illustrations/portraits/*/lines.svg' ':(glob)illustrations/portraits/*/halftone.svg'
   ':(glob)illustrations/portraits/*/tone.svg'
   ':(glob)mockups/tshirt-*.jpg'
-  ':(glob)renders/*/*.orange.front.jpg' ':(glob)renders/*/*.orange.front.short.jpg'
+  ':(glob)renders/*/*.front.jpg' ':(glob)renders/*/*.front.short.jpg'
 )
 
 # After a force push the previous tip is on no branch, so the clone lacks it; GitHub still serves it by SHA.

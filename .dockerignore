@@ -6,8 +6,8 @@
 .claude
 prints
 renders/*/*
-!renders/*/*.orange.front.jpg
-!renders/*/*.orange.front.short.jpg
+!renders/*/*.front.jpg
+!renders/*/*.front.short.jpg
 illustrations/portraits/originals
 mockups/*
 !mockups/tshirt-*.jpg

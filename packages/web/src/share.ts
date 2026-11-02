@@ -1,21 +1,30 @@
-import { PRESET_TEES, type PresetTee, wordmarkFor } from '@pauseai-es/merch-core';
+import {
+  PRESET_TEES,
+  type PresetTee,
+  ruleFor,
+  type RuleKey,
+  wordmarkFor,
+} from '@pauseai-es/merch-core';
 
 import { designBySlug, familyById, type Lang, LANGS, NATIVE_FAMILY } from './assets';
 import { LANG_PATH } from './i18n';
-import { isShort, type Settings } from './settings';
+import { isShort, type Settings, teeOf } from './settings';
 
 /**
  * Share links: the exact tee someone is designing, in a URL.
  *
- * The design goes in the path, /d/<slug>/ (/d/<slug>/short/ for its short
- * variant; under /en/ on the English page), because link previews are read
- * from the page's HTML without running it: the build writes one page per
- * design with its own title and tee render as the preview image (see
- * scripts/share-pages.ts). Everything else goes in the query, only where it
- * differs from what the design starts with:
+ *   /d/<slug>/<lang>-<tee>[-short]/?<the rest>     (under /en/ on the English page)
  *
- *   lang      text language (always)
- *   tee       orange, white or black, or a custom colour as six hex digits
+ * Link previews are read from the page's HTML without running it, so what a
+ * preview can show goes in the path: the design, its text language, the tee
+ * colour and whether it's the short variant. The build writes a page for each
+ * of those, with the matching tee render as its preview image
+ * (scripts/share-pages.ts). A custom colour has no render, so the path names
+ * the preset tee printed with the same inks (see PREVIEW_TEE) and the colour
+ * itself goes in the query. So does everything else, only where it differs
+ * from what the design starts with:
+ *
+ *   tee       a custom colour, as six hex digits
  *   finish    portrait finish (halftone, tone)
  *   logo      logo family, when it isn't the text language's own
  *   url       the address the QR opens, when it isn't the logo family's site
@@ -23,19 +32,37 @@ import { isShort, type Settings } from './settings';
  *   utm=0     no campaign tracking in the QR
  *   t<n>      edited text line n (the editor's markup)
  *
- * Opening a link applies it (checked like stored settings) and moves the
- * address back to the plain page.
+ * The address bar follows the tee as it's designed (App), so it always is
+ * this link; opening one applies it (checked like stored settings). Links
+ * from before the colour moved into the path (/d/<slug>/[short/]?lang=…&tee=…)
+ * still open; their preview is the orange tee.
  */
 
-const SHARE_PATH = /^(?:\/en)?\/d\/([a-z0-9-]+)\/(short\/)?$/;
+const SHARE_PATH =
+  /^(?:\/en)?\/d\/([a-z0-9-]+)\/(?:(short)\/|(es|en)-(orange|white|black)(-short)?\/)?$/;
 
 const EDIT_PARAM = /^t(\d+)$/;
 
-export const shareUrl = (s: Settings, ui: Lang, origin: string): string => {
-  const q = new URLSearchParams({ lang: s.lang });
-  q.set('tee', s.teeChoice === 'custom' ? s.customHex.slice(1).toLowerCase() : s.teeChoice);
-  if (designBySlug(s.slug).portrait && s.portraitStyle !== 'lines')
+/** The preset tee that previews a custom colour: the one printed with the same inks. */
+const PREVIEW_TEE: Record<RuleKey, PresetTee> = {
+  dark: 'black',
+  // Pale tees print all in ink: no preset does, white is the nearest.
+  ink: 'white',
+  light: 'white',
+  mid: 'orange',
+};
+
+/** The tee a share link's preview shows. */
+export const previewTee = (s: Settings): PresetTee =>
+  s.teeChoice === 'custom' ? PREVIEW_TEE[ruleFor(teeOf(s)).key] : s.teeChoice;
+
+/** The share link's path and query, on the page of interface language `ui`. */
+export const sharePath = (s: Settings, ui: Lang): string => {
+  const q = new URLSearchParams();
+  if (s.teeChoice === 'custom') q.set('tee', s.customHex.slice(1).toLowerCase());
+  if (designBySlug(s.slug).portrait && s.portraitStyle !== 'lines') {
     q.set('finish', s.portraitStyle);
+  }
   if (s.familyId !== NATIVE_FAMILY[s.lang]) q.set('logo', s.familyId);
   if (s.url !== familyById(s.familyId).url) q.set('url', s.url);
   if (s.wordmarkEdited) q.set('wordmark', s.wordmark);
@@ -45,11 +72,13 @@ export const shareUrl = (s: Settings, ui: Lang, origin: string): string => {
   )) {
     q.set(`t${index}`, markup);
   }
-  return `${origin}${LANG_PATH[ui]}d/${s.slug}/${isShort(s) ? 'short/' : ''}?${q}`;
+  const preview = `${s.lang}-${previewTee(s)}${isShort(s) ? '-short' : ''}`;
+  const query = q.toString();
+  return `${LANG_PATH[ui]}d/${s.slug}/${preview}/${query ? `?${query}` : ''}`;
 };
 
-/** Whether this address is a share link. */
-export const isShareLink = (pathname: string): boolean => SHARE_PATH.test(pathname);
+export const shareUrl = (s: Settings, ui: Lang, origin: string): string =>
+  origin + sharePath(s, ui);
 
 /**
  * The settings a share link describes, unchecked (pass them to
@@ -58,9 +87,10 @@ export const isShareLink = (pathname: string): boolean => SHARE_PATH.test(pathna
 export const readShareLink = (pathname: string, search: string): null | Record<string, unknown> => {
   const m = SHARE_PATH.exec(pathname);
   if (!m) return null;
+  const [, slug, oldShort, pathLang, pathTee, pathShort] = m;
   const q = new URLSearchParams(search);
-  const lang = LANGS.find((l) => l === q.get('lang'));
-  const tee = q.get('tee') ?? 'orange';
+  const lang = LANGS.find((l) => l === (pathLang ?? q.get('lang')));
+  const tee = q.get('tee') ?? pathTee ?? 'orange';
   const preset = Object.hasOwn(PRESET_TEES, tee);
   const familyId = q.get('logo') ?? NATIVE_FAMILY[lang ?? 'es'];
   const url = q.get('url') ?? familyById(familyId).url;
@@ -76,8 +106,8 @@ export const readShareLink = (pathname: string, search: string): null | Record<s
     familyId,
     lang,
     portraitStyle: q.get('finish') ?? 'lines',
-    short: m[2] !== undefined,
-    slug: m[1],
+    short: oldShort !== undefined || pathShort !== undefined,
+    slug,
     teeChoice: preset ? (tee as PresetTee) : 'custom',
     tracking: q.get('utm') !== '0',
     url,

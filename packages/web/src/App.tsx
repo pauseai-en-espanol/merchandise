@@ -36,7 +36,7 @@ import { ShareLink } from './components/ShareLink';
 import { TeeStep } from './components/TeeStep';
 import { TextStep } from './components/TextStep';
 import { ThemeToggle } from './components/ThemeToggle';
-import { browserLang, initialUiLang, LANG_PATH, pathLang, STRINGS } from './i18n';
+import { browserLang, initialUiLang, pathLang, STRINGS } from './i18n';
 import {
   defaultSettings,
   isShort,
@@ -45,7 +45,7 @@ import {
   type Settings,
   teeOf,
 } from './settings';
-import { isShareLink, readShareLink } from './share';
+import { readShareLink, sharePath } from './share';
 import { clearSaved, loadSaved, save, type Theme, THEMES } from './storage';
 
 export type Update = (patch: Partial<Settings>) => void;
@@ -90,8 +90,8 @@ const safeRender = (
 
 export const App = () => {
   // The page (/ or /en/) sets the interface language; a first visit at / follows
-  // the browser. Everything else the visitor chose is restored from storage,
-  // unless they opened a share link (read before anything moves the address).
+  // the browser. The tee comes from the address when it's a share link (read
+  // before anything moves the address), or else from storage.
   const [saved] = useState(loadSaved);
   const [shared] = useState(() => readShareLink(location.pathname, location.search));
   const [ui, setUiState] = useState<Lang>(() => initialUiLang(saved.ui));
@@ -101,25 +101,38 @@ export const App = () => {
     return shared ? restoreSettings(shared, own) : own;
   });
 
-  // A share link has done its job once applied: back to the plain page.
-  useEffect(() => {
-    if (isShareLink(location.pathname)) {
-      history.replaceState(null, '', LANG_PATH[pathLang()] + location.hash);
-    }
-  }, []);
-
   /** Switch language and move to that language's page (no reload). */
-  const setUi = useCallback((lang: Lang) => {
-    setUiState(lang);
-    if (pathLang() !== lang) history.pushState(null, '', LANG_PATH[lang] + location.hash);
-  }, []);
+  const setUi = useCallback(
+    (lang: Lang) => {
+      setUiState(lang);
+      if (pathLang() !== lang)
+        history.pushState(null, '', sharePath(settings, lang) + location.hash);
+    },
+    [settings],
+  );
 
   const [view, setView] = useState<View>(viewOf);
+  /** Bumped by Back and Forward, so the address catches up with the tee again. */
+  const [navigated, setNavigated] = useState(0);
+
+  // The address is the tee being designed, as a share link (share.ts): it
+  // follows every choice. Replaced, not pushed, so Back still leaves the page;
+  // and a moment later, so typing doesn't flood the history API.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const next = sharePath(settings, ui) + location.hash;
+      if (next !== location.pathname + location.search + location.hash) {
+        history.replaceState(null, '', next);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [settings, ui, navigated]);
 
   useEffect(() => {
     const onPop = () => {
       setUiState(pathLang());
       setView(viewOf());
+      setNavigated((n) => n + 1);
     };
     window.addEventListener('popstate', onPop);
     window.addEventListener('hashchange', onPop);
@@ -130,7 +143,7 @@ export const App = () => {
   }, []);
 
   const closeLogos = () => {
-    history.pushState(null, '', location.pathname);
+    history.pushState(null, '', location.pathname + location.search);
     setView('generator');
     window.scrollTo({ top: 0 });
   };

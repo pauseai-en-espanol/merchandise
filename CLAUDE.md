@@ -185,15 +185,17 @@ families as SVG or 2400 px PNG, one by one or as a ZIP per family with a
 short usage note (`packages/web/src/brandLogos.ts`). It loads on demand, so
 the generator's bundle carries only the logos it prints.
 
-Under the preview, *Copy a link to this tee* shares the exact tee: the
-design in the path (`/d/<slug>/`, `/d/<slug>/short/`; under `/en/` for the
-English page) and everything else in the query (`packages/web/src/share.ts`;
-opening one applies it and returns to the plain page). Link previews don't
-run the app, so the build writes one page per design with its title, its
-quote and its orange-tee render (from `renders/`) as the preview image
-(`packages/web/scripts/share-pages.ts`; the Docker build copies those
-renders). A custom colour, edited text or the portrait finish show on the
-page, not in the preview.
+The address bar is always a share link to the exact tee being designed
+(*Copy a link to this tee*, under the preview, copies it):
+`/d/<slug>/<lang>-<tee>[-short]/?<the rest>`, under `/en/` for the English
+page (`packages/web/src/share.ts`). What a link preview can show is in the
+path: the design, its text language, the tee colour (for a custom colour,
+the preset printed with the same inks) and the short variant. Link
+previews don't run the app, so the build writes a page for each of those
+with its title, its quote and the matching tee render from `renders/` as
+the preview image (`packages/web/scripts/share-pages.ts`; the Docker build
+copies the front renders). The custom colour, edited text and portrait
+finish travel in the query and show once the page opens.
 
 The site has one page per language: Spanish at `/`, English at `/en/`
 (`packages/web/index.html`, `packages/web/en/index.html`), each with its own

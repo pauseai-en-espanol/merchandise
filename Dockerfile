@@ -31,7 +31,8 @@ COPY designs ./designs
 COPY brand ./brand
 COPY illustrations/portraits ./illustrations/portraits
 COPY mockups/tshirt-*.jpg ./mockups/
-# Orange-tee renders: the link previews of the share pages (packages/web/scripts/share-pages.ts).
+# Front renders on the three tees: the link previews of the share pages
+# (packages/web/scripts/share-pages.ts).
 COPY renders ./renders
 
 # Public address of the site, for absolute links in the social preview tags.

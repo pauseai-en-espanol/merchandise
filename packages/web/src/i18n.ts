@@ -130,7 +130,7 @@ const es = {
   share: {
     button: 'Copiar enlace a esta camiseta',
     copied: 'Enlace copiado',
-    hint: 'Quien lo abra verá esta misma camiseta: diseño, color, logo, web y textos.',
+    hint: 'La dirección de la página ya es este enlace: quien lo abra verá esta misma camiseta (diseño, color, logo, web y textos).',
     manual: 'No se pudo copiar automáticamente. Copia el enlace:',
   },
   preview: {
@@ -276,7 +276,7 @@ const en: Strings = {
   share: {
     button: 'Copy a link to this tee',
     copied: 'Link copied',
-    hint: 'Whoever opens it sees this same tee: design, colour, logo, website and text.',
+    hint: "This page's address already is the link: whoever opens it sees this same tee (design, colour, logo, website and text).",
     manual: "Couldn't copy it automatically. Copy the link:",
   },
   preview: {

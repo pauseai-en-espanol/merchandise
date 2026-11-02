@@ -289,6 +289,10 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
             const shown = frontKey(d.slug, (mine?.short ?? settings.short) && canShort(d.slug));
             const finishes = finishThumbs[shown] ?? {};
             const quoteKey = (slug: string) => frontKey(slug, settings.short && canShort(slug));
+            // The person's short line: whichever of their designs has one. It doesn't
+            // follow what the menu previews, so the Version section stays put while
+            // the pointer crosses quotes without one.
+            const shortOf = card.designs.find((v) => canShort(v.slug));
             return (
               <div key={card.key} className="card" data-selected={!!chosenHere}>
                 <span
@@ -342,10 +346,11 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
                         <VariantMenu
                           by={d.portrait.by}
                           lengths={
-                            canShort(d.slug)
+                            shortOf
                               ? {
                                   full: thumbs[frontKey(d.slug, false)] ?? '',
-                                  short: thumbs[frontKey(d.slug, true)] ?? '',
+                                  short: thumbs[frontKey(shortOf.slug, true)] ?? '',
+                                  shortSlug: shortOf.slug,
                                 }
                               : undefined
                           }
@@ -368,7 +373,9 @@ export const TeeStep = ({ chooseDesign, fonts, settings, t, ui, update }: Props)
                           }}
                           onPickQuote={(slug) => chooseDesign(slug, settings.lang)}
                           onPickShort={(short) => {
-                            if (d.slug !== settings.slug) chooseDesign(d.slug, settings.lang);
+                            // The short line belongs to one quote: picking it picks that quote.
+                            const slug = short && shortOf ? shortOf.slug : d.slug;
+                            if (slug !== settings.slug) chooseDesign(slug, settings.lang);
                             // The two versions have different text lines: start the text over.
                             if (short !== settings.short) update({ edits: {}, short });
                           }}
