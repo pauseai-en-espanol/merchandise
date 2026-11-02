@@ -1,5 +1,11 @@
 # @pauseai-es/merch-web
 
+## 1.6.2
+
+### Patch Changes
+
+- 306118d: Share links from the English page point their link preview at the right address (it was under /en/, which 404s).
+
 ## 1.6.1
 
 ### Patch Changes
