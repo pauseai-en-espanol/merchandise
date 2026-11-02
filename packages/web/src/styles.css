@@ -624,51 +624,10 @@ input.hex {
     0 0 0 4px var(--pressed-ring);
 }
 
-.card .art .zoom,
-.card .art .layer {
-  position: absolute;
-  inset: 0;
-}
-
 .card .art svg {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-/* A person's quotes crossfade on the card. */
-.card .art .layer {
-  transition: opacity 0.3s ease;
-}
-
-.card .art .layer[data-shown='false'] {
-  opacity: 0;
-}
-
-/* The portrait-quote layout's face (portrait on the left, see
-   scripts/draw-portrait-quotes.py): previewing a finish zooms in on it. One
-   wrapper zooms, so a finish that loads mid-zoom stays in register. Only
-   where there is a pointer that hovers: on touch, the finish just wipes in. */
-.card .art .zoom {
-  transform-origin: 26% 64%;
-  transition: transform 0.45s ease;
-}
-
-@media (hover: hover) {
-  .card .art[data-zoom='true'] .zoom {
-    transform: scale(2.4);
-  }
-}
-
-/* A portrait finish wipes in across the drawing, over the authored lines. */
-.card .art .layer.finish {
-  opacity: 1;
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 0.45s ease;
-}
-
-.card .art .layer.finish[data-shown='true'] {
-  clip-path: inset(0);
 }
 
 /* Tools left of the title; on a narrow card the title wraps below them. */
@@ -691,10 +650,6 @@ input.hex {
   gap: 6px;
   align-items: center;
   flex: none;
-}
-
-.card:has(.variant-menu) {
-  z-index: 5;
 }
 
 /* Small round tools with a tooltip */
@@ -757,199 +712,149 @@ input.hex {
   transition-delay: 0.25s;
 }
 
-/* The variant control: the finish swatches as a fanned stack, the chosen
-   one in front; it fans out under the pointer. */
-.variants {
-  position: relative;
-}
-
-.variant-trigger {
-  padding-inline: 2px;
-}
-
-.coin {
+/* A card's options line: how many quotes, whether there's a short version. */
+.thumb-meta {
   display: block;
-  width: 22px;
-  height: 22px;
-  padding: 3px;
-  border: 1px solid rgb(0 0 0 / 18%);
-  border-radius: 999px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 18%);
-  transition: margin 0.2s ease;
-}
-
-.coin + .coin {
-  margin-left: -16px;
-}
-
-.variant-trigger:hover .coin + .coin,
-.variant-trigger[aria-expanded='true'] .coin + .coin {
-  margin-left: -6px;
-}
-
-.coin svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.variant-count {
-  position: absolute;
-  top: -5px;
-  right: -7px;
-  min-width: 16px;
-  height: 16px;
-  padding-inline: 4px;
-  border-radius: 999px;
-  background: var(--fg);
-  color: var(--surface);
-  font-size: 0.65rem;
-  font-weight: 700;
-  line-height: 16px;
-  text-align: center;
-}
-
-.variant-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  z-index: 20;
-  display: grid;
-  gap: 4px;
-  width: min(290px, calc(100vw - 32px));
-  padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
-  box-shadow: 0 12px 32px rgb(0 0 0 / 22%);
-  animation: menu-in 0.16s ease;
-}
-
-@keyframes menu-in {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-}
-
-.variant-group {
-  display: grid;
-  gap: 2px;
-}
-
-.variant-group + .variant-group {
-  margin-top: 4px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
-}
-
-.variant-heading {
-  margin: 0 0 2px;
-  padding-inline: 6px;
+  margin-top: 2px;
   color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.variant-heading span {
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.variant-option {
-  display: grid;
-  grid-template-columns: 46px 1fr 18px;
-  gap: 10px;
-  align-items: center;
-  padding: 5px 6px;
-  border: 0;
-  border-radius: 10px;
-  background: none;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-
-.variant-option:hover,
-.variant-option:focus-visible {
-  outline: none;
-  background: var(--notice-bg);
-}
-
-.variant-art {
-  display: block;
-  width: 46px;
-  height: 46px;
-  overflow: hidden;
-  border: 1px solid rgb(0 0 0 / 12%);
-}
-
-.variant-art.quote-art {
-  border-radius: 8px;
-}
-
-.variant-art.face-art {
-  border-radius: 999px;
-}
-
-.variant-art svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.variant-text {
-  display: grid;
-  gap: 1px;
-  min-width: 0;
-}
-
-.variant-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.variant-note {
-  color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   line-height: 1.25;
 }
 
-.variant-note strong {
+/* The chosen design's options (step 2): radio buttons drawn as cards, every
+   choice in view with a picture of what it prints. Rows for the quotes,
+   tiles for the version and the finish. */
+.options {
+  display: grid;
+  gap: 10px;
+}
+
+.options.tiles {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+@media (max-width: 600px) {
+  .options.tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .options.tiles .option {
+    padding: 8px;
+  }
+}
+
+.option {
+  position: relative;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.options.tiles .option {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+}
+
+/* The radio itself stays in the page for keyboards and screen readers. */
+.option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+.option:hover {
+  border-color: var(--muted);
+}
+
+.option:has(input:checked) {
+  border-color: var(--pressed-ring);
+  box-shadow: inset 0 0 0 1px var(--pressed-ring);
+}
+
+.option:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.option-art {
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid rgb(0 0 0 / 12%);
+  border-radius: 8px;
+}
+
+.option-art.face {
+  border-radius: 999px;
+}
+
+.option-art svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.option-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding-right: 22px;
+}
+
+.option-name {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.option-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.option-note strong {
   color: var(--fg);
   font-weight: 600;
 }
 
-.variant-check {
-  width: 18px;
-  height: 18px;
+.option-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--pressed-ring);
   fill: none;
-  stroke: var(--fg);
-  stroke-width: 2.4;
+  stroke: var(--surface);
+  stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
   opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.variant-option[aria-checked='true'] .variant-check {
+.option:has(input:checked) .option-check {
   opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .card .art,
-  .card .art .layer,
-  .card .art .zoom,
-  .coin,
+  .option,
+  .option-check,
   [data-tip]::after {
     transition: none;
-  }
-
-  .variant-menu {
-    animation: none;
   }
 }
 

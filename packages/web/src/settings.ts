@@ -30,7 +30,7 @@ export interface Settings {
   lang: Lang;
   /** How portrait designs print their drawing (the other designs ignore it). */
   portraitStyle: PortraitStyle;
-  /** Print the short variant, where the design has one (the others ignore it). */
+  /** Print the design's short variant, if it has one; picking another design resets it. */
   short: boolean;
   slug: string;
   teeChoice: TeeChoice;

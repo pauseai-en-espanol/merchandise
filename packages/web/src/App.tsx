@@ -30,10 +30,11 @@ import {
   REPO_URL,
 } from './assets';
 import { ChapterStep } from './components/ChapterStep';
+import { DesignStep } from './components/DesignStep';
 import { DownloadStep } from './components/DownloadStep';
+import { OptionsStep } from './components/OptionsStep';
 import { Preview } from './components/Preview';
 import { ShareLink } from './components/ShareLink';
-import { TeeStep } from './components/TeeStep';
 import { TextStep } from './components/TextStep';
 import { ThemeToggle } from './components/ThemeToggle';
 import { browserLang, initialUiLang, pathLang, STRINGS } from './i18n';
@@ -248,7 +249,9 @@ export const App = () => {
     setSettings((s) => {
       const design = designBySlug(slug);
       const nextLang = design.langs.includes(lang) ? lang : (design.langs[0] ?? lang);
-      const next: Settings = { ...s, edits: {}, lang: nextLang, slug };
+      // The short version is one design's option: another design starts full.
+      const short = slug === s.slug && s.short;
+      const next: Settings = { ...s, edits: {}, lang: nextLang, short, slug };
       if (nextLang !== s.lang && s.familyId === NATIVE_FAMILY[s.lang]) {
         const family = familyById(NATIVE_FAMILY[nextLang]);
         next.familyId = family.id;
@@ -348,19 +351,27 @@ export const App = () => {
           <main ref={workspace} className="workspace">
             <section className="controls" aria-label={steps[step]}>
               {step === 0 && (
-                <TeeStep
+                <DesignStep
                   chooseDesign={chooseDesign}
                   fonts={fonts}
+                  settings={settings}
+                  t={t}
+                  ui={ui}
+                />
+              )}
+              {step === 1 && (
+                <OptionsStep
+                  chooseDesign={chooseDesign}
                   settings={settings}
                   t={t}
                   ui={ui}
                   update={update}
                 />
               )}
-              {step === 1 && (
+              {step === 2 && (
                 <ChapterStep rendered={rendered} settings={settings} t={t} update={update} />
               )}
-              {step === 2 && current && fonts && (
+              {step === 3 && current && fonts && (
                 <TextStep
                   canonical={current}
                   design={design}
@@ -370,7 +381,7 @@ export const App = () => {
                   update={update}
                 />
               )}
-              {step === 3 && current && (
+              {step === 4 && current && (
                 <DownloadStep
                   canonical={current}
                   design={design}

@@ -156,16 +156,17 @@ What the site reads, straight from the repo at build time:
   (five portrait designs have one, from `scripts/draw-portrait-quotes.py`).
   The pipeline treats it as one more front (`*.front.short.*` in designs/,
   prints/, mockups/ and renders/; the parity test covers it), and the
-  site offers it on the card as *Version: full quote / short line*. Its
-  README section says how the short line relates to the sources;
+  site offers it in step 2 (*Colour and options*) as *Version: full quote /
+  short line*, only for that design. Its README section says how the short
+  line relates to the sources;
 - `designs/<slug>/design.json`: title per language, voice lane, whether the
   text is sourced (quotes or data; the site warns translators), the
   `utmSource` (also read by `build-qr.py`), and optionally a `portrait`
   (`{ "person", "by", "order" }`). A portrait design offers its drawing in
   each style (lines, halftone, tone) and needs a `<g id="portrait">` slot in
-  its front. Designs of the same person share one gallery card, as its
-  quotes (lowest `order` first); a new quote of someone with a portrait is
-  a new design folder, not a new card;
+  its front. Designs of the same person share one gallery card (lowest
+  `order` first), and step 2 offers them as its quotes; a new quote of
+  someone with a portrait is a new design folder, not a new card;
 - `illustrations/portraits/<person>/{lines,halftone,tone}.svg`, loaded on
   demand by portrait designs;
 - `brand/logos/`, `brand/fonts/files/`, `mockups/tshirt-*.jpg`. The back's

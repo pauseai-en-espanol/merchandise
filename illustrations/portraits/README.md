@@ -47,23 +47,24 @@ prints it in a `<g id="portrait">` slot, authored with `lines.svg` (see
 `scripts/draw-portrait-quotes.py`, which lays out every portrait-quote tee).
 The repo's own prints and mockups use that line version.
 
-On the web generator, all the designs of one person share a card, which
-shows the one with the lowest `order` (0 when omitted) first. Next to the
-title, a fanned stack of finish swatches (with the number of quotes, when
-there are several) opens a menu with up to three sections:
+On the web generator, all the designs of one person share one card in the
+catalogue (step 1), which shows the one with the lowest `order` (0 when
+omitted) first, and says how many quotes there are and whether one has a
+short version. Picking the card picks the design; its options are in step 2
+(*Colour and options*), all in view as radio cards with a picture of what
+each prints, and each group only where it applies:
 
 - **Quote**: each design of that person, with a thumbnail and the start of
   the quote;
-- **Version**, where the design has a short variant: the full quote, or one
-  short line set large to read from a distance (`{lang}.orange.front.short.svg`);
-- **Finish**: the face in **lines**, **halftone** and **tone**, on the
-  chosen tee.
+- **Version**, only when the chosen quote has a short variant: the full
+  quote, or one short line set large to read from a distance
+  (`{lang}.orange.front.short.svg`). Picking another quote or design starts
+  it full again;
+- **Portrait finish**: the face up close in **lines**, **halftone** and
+  **tone**, on the chosen tee.
 
-Hovering or focusing an option previews it on the card: a quote crossfades
-in, and a finish wipes across the face while the card zooms in on it (only
-where the pointer can hover; on touch screens there's no zoom). Choosing an
-option picks it. The generator swaps the chosen file into the slot
-(`packages/core/src/portrait.ts`):
+Every choice shows at once in the preview. For the finish, the generator
+swaps the chosen file into the slot (`packages/core/src/portrait.ts`):
 
 - lines and dots are body ink, so they follow the tee's colour rule like
   any other body element (white on dark tees);
