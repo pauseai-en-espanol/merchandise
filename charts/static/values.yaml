@@ -5,7 +5,7 @@ replicaCount: 1
 image:
   repository: pauseai-es-merchandise-static
   # <version>.<short sha>; "latest" until the first release.
-  tag: 1.3.1.4d3ccf8
+  tag: 1.4.0.b921ada
   pullPolicy: IfNotPresent
 service:
   type: ClusterIP
