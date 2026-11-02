@@ -1,5 +1,13 @@
 # @pauseai-es/merch-web
 
+## 1.6.1
+
+### Patch Changes
+
+- 01701e6: The preview server starts on x86-64: its image now has libatomic, which Node needs there.
+- ef97686: The Text step points to a quote's short version when it has one, and warns when lines are emptied: the other lines
+  keep their size, so shortening a quote by hand leaves it small. "Use the short line" switches to the short version.
+
 ## 1.6.0
 
 ### Minor Changes
