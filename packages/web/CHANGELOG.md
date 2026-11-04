@@ -1,5 +1,13 @@
 # @pauseai-es/merch-web
 
+## 1.6.3
+
+### Patch Changes
+
+- d012d70: Dependencies bump
+- Updated dependencies [d012d70]
+  - @pauseai-es/merch-core@1.2.1
+
 ## 1.6.2
 
 ### Patch Changes

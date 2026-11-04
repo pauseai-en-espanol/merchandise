@@ -1,5 +1,11 @@
 # @pauseai-es/merch-core
 
+## 1.2.1
+
+### Patch Changes
+
+- d012d70: Dependencies bump
+
 ## 1.2.0
 
 ### Minor Changes

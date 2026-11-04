@@ -2,7 +2,7 @@
   "name": "@pauseai-es/merch-preview",
   "type": "module",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Link previews for share links: a small server that draws the exact tee a link describes, next to the site's nginx",
   "scripts": {
     "build": "vite build",
