@@ -24,7 +24,7 @@ The site in `packages/` needs Node 26 and pnpm 12 (the versions are pinned
 in `.nvmrc` and `package.json`; pnpm downloads its pinned version itself).
 
 ```sh
-nvm use               # Node 26.10
+nvm use               # Node 26.13
 pnpm install          # also installs the husky pre-commit hook
 pnpm dev              # http://localhost:5173
 pnpm check            # lint, typecheck, tests, prettier
