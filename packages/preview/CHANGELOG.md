@@ -1,5 +1,11 @@
 # @pauseai-es/merch-preview
 
+## 1.0.3
+
+### Patch Changes
+
+- 8c71e3a: Dependencies bump
+
 ## 1.0.2
 
 ### Patch Changes
